@@ -1,0 +1,124 @@
+.jr {
+  position: relative;
+  display: grid;
+  gap: 40px;
+  padding-inline-start: 34px;
+}
+/* The road */
+.jr::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  inset-inline-start: 13px;
+  width: 4px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #f6e8c6, #c9a45c 30%, rgb(221 190 127 / 0.15) 60%);
+}
+.jr-chapter {
+  display: grid;
+  gap: 16px;
+}
+.jr-chapter:not([data-open]) .jr-chapter__head {
+  opacity: 0.6;
+}
+.jr-chapter__head {
+  position: relative;
+}
+.jr-chapter__head::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: -30px;
+  top: 4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--gold-50);
+  box-shadow: 0 0 14px rgb(246 232 198 / 0.8);
+}
+.jr-chapter:not([data-open]) .jr-chapter__head::before {
+  background: #3a4f86;
+  box-shadow: none;
+}
+.jr-place {
+  position: relative;
+  display: grid;
+}
+.jr-place__node {
+  position: absolute;
+  inset-inline-start: -37px;
+  top: 18px;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 36px;
+  border-radius: 50% 50% 8px 8px / 44% 44% 8px 8px;
+  background: var(--midnight-900);
+  border: 1.5px solid var(--gold-300);
+  color: var(--gold-100);
+}
+.jr-place[data-asleep] .jr-place__node {
+  border-style: dashed;
+  border-color: #6d7fb0;
+  color: #8ea3d6;
+}
+.jr-place[data-asleep] .jr-place__card {
+  background: rgb(19 32 74 / 0.35);
+  border-style: dashed;
+}
+.jr-place__card {
+  display: grid;
+  gap: 10px;
+}
+.jr-stones {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+.jr-stone {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 54px;
+  padding: 8px 10px;
+  border-radius: 14px;
+  color: var(--text);
+  text-align: start;
+  transition: background-color var(--dur-2) var(--ease);
+}
+.jr-stone:not(:disabled):hover {
+  background: rgb(244 236 221 / 0.06);
+}
+.jr-stone:disabled {
+  opacity: 0.55;
+}
+.jr-stone__dot {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1.5px solid var(--hairline-strong);
+  font-size: 0.8125rem;
+  font-weight: 800;
+}
+.jr-stone[data-done] .jr-stone__dot {
+  background: var(--emerald-600);
+  border-color: var(--emerald-500);
+  color: #fff;
+}
+.jr-stone[data-next] .jr-stone__dot {
+  background: linear-gradient(180deg, #f6e8c6, #c9a45c);
+  border: 0;
+  color: var(--midnight-900);
+  box-shadow: 0 0 14px rgb(221 190 127 / 0.6);
+}
+.jr-stone__text {
+  flex: 1;
+  display: grid;
+  min-width: 0;
+}

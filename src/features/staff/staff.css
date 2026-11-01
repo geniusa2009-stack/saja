@@ -1,0 +1,41 @@
+.staff-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.staff-card { display: grid; gap: 10px; }
+.staff-quote { margin: 0; padding: 10px 14px; border-inline-start: 3px solid var(--gold-500); background: var(--surface); border-radius: 10px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.staff-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.staff-actions > input { flex: 1 1 220px; min-width: 0; }
+.staff-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+.audit-row { display: grid; grid-template-columns: auto auto minmax(0, 1fr); gap: 4px 10px; align-items: baseline; padding: 8px 12px; border-radius: 10px; background: var(--surface); }
+.audit-row > .muted { grid-column: 1 / -1; overflow-wrap: anywhere; }
+@media (max-width: 560px) { .audit-row { grid-template-columns: minmax(0, 1fr); } }
+
+/* ── Content studio ─────────────────────────────────────────── */
+.cs-bi { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 16px; overflow-wrap: anywhere; }
+.cs-bi > [lang='ar'] { font-family: var(--font-ui-ar); text-align: start; }
+@media (max-width: 640px) { .cs-bi { grid-template-columns: minmax(0, 1fr); } }
+.cs-grid { list-style: none; margin: 0; padding: 0; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+.cs-stat { display: grid; gap: 10px; align-content: start; }
+.cs-served { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin: 0; }
+.cs-served--5 { grid-template-columns: repeat(auto-fit, minmax(64px, 1fr)); }
+.cs-served > div { padding: 6px 8px; border-radius: 10px; background: var(--surface); }
+.cs-served dt { font-size: var(--fs-caption); color: var(--text-muted); }
+.cs-served dd { margin: 0; font-size: 1.25rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.cs-served dd.emerald { color: var(--emerald-500); }
+.cs-trail { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.cs-trail > li { display: grid; gap: 2px; padding: 8px 12px; border-inline-start: 2px solid var(--gold-500); background: var(--surface); border-radius: 8px; overflow-wrap: anywhere; }
+.cs-preview { padding: 16px; }
+.cs-evidence { display: grid; gap: 4px; padding: 8px 12px; border-radius: 10px; background: var(--surface); }
+.cs-form fieldset.cs-lfield { border: 1px solid var(--hairline); border-radius: 12px; padding: 10px 12px 12px; margin: 0; display: grid; gap: 8px; grid-template-columns: repeat(2, minmax(0, 1fr)); min-width: 0; }
+.cs-form fieldset.cs-lfield > legend { padding: 0 6px; }
+.cs-form fieldset.cs-lfield > :not(.field):not(legend) { grid-column: 1 / -1; }
+@media (max-width: 640px) { .cs-form fieldset.cs-lfield { grid-template-columns: minmax(0, 1fr); } }
+.cs-savebar { position: static; display: flex; flex-wrap: wrap; gap: 8px; align-items: end; padding: 12px; border-radius: 14px; background: var(--surface-strong); box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.12); z-index: 1; }
+.cs-savebar > .field { flex: 1 1 240px; min-width: 0; }
+.cs-mission-preview { padding: 16px; }
+.cs-stage { position: relative; min-height: 420px; border-radius: 14px; overflow: hidden; background: var(--night-gradient); }
+.cs-patterns { display: block; white-space: pre-wrap; overflow-wrap: anywhere; font-family: var(--font-mono); font-size: var(--fs-caption); padding: 8px; border-radius: 8px; background: var(--surface); }
+.cs-pages { margin: 0; padding-inline-start: 20px; display: grid; gap: 8px; }
+
+/* Up to eight tabs: wrap onto lines instead of hiding most of them in a sideways scroll. */
+.staff-tabs .segmented { flex-wrap: wrap; border-radius: 22px; overflow: visible; }
+/* Sticky only where there is no bottom navigation bar to hide it behind. */
+@media (min-width: 900px) { .cs-savebar { position: sticky; bottom: 12px; } }

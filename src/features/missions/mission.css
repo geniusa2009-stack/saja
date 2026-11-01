@@ -1,0 +1,280 @@
+/* Mission stage: full-screen, the location's light behind it. */
+.mission {
+  --scene-a: #0b1530;
+  --scene-b: #16264f;
+  --scene-glow: rgb(221 190 127 / 0.32);
+  position: relative;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  color: var(--text);
+  overflow-x: clip;
+}
+.mission[data-location='mosque'] {
+  --scene-b: #123b52;
+  --scene-glow: rgb(143 221 227 / 0.3);
+}
+.mission[data-location='garden'] {
+  --scene-b: #0e3f3a;
+  --scene-glow: rgb(34 176 140 / 0.28);
+}
+.mission[data-location='library'] {
+  --scene-b: #2a2750;
+  --scene-glow: rgb(243 226 186 / 0.3);
+}
+.mission[data-location='market'] {
+  --scene-b: #33264f;
+  --scene-glow: rgb(226 141 126 / 0.25);
+}
+.mission[data-location='desert'] {
+  --scene-b: #3b2f4a;
+  --scene-glow: rgb(227 196 142 / 0.3);
+}
+.mission[data-location='reflection'] {
+  --scene-b: #13304f;
+}
+.mission[data-location='mountain'] {
+  --scene-a: #050a18;
+  --scene-b: #1b2b5a;
+}
+.mission--empty {
+  place-items: center;
+  grid-template-rows: 1fr;
+  background: var(--night-gradient);
+}
+.mission-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse 80% 55% at 50% 105%, var(--scene-glow), transparent 72%),
+    linear-gradient(180deg, var(--scene-a) 10%, var(--scene-b));
+}
+.mission-top {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: max(14px, env(safe-area-inset-top)) var(--gutter) 10px;
+  background: rgb(7 13 31 / 0.8);
+  backdrop-filter: var(--blur-glass);
+  -webkit-backdrop-filter: var(--blur-glass);
+}
+.mission-top__title {
+  flex: 1;
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.mission-top__name {
+  font-weight: 800;
+  font-size: 1.0625rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mission-road {
+  position: relative;
+  height: 3px;
+  margin: 2px var(--gutter) 8px;
+  border-radius: 2px;
+  background: rgb(244 236 221 / 0.12);
+}
+.mission-road__fill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #c9a45c, #f6e8c6);
+  transform-origin: left center;
+}
+[dir='rtl'] .mission-road__fill {
+  transform-origin: right center;
+}
+.mission-road__star {
+  position: absolute;
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: #f6e8c6;
+  box-shadow: 0 0 10px 2px rgb(246 232 198 / 0.8);
+}
+[dir='rtl'] .mission-road__star {
+  translate: 50% -50%;
+}
+.mission-stage {
+  display: grid;
+  place-items: center;
+  padding: 12px var(--gutter) 120px;
+  min-height: 0;
+}
+.mission-play,
+.mission-intro,
+.mission-done {
+  width: 100%;
+  max-width: 1080px;
+}
+.mission-intro {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: 14px;
+  padding-top: 4vh;
+}
+.mission-intro__art .cc-stage {
+  width: min(230px, 56vw);
+}
+
+/* Siraj hint + adaptive offer (bottom sheets inside the mission) */
+.siraj-bubble,
+.adapt {
+  position: fixed;
+  z-index: 20;
+  inset-inline: var(--gutter);
+  bottom: calc(18px + env(safe-area-inset-bottom));
+  margin-inline: auto;
+  max-width: 560px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 14px 14px 16px;
+  border-radius: 22px;
+  background: rgb(251 247 239 / 0.97);
+  color: var(--midnight-900);
+  box-shadow: var(--shadow-3);
+  line-height: 1.55;
+}
+.siraj-bubble p {
+  flex: 1;
+  font-size: 0.9375rem;
+}
+.siraj-bubble .icon-btn {
+  color: var(--midnight-900);
+}
+.siraj-bubble__light {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #f6e8c6, #c9a45c);
+  color: var(--midnight-900);
+  box-shadow: 0 0 16px rgb(221 190 127 / 0.6);
+}
+.adapt {
+  background: linear-gradient(180deg, #16264f, #0b1530);
+  color: var(--text);
+  border: 1px solid rgb(34 179 191 / 0.4);
+}
+.adapt__title {
+  font-size: 1.0625rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+/* Shared mechanic scaffolding */
+.mech {
+  display: grid;
+  gap: 18px;
+  width: 100%;
+}
+.mech-head {
+  display: grid;
+  gap: 6px;
+  text-align: center;
+  justify-items: center;
+}
+.mech-instruction {
+  color: var(--text-muted);
+  max-width: 560px;
+}
+.mech-next {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: var(--r-pill);
+  background: rgb(221 190 127 / 0.12);
+  border: 1px solid rgb(221 190 127 / 0.35);
+  color: var(--gold-100);
+  font-weight: 700;
+  font-size: 0.9375rem;
+}
+.mech-feedback {
+  min-height: 1.6em;
+  text-align: center;
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+.mech-feedback[data-tone='wrong'] {
+  color: #f1b98a;
+}
+.mech-feedback[data-tone='right'] {
+  color: #9fe3c9;
+}
+@keyframes nudge {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-6px);
+  }
+  75% {
+    transform: translateX(6px);
+  }
+}
+.is-wrong {
+  animation: nudge 0.36s var(--ease);
+}
+
+/* Completion */
+.mission-done {
+  display: grid;
+  gap: 28px;
+  padding-top: 2vh;
+}
+.done-hero {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: 8px;
+}
+.done-reward {
+  position: relative;
+  display: grid;
+  place-items: end center;
+  width: 220px;
+  height: 250px;
+  border-radius: 50% 50% 24px 24px / 38% 38% 24px 24px;
+  background:
+    radial-gradient(ellipse 70% 35% at 50% 100%, rgb(221 190 127 / 0.45), transparent 70%),
+    linear-gradient(180deg, #070d1f, #1e3a66);
+  border: 1px solid rgb(221 190 127 / 0.5);
+  box-shadow: var(--glow-gold);
+  margin-bottom: 8px;
+  padding-bottom: 12px;
+}
+.done-star {
+  position: absolute;
+  top: -26px;
+  color: #f6e8c6;
+  filter: drop-shadow(0 0 14px rgb(246 232 198 / 0.95));
+}
+.done-grid {
+  display: grid;
+  gap: 16px;
+}
+@media (min-width: 900px) {
+  .done-grid {
+    grid-template-columns: 1fr 1.4fr;
+    align-items: start;
+  }
+}
+.done-actions {
+  justify-content: center;
+}

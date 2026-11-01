@@ -1,0 +1,111 @@
+.choice {
+  max-width: 760px;
+  margin-inline: auto;
+}
+.choice-scene {
+  position: relative;
+  height: 280px;
+  border-radius: 28px;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 60% 40% at 50% 100%, rgb(221 190 127 / 0.3), transparent 70%),
+    linear-gradient(180deg, #0b1530, #16264f);
+  border: 1px solid var(--hairline);
+}
+.choice-scene[data-location='garden'] {
+  background:
+    radial-gradient(ellipse 60% 40% at 50% 100%, rgb(34 176 140 / 0.35), transparent 70%),
+    linear-gradient(180deg, #0b1530, #0e3f3a);
+}
+.choice-scene[data-location='market'] {
+  background:
+    radial-gradient(circle at 20% 20%, rgb(246 232 198 / 0.25) 0 2%, transparent 3%),
+    radial-gradient(circle at 50% 12%, rgb(246 232 198 / 0.25) 0 2%, transparent 3%),
+    radial-gradient(circle at 80% 22%, rgb(246 232 198 / 0.25) 0 2%, transparent 3%),
+    radial-gradient(ellipse 60% 40% at 50% 100%, rgb(226 141 126 / 0.3), transparent 70%),
+    linear-gradient(180deg, #0b1530, #33264f);
+}
+.choice-ground {
+  position: absolute;
+  inset-inline: -10%;
+  bottom: -60px;
+  height: 120px;
+  border-radius: 50%;
+  background: #0b5a48;
+}
+.choice-scene[data-location='market'] .choice-ground {
+  background: #3b2f4a;
+}
+.choice-actors {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: clamp(8px, 5vw, 48px);
+}
+.choice-prop {
+  margin-bottom: 8px;
+}
+.choice-box {
+  display: grid;
+  gap: 8px;
+  padding: 20px;
+  border-radius: 22px;
+  background: rgb(11 21 48 / 0.8);
+  border: 1px solid var(--hairline-strong);
+}
+.choice-text {
+  font-size: 1.0625rem;
+  line-height: 1.7;
+}
+.choice-note {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  color: #9fe3c9;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.choice-options {
+  display: grid;
+  gap: 8px;
+  margin-top: 4px;
+}
+.choice-path {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 10px 16px;
+  border-radius: 16px;
+  background: rgb(244 236 221 / 0.05);
+  border: 1px solid var(--hairline-strong);
+  color: var(--text);
+  font-weight: 600;
+  text-align: start;
+  transition:
+    background-color var(--dur-2) var(--ease),
+    border-color var(--dur-2) var(--ease),
+    transform var(--dur-1) var(--ease);
+}
+.choice-path:hover {
+  background: rgb(221 190 127 / 0.1);
+  border-color: rgb(221 190 127 / 0.5);
+  transform: translateX(3px);
+}
+[dir='rtl'] .choice-path:hover {
+  transform: translateX(-3px);
+}
+.choice-path svg {
+  width: 34px;
+  height: 20px;
+  flex-shrink: 0;
+}
+.choice-path path {
+  fill: none;
+  stroke: var(--gold-300);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}

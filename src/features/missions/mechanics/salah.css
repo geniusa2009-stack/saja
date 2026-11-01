@@ -1,0 +1,130 @@
+.salah-top {
+  display: grid;
+  gap: 20px;
+  align-items: center;
+}
+@media (min-width: 900px) {
+  .salah-top {
+    grid-template-columns: 220px 1fr;
+  }
+}
+.salah-window {
+  justify-self: center;
+  width: 210px;
+  min-height: 262px;
+  display: grid;
+  place-items: center;
+  border-radius: 50% 50% 22px 22px / 36% 36% 22px 22px;
+  background:
+    radial-gradient(ellipse 70% 30% at 50% 100%, rgb(221 190 127 / 0.35), transparent 70%),
+    linear-gradient(180deg, #070d1f, #1e3a66);
+  border: 1px solid rgb(221 190 127 / 0.45);
+  padding: 30px 16px 16px;
+  text-align: center;
+}
+.salah-window__inner {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  color: var(--gold-100);
+}
+.salah-window__inner strong {
+  color: var(--text);
+}
+.salah-path {
+  position: relative;
+  height: 190px;
+}
+.salah-path svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.salah-path__road {
+  fill: none;
+  stroke: rgb(221 190 127 / 0.2);
+  stroke-width: 16;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.salah-path__lit {
+  fill: none;
+  stroke: #f6e8c6;
+  stroke-width: 3;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 4px rgb(246 232 198 / 0.8));
+}
+.salah-stone {
+  position: absolute;
+  translate: -50% -50%;
+  display: grid;
+  place-items: center;
+  width: clamp(36px, 6vw, 52px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: rgb(19 32 74 / 0.9);
+  border: 2px dashed rgb(244 236 221 / 0.25);
+  color: var(--text-muted);
+  font-weight: 800;
+  font-size: 0.8125rem;
+  transition:
+    background-color var(--dur-2) var(--ease),
+    transform var(--dur-2) var(--ease);
+}
+.salah-stone[data-next] {
+  border-style: solid;
+  border-color: var(--gold-300);
+  box-shadow: 0 0 0 6px rgb(221 190 127 / 0.15);
+  animation: breathe 2.4s var(--ease) infinite;
+}
+.salah-stone[data-filled] {
+  background: linear-gradient(180deg, #f6e8c6, #c9a45c);
+  border: 0;
+  box-shadow: 0 0 16px rgb(221 190 127 / 0.55);
+}
+.salah-tray {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+  gap: 10px;
+}
+.salah-card {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 12px 8px;
+  border-radius: 18px;
+  background: rgb(11 21 48 / 0.8);
+  border: 1px solid var(--hairline-strong);
+  color: var(--text);
+  touch-action: none;
+  cursor: grab;
+  transition:
+    opacity var(--dur-2) var(--ease),
+    border-color var(--dur-2) var(--ease);
+}
+.salah-card:hover {
+  border-color: rgb(221 190 127 / 0.6);
+}
+.salah-card:active {
+  cursor: grabbing;
+}
+.salah-card[data-used] {
+  opacity: 0.25;
+  cursor: default;
+}
+.salah-card[data-dim] {
+  opacity: 0.4;
+}
+.salah-card[data-next] {
+  border-color: var(--gold-300);
+  box-shadow: 0 0 0 3px rgb(221 190 127 / 0.2), 0 0 24px rgb(221 190 127 / 0.3);
+}
+.salah-card__label {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.3;
+}

@@ -1,0 +1,255 @@
+.day-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: minmax(0, 1fr);
+}
+.day-grid > * {
+  min-width: 0;
+}
+@media (min-width: 1100px) {
+  .day-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    align-items: start;
+  }
+  .day-grid > .section {
+    grid-column: 1 / -1;
+  }
+}
+.focus-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 420px;
+  padding: 10px 14px;
+  border-radius: var(--r-card);
+  background: rgb(46 158 107 / 0.1);
+  border: 1px solid rgb(46 158 107 / 0.3);
+  color: #b6ecd4;
+  cursor: pointer;
+}
+.focus-toggle > span {
+  display: grid;
+  line-height: 1.35;
+}
+.prayer-card {
+  display: grid;
+  /* One column that can shrink below its children's intrinsic widths (the sun-arc SVG, the header). */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+}
+.place-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  min-height: 32px;
+}
+.place-btn:hover {
+  color: var(--text);
+}
+.next-prayer {
+  display: grid;
+  justify-items: end;
+  text-align: end;
+}
+.next-prayer__time {
+  font-family: var(--font-display);
+  /* Scales down on narrow phones so "in 10 h 45 min" never pushes the card wider than the screen. */
+  font-size: clamp(1.35rem, 6.2vw, 1.75rem);
+  line-height: 1.1;
+}
+:lang(ar) .next-prayer__time {
+  font-size: 1.4rem;
+}
+.sun-arc {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.sun-arc__label {
+  fill: var(--text-muted);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--font-ui);
+}
+.prayer-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+.prayer-row {
+  display: flex;
+  flex-wrap: wrap; /* on narrow phones the row's action moves under the time instead of widening the card */
+  align-items: center;
+  gap: 6px 14px;
+  min-height: 52px;
+  padding: 6px 12px;
+  border-radius: 14px;
+  transition: background-color var(--dur-2) var(--ease);
+}
+.prayer-row[data-next] {
+  background: linear-gradient(90deg, rgb(221 190 127 / 0.16), rgb(221 190 127 / 0.03));
+  box-shadow: inset 3px 0 0 var(--gold-300);
+}
+[dir='rtl'] .prayer-row[data-next] {
+  box-shadow: inset -3px 0 0 var(--gold-300);
+}
+.prayer-row__name {
+  font-weight: 700;
+  min-width: 80px;
+}
+.prayer-row__time {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--text-muted);
+}
+.prayer-row[data-next] .prayer-row__time {
+  color: var(--gold-100);
+  font-weight: 700;
+}
+
+.plan-card {
+  display: grid;
+  gap: 14px;
+}
+.siraj-says {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgb(221 190 127 / 0.08);
+  border: 1px solid rgb(221 190 127 / 0.2);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+}
+.siraj-orb--sm {
+  width: 26px;
+  height: 26px;
+}
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+  position: relative;
+}
+.tl-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 54px;
+  padding: 6px 4px;
+  border-radius: 12px;
+}
+.tl-time {
+  width: 64px;
+  flex-shrink: 0;
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  text-align: end;
+}
+.tl-dot {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: rgb(244 236 221 / 0.08);
+  color: var(--text-muted);
+  position: relative;
+}
+.tl-item[data-kind='prayer'] .tl-dot {
+  background: rgb(221 190 127 / 0.18);
+  color: var(--gold-100);
+}
+.tl-item[data-kind='mission'] .tl-dot,
+.tl-item[data-kind='quran'] .tl-dot {
+  background: rgb(15 122 95 / 0.35);
+  color: #9fe3c9;
+}
+.tl-item[data-kind='study'] .tl-dot,
+.tl-item[data-kind='review'] .tl-dot {
+  background: rgb(34 179 191 / 0.2);
+  color: var(--turquoise-300);
+}
+.tl-item[data-kind='commitment'] {
+  opacity: 0.7;
+}
+/* Past items step back, but their text stays readable (WCAG AA): dim the marker, mute the words. */
+.tl-item[data-past] > :not(.tl-body):not(.tl-time) {
+  opacity: 0.45;
+}
+.tl-item[data-past] .tl-time,
+.tl-item[data-past] .tl-title,
+.tl-item[data-past] .tl-meta {
+  color: var(--text-muted);
+}
+.tl-item[data-done] .tl-title {
+  text-decoration: line-through;
+  opacity: 0.65;
+}
+.tl-body {
+  flex: 1;
+  display: grid;
+  min-width: 0;
+}
+.tl-title {
+  font-weight: 700;
+  line-height: 1.35;
+}
+.tl-meta {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+.tl-check {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  border: 1.5px solid var(--hairline-strong);
+  color: #fff;
+}
+.tl-check[aria-pressed='true'] {
+  background: var(--emerald-600);
+  border-color: var(--emerald-500);
+}
+.deen-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+}
+.deen-card {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+.deen-quote {
+  font-size: 1.25rem;
+  line-height: 1.45;
+  color: var(--gold-50);
+}
+.deen-arabic {
+  font-size: 1.4rem;
+  color: var(--gold-50);
+  text-align: start;
+}
+.city-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}

@@ -1,0 +1,138 @@
+.clue-scene {
+  position: relative;
+  aspect-ratio: 16 / 8;
+  max-height: 46vh;
+  width: 100%;
+  border-radius: 26px;
+  overflow: hidden;
+  border: 1px solid var(--hairline);
+  background:
+    radial-gradient(ellipse 50% 40% at 50% 30%, rgb(243 226 186 / 0.18), transparent 70%),
+    linear-gradient(180deg, #0b1530, #2a2750);
+}
+.clue-scene[data-scene='desert'] {
+  background:
+    radial-gradient(circle at 20% 15%, rgb(246 232 198 / 0.6) 0 0.4%, transparent 0.6%),
+    radial-gradient(circle at 70% 10%, rgb(246 232 198 / 0.6) 0 0.4%, transparent 0.6%),
+    radial-gradient(ellipse 60% 40% at 50% 100%, rgb(227 196 142 / 0.35), transparent 70%),
+    linear-gradient(180deg, #070d1f, #3b2f4a);
+}
+.clue-scene[data-scene='mountain'] {
+  background:
+    radial-gradient(circle at 30% 20%, rgb(246 232 198 / 0.7) 0 0.35%, transparent 0.55%),
+    radial-gradient(circle at 80% 30%, rgb(246 232 198 / 0.7) 0 0.35%, transparent 0.55%),
+    radial-gradient(circle at 10% 40%, rgb(246 232 198 / 0.7) 0 0.35%, transparent 0.55%),
+    linear-gradient(180deg, #03060f, #1b2b5a);
+}
+.clue-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.clue-spot {
+  position: absolute;
+  translate: -50% -50%;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  color: #0b1530;
+  background: radial-gradient(circle, #f6e8c6 0 45%, rgb(246 232 198 / 0.35) 46% 70%, transparent 71%);
+  filter: drop-shadow(0 0 10px rgb(246 232 198 / 0.8));
+  animation: breathe 2.8s var(--ease) infinite;
+}
+.clue-spot:nth-child(odd) {
+  animation-delay: -1.2s;
+}
+.clue-spot[data-found] {
+  animation: none;
+  background: var(--emerald-600);
+  color: #fff;
+  filter: none;
+  opacity: 0.75;
+}
+.clue-spot[data-hint] {
+  box-shadow: 0 0 0 6px rgb(221 190 127 / 0.4);
+}
+.clue-journal {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+}
+.clue-card {
+  display: grid;
+  gap: 2px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgb(244 236 221 / 0.94);
+  color: var(--midnight-900);
+}
+.clue-card .muted {
+  color: var(--slate-600);
+}
+.clue-sentence {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px 8px;
+  padding: 24px;
+  border-radius: 24px;
+  background: var(--ivory-50);
+  color: var(--midnight-900);
+  font-size: 1.125rem;
+  line-height: 1.6;
+}
+.clue-sentence__text {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+}
+:lang(ar) .clue-sentence__text {
+  font-family: var(--font-ui-ar);
+  font-size: 1.2rem;
+}
+.clue-blank {
+  min-width: 110px;
+  min-height: 42px;
+  padding: 6px 14px;
+  border-radius: 12px;
+  border: 2px dashed #c9a45c;
+  background: rgb(221 190 127 / 0.1);
+  color: #9a7a3a;
+  font-weight: 800;
+}
+.clue-blank[data-ready] {
+  border-color: #22b3bf;
+  background: rgb(34 179 191 / 0.1);
+}
+.clue-blank[data-target] {
+  box-shadow: 0 0 0 4px rgb(221 190 127 / 0.45);
+}
+.clue-blank[data-filled] {
+  border-style: solid;
+  border-color: #0f7a5f;
+  background: #0f7a5f;
+  color: #fff;
+}
+.clue-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+.clue-chip {
+  min-height: 44px;
+  padding: 8px 16px;
+  font-size: 0.9375rem;
+}
+.clue-chip:disabled {
+  opacity: 0.25;
+}
+.clue-chip[data-hint] {
+  box-shadow: 0 0 0 3px var(--gold-300);
+}
+.clue-chip[data-dim] {
+  opacity: 0.45;
+}

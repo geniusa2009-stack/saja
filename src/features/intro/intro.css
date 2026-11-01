@@ -1,0 +1,232 @@
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-intro);
+  overflow: hidden;
+  color: var(--text);
+  contain: strict;
+}
+
+/* The night is two halves that part along the horizon line at the end. */
+/* Each half overlaps the middle and feathers its inner edge: fully opaque while closed
+   (each is solid up to the horizon), soft instead of a hard board edge while parting. */
+.i-half {
+  position: absolute;
+  inset-inline: 0;
+  height: 56%;
+  background: #050a18;
+  will-change: transform;
+}
+.i-half--top {
+  top: 0;
+  background: linear-gradient(180deg, #03060f 0%, #070d1f 62%, #0b1530 100%);
+  mask-image: linear-gradient(180deg, #000 89%, transparent 100%);
+}
+.i-half--bottom {
+  bottom: 0;
+  background: linear-gradient(180deg, #0b1530 0%, #0a1430 40%, #060b1a 100%);
+  mask-image: linear-gradient(0deg, #000 89%, transparent 100%);
+}
+.i-line {
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  height: 2px;
+  margin-top: -1px;
+  background: linear-gradient(90deg, transparent, #f3e2ba 20%, #fff8e8 50%, #f3e2ba 80%, transparent);
+  box-shadow: 0 0 24px 4px rgb(243 226 186 / 0.55);
+  opacity: 0;
+  transform: scaleX(0);
+}
+
+.i-stage {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+.i-horizon {
+  position: absolute;
+  inset-inline: -10%;
+  bottom: -8%;
+  height: 70%;
+  background:
+    radial-gradient(ellipse 60% 55% at 50% 100%, rgb(221 190 127 / 0.32), rgb(221 190 127 / 0) 70%),
+    radial-gradient(ellipse 90% 60% at 50% 110%, rgb(15 122 95 / 0.35), transparent 70%);
+  transform-origin: 50% 100%;
+  opacity: 0;
+}
+.i-particles {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+.i-particles span {
+  position: absolute;
+  border-radius: 50%;
+  background: #f3e2ba;
+  box-shadow: 0 0 6px rgb(243 226 186 / 0.8);
+  animation: i-drift 9s ease-in-out infinite alternate;
+}
+@keyframes i-drift {
+  from {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.35;
+  }
+  to {
+    transform: translate3d(6px, -14px, 0);
+    opacity: 0.95;
+  }
+}
+
+.i-center {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: clamp(18px, 3.2vh, 30px);
+  padding: 24px;
+  text-align: center;
+}
+.i-mark {
+  width: clamp(120px, 22vh, 200px);
+  aspect-ratio: 120 / 140;
+  transform-origin: 50% 40%;
+  will-change: transform;
+}
+.i-mark-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.i-frame,
+.i-world,
+.i-window-edge,
+.i-roadfill,
+.i-beam,
+.i-star,
+.i-starglow,
+.i-point,
+.i-road {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.i-beam {
+  transform-origin: 50% 0;
+}
+.i-road {
+  stroke-dashoffset: 1;
+  filter: drop-shadow(0 0 2px rgb(243 226 186 / 0.8));
+}
+.i-star {
+  filter: drop-shadow(0 0 3px rgb(246 232 198 / 0.95));
+}
+
+.i-type {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+}
+.i-wm {
+  width: clamp(150px, 20vw, 230px);
+  overflow: visible;
+  opacity: 0;
+}
+.i-letter {
+  stroke-dashoffset: 1;
+}
+.i-wmstar {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.i-ar {
+  font-family: 'Reem Kufi', sans-serif;
+  font-size: clamp(34px, 5.4vh, 52px);
+  line-height: 1;
+  color: var(--sand-100);
+  opacity: 0;
+}
+.i-tag {
+  max-width: 34ch;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(18px, 2.6vh, 24px);
+  line-height: 1.35;
+  color: var(--gold-300);
+  opacity: 0;
+}
+:lang(ar) .i-tag {
+  font-style: normal;
+  font-family: var(--font-ui-ar);
+}
+
+.i-skip {
+  position: absolute;
+  inset-inline-end: 20px;
+  bottom: calc(20px + env(safe-area-inset-bottom));
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: var(--r-pill);
+  border: 1px solid rgb(244 236 221 / 0.18);
+  background: rgb(244 236 221 / 0.06);
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+  animation: i-skip-in 0.6s var(--ease) 0.9s both;
+}
+.i-skip:hover {
+  color: var(--text);
+  background: rgb(244 236 221 / 0.12);
+}
+@keyframes i-skip-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Reduced motion: a still composition, fully visible. */
+.intro--still .i-horizon,
+.intro--still .i-particles,
+.intro--still .i-frame,
+.intro--still .i-world,
+.intro--still .i-roadfill,
+.intro--still .i-beam,
+.intro--still .i-star,
+.intro--still .i-wm,
+.intro--still .i-wmstar,
+.intro--still .i-ar,
+.intro--still .i-tag {
+  opacity: 1;
+}
+.intro--still .i-starglow {
+  opacity: 0.6;
+}
+.intro--still .i-window-edge {
+  opacity: 0.55;
+}
+.intro--still .i-letter {
+  stroke-dashoffset: 0;
+}
+.intro--still .i-particles span {
+  animation: none;
+}
+
+/* Starting scale for the "symbol resolves" beat — matches the first keyframe. */
+.intro--full .i-mark {
+  transform: scale(1.85);
+}
+.intro--short .i-mark {
+  transform: scale(1.25);
+}
+.intro--still .i-mark {
+  transform: none;
+}
+
+.i-reveal {
+  transform-box: fill-box;
+  transform-origin: center;
+}

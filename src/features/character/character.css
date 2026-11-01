@@ -1,0 +1,158 @@
+/* Character animation — GPU-friendly transforms on SVG groups only. */
+.saja-char .char-flip,
+.saja-char .char-body,
+.saja-char .leg,
+.saja-char .arm,
+.saja-char .eye-blink,
+.saja-char .char-head,
+.saja-char .char-lantern {
+  transform-box: fill-box;
+}
+.saja-char .char-flip {
+  transform-origin: center;
+  transition: transform var(--dur-2) var(--ease);
+}
+.saja-char.face-left .char-flip {
+  transform: scaleX(-1);
+}
+.saja-char .leg,
+.saja-char .arm {
+  transform-origin: 50% 4%;
+}
+.saja-char .eye-blink {
+  transform-origin: center;
+}
+.saja-char .char-body {
+  transform-origin: 50% 100%;
+}
+.saja-char .char-head {
+  transform-origin: 50% 90%;
+  transition: transform var(--dur-3) var(--ease);
+}
+
+/* Idle: slow breathing + blinking */
+.saja-char.is-animated .char-body {
+  animation: char-breathe 3.6s var(--ease) infinite;
+}
+.saja-char.is-animated .eye-blink {
+  animation: char-blink 5.2s steps(1, end) infinite;
+}
+.saja-char.is-animated .char-lantern {
+  transform-origin: 50% 0;
+  animation: lantern-sway 3.2s ease-in-out infinite;
+}
+@keyframes char-breathe {
+  0%,
+  100% {
+    transform: translateY(0) scaleY(1);
+  }
+  50% {
+    transform: translateY(-0.8px) scaleY(1.006);
+  }
+}
+@keyframes char-blink {
+  0%,
+  94% {
+    transform: scaleY(1);
+  }
+  95.5% {
+    transform: scaleY(0.12);
+  }
+  97% {
+    transform: scaleY(1);
+  }
+}
+@keyframes lantern-sway {
+  0%,
+  100% {
+    transform: rotate(-4deg);
+  }
+  50% {
+    transform: rotate(4deg);
+  }
+}
+
+/* Walking */
+.saja-char.is-walking .char-body {
+  animation: char-bob 0.52s ease-in-out infinite;
+}
+.saja-char.is-walking .leg-l,
+.saja-char.is-walking .arm-r {
+  animation: swing 0.52s ease-in-out infinite;
+}
+.saja-char.is-walking .leg-r,
+.saja-char.is-walking .arm-l {
+  animation: swing 0.52s ease-in-out infinite reverse;
+}
+@keyframes char-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2.5px);
+  }
+}
+@keyframes swing {
+  0%,
+  100% {
+    transform: rotate(14deg);
+  }
+  50% {
+    transform: rotate(-14deg);
+  }
+}
+
+/* Poses */
+.saja-char.pose-wave .arm-r {
+  animation: wave 1.4s var(--ease) infinite;
+}
+@keyframes wave {
+  0%,
+  100% {
+    transform: rotate(-150deg);
+  }
+  50% {
+    transform: rotate(-125deg);
+  }
+}
+.saja-char.pose-cheer .arm-r {
+  transform: rotate(-155deg);
+}
+.saja-char.pose-cheer .arm-l {
+  transform: rotate(155deg);
+}
+.saja-char.pose-cheer .char-body {
+  animation: char-hop 0.9s var(--ease-out) 2;
+}
+@keyframes char-hop {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-9px);
+  }
+}
+.saja-char.pose-kneel .char-body {
+  transform: translateY(12px);
+}
+.saja-char.expr-thinking .char-head {
+  transform: rotate(-5deg);
+}
+.saja-char.expr-thinking .brow-r {
+  transform: translateY(-1.5px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .saja-char .char-body,
+  .saja-char .leg,
+  .saja-char .arm,
+  .saja-char .eye-blink,
+  .saja-char .char-lantern {
+    animation: none !important;
+  }
+}
+:root[data-motion='reduced'] .saja-char * {
+  animation: none !important;
+}

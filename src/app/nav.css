@@ -1,0 +1,203 @@
+/* Desktop rail */
+.rail {
+  position: fixed;
+  z-index: var(--z-nav);
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: var(--rail-w);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 18px 10px 18px;
+  background: linear-gradient(180deg, rgb(7 13 31 / 0.82), rgb(11 21 48 / 0.72));
+  backdrop-filter: var(--blur-glass);
+  -webkit-backdrop-filter: var(--blur-glass);
+  border-inline-end: 1px solid var(--hairline);
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.rail__brand {
+  display: grid;
+  place-items: center;
+  padding: 4px 0 14px;
+}
+.rail__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+  width: 100%;
+}
+.rail__item {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: 9px 2px 8px;
+  border-radius: 16px;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--dur-2) var(--ease);
+  isolation: isolate;
+}
+.rail__item:hover {
+  color: var(--text);
+}
+.rail__item.active {
+  color: var(--gold-50);
+}
+.rail__item[data-dim] {
+  opacity: 0.45;
+}
+.rail__active {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgb(221 190 127 / 0.16), rgb(221 190 127 / 0.04));
+  border: 1px solid rgb(221 190 127 / 0.28);
+  z-index: -1;
+}
+.rail__label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-align: center;
+  line-height: 1.2;
+}
+:lang(ar) .rail__label {
+  font-size: 0.75rem;
+}
+.rail__sep {
+  width: 36px;
+  height: 1px;
+  background: var(--hairline-strong);
+  margin: 8px 0;
+}
+.rail__item--tool .rail__label {
+  font-size: 0.625rem;
+}
+.rail__me {
+  display: grid;
+  place-items: center;
+  padding-top: 8px;
+}
+
+/* Mobile bottom bar */
+.bottombar {
+  position: fixed;
+  z-index: var(--z-nav);
+  inset-inline: 10px;
+  bottom: calc(10px + env(safe-area-inset-bottom));
+  height: 64px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  padding: 6px;
+  border-radius: 24px;
+  background: rgb(11 21 48 / 0.82);
+  backdrop-filter: var(--blur-glass);
+  -webkit-backdrop-filter: var(--blur-glass);
+  border: 1px solid var(--hairline-strong);
+  box-shadow: 0 20px 50px -20px rgb(0 0 0 / 0.8);
+}
+.bottombar__item {
+  position: relative;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 2px;
+  border-radius: 18px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  isolation: isolate;
+  min-width: 0;
+}
+.bottombar__item span:not(.bottombar__active) {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+:lang(ar) .bottombar__item {
+  font-size: 0.75rem;
+}
+.bottombar__item.active,
+.bottombar__item[aria-current='page'] {
+  color: var(--gold-50);
+}
+.bottombar__active {
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  background: rgb(221 190 127 / 0.13);
+  z-index: -1;
+}
+
+.more-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 64px;
+  padding: 10px 4px;
+  border-bottom: 1px solid var(--hairline);
+  color: var(--text);
+}
+
+/* Shell layout */
+.shell-main {
+  min-height: 100dvh;
+}
+@media (min-width: 900px) {
+  .shell-main {
+    padding-inline-start: var(--rail-w);
+  }
+}
+
+.nav-unread {
+  position: absolute;
+  inset-block-start: 4px;
+  inset-inline-end: 10px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: var(--gold-500);
+  color: var(--midnight-950);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 18px;
+  text-align: center;
+}
+.rail__mode { display: grid; place-items: center; padding-block: 6px; }
+
+/* The rail must never be taller than the window: it scrolls (quietly) instead of cutting items off,
+   and tightens on short screens. */
+.rail {
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+.rail::-webkit-scrollbar { display: none; }
+.rail > .spacer { flex: 1 0 8px; }
+@media (max-height: 860px) {
+  .rail { padding-block: 12px; gap: 4px; }
+  .rail__brand { padding-bottom: 8px; }
+  .rail__item { padding: 6px 2px 5px; gap: 2px; }
+  .rail__list { gap: 2px; }
+  .rail__sep { margin-block: 4px; }
+}
+@media (max-height: 760px) {
+  /* Very short windows: tool labels become screen-reader-only so everything stays in view. */
+  .rail__item--tool .rail__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}

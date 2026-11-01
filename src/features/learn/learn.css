@@ -1,0 +1,43 @@
+.learn-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: 560px;
+}
+.learn-search > svg {
+  position: absolute;
+  inset-inline-start: 16px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+.learn-search .input {
+  padding-inline-start: 44px;
+  border-radius: var(--r-pill);
+  min-height: 50px;
+}
+.learn-topic {
+  display: grid;
+  gap: 10px;
+}
+.learn-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+}
+.learn-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 210px;
+}
+.learn-card__q {
+  font-size: 1.0625rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+.learn-card__a {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

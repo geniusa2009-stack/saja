@@ -1,0 +1,95 @@
+.wmap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 0.95;
+  min-height: 320px;
+  border-radius: var(--r-card);
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 100%, rgb(15 122 95 / 0.35), transparent 70%),
+    linear-gradient(180deg, #070d1f, #13204a);
+  border: 1px solid var(--hairline);
+  overflow: hidden;
+}
+.wmap__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.wmap__road {
+  fill: none;
+  stroke: rgb(221 190 127 / 0.22);
+  stroke-width: 10;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.wmap__lit {
+  fill: none;
+  stroke: #f6e8c6;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 4px rgb(246 232 198 / 0.8));
+}
+.wmap__node {
+  position: absolute;
+  translate: -50% -34%;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  width: 19%;
+  color: var(--text);
+}
+.wmap__node:disabled {
+  cursor: default;
+}
+.wmap__arch {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 42px;
+  border-radius: 50% 50% 10px 10px / 44% 44% 10px 10px;
+  background: rgb(11 21 48 / 0.9);
+  border: 1.5px solid rgb(221 190 127 / 0.6);
+  color: var(--gold-100);
+  transition: transform var(--dur-2) var(--ease);
+}
+.wmap__node:not(:disabled):hover .wmap__arch {
+  transform: translateY(-3px);
+}
+.wmap__node[data-state='current'] .wmap__arch {
+  background: linear-gradient(180deg, #f6e8c6, #c9a45c);
+  color: var(--midnight-900);
+  box-shadow: 0 0 0 5px rgb(221 190 127 / 0.2);
+}
+.wmap__node[data-state='done'] .wmap__arch {
+  background: var(--emerald-600);
+  border-color: var(--emerald-500);
+  color: #fff;
+}
+.wmap__node[data-state='asleep'] .wmap__arch {
+  border-style: dashed;
+  border-color: rgb(142 163 214 / 0.5);
+  color: #8ea3d6;
+  background: rgb(19 32 74 / 0.7);
+}
+.wmap__name {
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+}
+:lang(ar) .wmap__name {
+  font-size: 0.8125rem;
+}
+.wmap__node[data-state='asleep'] .wmap__name {
+  color: #a8b6de;
+  font-weight: 600;
+}
+.wmap__here {
+  font-size: 0.625rem;
+  font-weight: 800;
+  color: var(--gold-300);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}

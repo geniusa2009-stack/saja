@@ -1,0 +1,156 @@
+/*
+ * SAJA design tokens — translated 1:1 from the SAJA Visual Identity System v1.0
+ * (Claude Design artifact "SAJA Brand Board"). Change brand values here only.
+ *
+ *  Night carries trust, emerald carries life, gold is light (<5% of a screen).
+ */
+:root {
+  /* ── Color · brand palette ─────────────────────────────── */
+  --midnight-950: #070d1f;
+  --midnight-900: #0b1530;
+  --midnight-800: #13204a;
+  --midnight-700: #16264f;
+  --horizon-600: #1e3a66;
+  --emerald-700: #0b5a48;
+  --emerald-600: #0f7a5f;
+  --emerald-500: #22b08c;
+  --turquoise-500: #22b3bf;
+  --turquoise-300: #8fdde3;
+  --teal-hill: #138a96;
+  --sand-100: #f4ecdd;
+  --ivory-50: #fbf7ef;
+  --gold-700: #9a7a3a;
+  --gold-500: #c9a45c;
+  --gold-300: #ddbe7f;
+  --gold-100: #f3e2ba;
+  --gold-50: #f6e8c6;
+  --slate-400: #a9b2c8;
+  --slate-600: #4a5470;
+  --ink-700: #2a3350;
+
+  /* Semantic states */
+  --success: #2e9e6b;
+  --warning: #d89a3a;
+  --error: #c2463c;
+  --focus: #22b3bf;
+
+  /* Trust layer — each layer has its own colour and edge */
+  --trust-consensus: #2e9e6b;
+  --trust-majority: #22b3bf;
+  --trust-difference: #d89a3a;
+  --trust-review: #a88be0;
+  --trust-mismatch: #c2463c;
+
+  /* ── Surfaces (dark is the home of the product) ────────── */
+  --bg: var(--midnight-950);
+  --bg-raised: var(--midnight-900);
+  --surface: rgb(19 32 74 / 0.62);
+  --surface-strong: rgb(19 32 74 / 0.86);
+  --surface-hover: rgb(30 58 102 / 0.7);
+  --hairline: rgb(244 236 221 / 0.12);
+  --hairline-strong: rgb(244 236 221 / 0.22);
+  --text: var(--sand-100);
+  --text-muted: var(--slate-400);
+  --text-faint: rgb(169 178 200 / 0.7);
+  --accent: var(--gold-300);
+  --night-gradient: linear-gradient(180deg, #050a18 0%, #0b1530 55%, #16264f 100%);
+  --horizon-glow: radial-gradient(ellipse 70% 45% at 50% 100%, rgb(221 190 127 / 0.28), rgb(221 190 127 / 0) 70%);
+
+  /* ── Typography ────────────────────────────────────────── */
+  --font-display: 'Instrument Serif', 'Times New Roman', serif;
+  --font-ui: 'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display-ar: 'Reem Kufi', 'IBM Plex Sans Arabic', sans-serif;
+  --font-ui-ar: 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --fs-display: clamp(2.6rem, 6vw, 4rem); /* 64/68 */
+  --fs-h1: clamp(2rem, 4.2vw, 2.75rem); /* 44/52 */
+  --fs-h2: clamp(1.5rem, 3vw, 2rem); /* 32/40 */
+  --fs-h3: 1.375rem; /* 22/30 */
+  --fs-body: 1.0625rem; /* 17/28 */
+  --fs-small: 0.9375rem; /* 15/24 */
+  --fs-caption: 0.8125rem; /* 13/18 */
+  --lh-body: 1.65;
+  --lh-tight: 1.15;
+  /* Arabic runs 10% larger with taller leading (brand rule). */
+  --ar-scale: 1.1;
+
+  /* ── Space (4pt grid) ──────────────────────────────────── */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+  --sp-16: 64px;
+  --gutter: clamp(16px, 4vw, 40px);
+
+  /* ── Radii · "pill buttons, 20px cards, arch-topped avatars" */
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-card: 20px;
+  --r-lg: 28px;
+  --r-pill: 999px;
+  --r-arch: 50% 50% 14px 14px / 42% 42% 14px 14px;
+
+  /* ── Elevation: deep soft shadow, hairline edges ───────── */
+  --shadow-1: 0 1px 0 rgb(244 236 221 / 0.06) inset, 0 8px 24px -12px rgb(0 0 0 / 0.6);
+  --shadow-2: 0 1px 0 rgb(244 236 221 / 0.08) inset, 0 24px 60px -24px rgb(0 0 0 / 0.75);
+  --shadow-3: 0 1px 0 rgb(244 236 221 / 0.1) inset, 0 40px 100px -30px rgb(0 0 0 / 0.85);
+  --glow-gold: 0 0 0 1px rgb(221 190 127 / 0.35), 0 0 32px -4px rgb(221 190 127 / 0.45);
+  --blur-glass: saturate(140%) blur(18px);
+
+  /* ── Motion · "from stillness" ─────────────────────────── */
+  --ease: cubic-bezier(0.22, 0.61, 0.21, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-1: 180ms;
+  --dur-2: 320ms;
+  --dur-3: 600ms;
+  --dur-4: 1200ms;
+  --breath: 2400ms;
+
+  /* ── Layout ────────────────────────────────────────────── */
+  --rail-w: 88px;
+  --bottom-nav-h: 72px;
+  --touch: 44px;
+  --z-world: 0;
+  --z-hud: 10;
+  --z-nav: 20;
+  --z-sheet: 40;
+  --z-dialog: 50;
+  --z-toast: 60;
+  --z-intro: 100;
+
+  color-scheme: dark;
+}
+
+/* Arabic typography — applied by the i18n layer via <html lang="ar" dir="rtl"> */
+:root:lang(ar) {
+  --font-display: var(--font-display-ar);
+  --font-ui: var(--font-ui-ar);
+  --fs-body: calc(1.0625rem * var(--ar-scale));
+  --fs-small: calc(0.9375rem * var(--ar-scale));
+  --fs-caption: calc(0.8125rem * var(--ar-scale));
+  --fs-h3: calc(1.375rem * var(--ar-scale));
+  --lh-body: 1.85;
+  --lh-tight: 1.4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-1: 0ms;
+    --dur-2: 0ms;
+    --dur-3: 0ms;
+    --dur-4: 0ms;
+  }
+}
+/* User-chosen reduced motion (settings) mirrors the OS preference. */
+:root[data-motion='reduced'] {
+  --dur-1: 0ms;
+  --dur-2: 0ms;
+  --dur-3: 0ms;
+  --dur-4: 0ms;
+}

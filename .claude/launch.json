@@ -1,0 +1,33 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "saja-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
+      "port": 5173
+    },
+    {
+      "name": "saja-prod",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "tsx",
+        "--tsconfig",
+        "server/tsconfig.json",
+        "server/index.ts"
+      ],
+      "port": 8899,
+      "env": {
+        "SAJA_ENV": "production",
+        "PORT": "8899",
+        "APP_ORIGIN": "http://localhost:8899",
+        "COOKIE_SECURE": "false",
+        "PGLITE_DIR": "/private/tmp/claude-501/-Users-ahmedibrahim-Library-Application-Support-Claude-scratch-workspaces-4549e53f-6bc0-4a95-bcf4-b98e9ff8b22a-615b8f3d-783b-4fde-80a0-703ae3524d22-scratch-2026-09-28-e2d60e/bc23c5bf-02f0-4d62-9a9a-ec1178cb71d8/scratchpad/prod-pglite",
+        "UPLOAD_DIR": "/private/tmp/claude-501/-Users-ahmedibrahim-Library-Application-Support-Claude-scratch-workspaces-4549e53f-6bc0-4a95-bcf4-b98e9ff8b22a-615b8f3d-783b-4fde-80a0-703ae3524d22-scratch-2026-09-28-e2d60e/bc23c5bf-02f0-4d62-9a9a-ec1178cb71d8/scratchpad/prod-uploads"
+      }
+    }
+  ]
+}
