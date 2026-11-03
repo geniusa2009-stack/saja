@@ -10,7 +10,7 @@ import { useI18n } from '@/i18n';
 import { useTutor } from '@/store/tutor';
 import { Avatar } from '@/features/character/Character';
 
-export function LocationSheet({ id, onClose, completed, unlocked }: { id: LocationId | null; onClose: () => void; completed: Set<string>; unlocked: Set<LocationId> }) {
+export function LocationSheet({ id, onClose, completed, unlocked, onExplore }: { id: LocationId | null; onClose: () => void; completed: Set<string>; unlocked: Set<LocationId>; onExplore?: (id: 'village' | 'mosque') => void }) {
   const { t, l } = useI18n();
   const navigate = useNavigate();
   const openTutor = useTutor((s) => s.openTutor);
@@ -20,6 +20,7 @@ export function LocationSheet({ id, onClose, completed, unlocked }: { id: Locati
   const npc = loc ? NPCS.find((n) => n.at === loc.id) : undefined;
   const remaining = loc ? missionsUntilUnlock(loc, { completed: [...completed] }) : 0;
   const allDone = missions.length > 0 && missions.every((m) => completed.has(m.id));
+  const explorationId = loc?.id === 'village' || loc?.id === 'mosque' ? loc.id : null;
 
   return (
     <Sheet open={!!loc} onClose={onClose} title={loc ? l(loc.name) : ''} icon={<span className="tile__icon"><Icon name={asleep ? 'moon' : 'lantern'} size={20} /></span>}>
@@ -32,6 +33,12 @@ export function LocationSheet({ id, onClose, completed, unlocked }: { id: Locati
               {asleep ? (remaining === 1 ? t('world.asleepOne') : t('world.asleepMany', { n: remaining })) : l(loc.arrival)}
             </p>
           </div>
+
+          {!asleep && explorationId && onExplore && (
+            <Button icon="forward" onClick={() => onExplore(explorationId)}>
+              {explorationId === 'village' ? l({ en: 'Explore the village', ar: 'استكشف القرية' }) : l({ en: 'Explore the courtyard', ar: 'استكشف الساحة' })}
+            </Button>
+          )}
 
           {!asleep && npc && (
             <div className="card card--flat row" style={{ alignItems: 'flex-start' }}>

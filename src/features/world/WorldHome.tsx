@@ -35,6 +35,7 @@ import { WORLD_H, WORLD_W, mirrorX, pointAtT, tToX } from './geometry';
 import { LocationSheet } from './LocationSheet';
 import { WorldMapSheet } from './WorldMap';
 import { useWorldCommand } from './commands';
+import { PlayableWorld } from './PlayableWorld';
 import './world.css';
 
 /** How high above the path each place's marker floats (world units). */
@@ -102,6 +103,7 @@ export default function WorldHome() {
   const [mapOpen, setMapOpen] = useState(false);
   const [talking, setTalking] = useState<{ id: string; line: number } | null>(null);
   const [waking, setWaking] = useState<LocationId | null>(routeState.wake ?? null);
+  const [gameScene, setGameScene] = useState<'village' | 'mosque' | null>(null);
 
   // Player position along the path (t) and the camera (px), both motion values — no re-render per frame.
   const tMV = useMotionValue(LOCATION_BY_ID[current]?.t ?? 0.06);
@@ -197,6 +199,7 @@ export default function WorldHome() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (gameScene) return;
       if (sheetFor || mapOpen || (e.target as HTMLElement)?.closest?.('input,textarea,[role="dialog"]')) return;
       if (e.key === 'ArrowRight') step(isRTL ? -1 : 1);
       else if (e.key === 'ArrowLeft') step(isRTL ? 1 : -1);
@@ -206,7 +209,7 @@ export default function WorldHome() {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [step, isRTL, current, sheetFor, mapOpen]);
+  }, [step, isRTL, current, sheetFor, mapOpen, gameScene]);
 
   /* ── look around: drag & wheel ─────────────────── */
   const drag = useRef<{ x: number; cam: number; moved: boolean } | null>(null);
@@ -410,7 +413,7 @@ export default function WorldHome() {
         </p>
       </div>
 
-      <LocationSheet id={sheetFor} onClose={() => setSheetFor(null)} completed={completedSet} unlocked={journey.unlocked} />
+      <LocationSheet id={sheetFor} onClose={() => setSheetFor(null)} completed={completedSet} unlocked={journey.unlocked} onExplore={(id) => { setSheetFor(null); setGameScene(id); }} />
       <WorldMapSheet
         open={mapOpen}
         onClose={() => setMapOpen(false)}
@@ -420,6 +423,7 @@ export default function WorldHome() {
           walkTo(id);
         }}
       />
+      {gameScene && <PlayableWorld sceneId={gameScene} look={profile.look} playerName={profile.name} rtl={isRTL} reducedMotion={reduced} onExit={() => setGameScene(null)} />}
     </div>
   );
 }
