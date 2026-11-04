@@ -25,7 +25,7 @@ if (staticDir && existsSync(join(staticDir, 'index.html'))) {
   const indexHtml = readFileSync(join(staticDir, 'index.html'), 'utf8');
   const CSP = [
     "default-src 'self'",
-    "script-src 'self'",
+    "script-src 'self' 'wasm-unsafe-eval'",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: blob:",
