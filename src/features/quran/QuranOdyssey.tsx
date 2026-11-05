@@ -4,8 +4,13 @@
  * Surah Al-Fatiha: Authentic Uthmani text, interactive word-by-word vocabulary,
  * Ayah Builder educational puzzle, and classical Tafsir contemplation.
  * Religious safeguards: Clearly disclosed demo review status with cited sources.
+ *
+ * AUDIO INTEGRITY NOTE: This feature does NOT contain recorded Quran recitation.
+ * No audio synthesis is used for Quranic verses. Recitation playback requires
+ * a verified recording, confirmed reciter identity, and proper licensing before
+ * it can be enabled. The listen/recitation button is intentionally disabled.
  */
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Button, DemoNote, Chip, Bar } from '@/design-system';
 import { Icon } from '@/brand/Icon';
 import { useI18n } from '@/i18n';
@@ -23,7 +28,6 @@ export default function QuranOdyssey() {
   const [mode, setMode] = useState<Mode>('mushaf');
   const [selectedWord, setSelectedWord] = useState<QuranWord | null>(null);
   const [activeAyahNumber, setActiveAyahNumber] = useState<number>(1);
-  const [isPlayingAudio, setIsPlayingAudio] = useState<number | null>(null);
 
   // Vocab Challenge state
   const [vocabIndex, setVocabIndex] = useState(0);
@@ -37,58 +41,25 @@ export default function QuranOdyssey() {
   const [placedWords, setPlacedWords] = useState<typeof activePuzzle.scrambledWords>([]);
   const [bankWords, setBankWords] = useState<typeof activePuzzle.scrambledWords>(activePuzzle.scrambledWords);
   const [builderComplete, setBuilderComplete] = useState(false);
+  const [builderOrderWrong, setBuilderOrderWrong] = useState(false);
 
   // Reset builder state when puzzle changes
   useEffect(() => {
     setPlacedWords([]);
     setBankWords(activePuzzle.scrambledWords);
     setBuilderComplete(false);
+    setBuilderOrderWrong(false);
   }, [builderIndex, activePuzzle]);
-
-  // Gentle contemplative audio synthesis using Web Audio API
-  const playContemplativeChime = useCallback((ayahNum: number) => {
-    setIsPlayingAudio(ayahNum);
-    try {
-      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      if (AudioCtx) {
-        const ctx = new AudioCtx();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-
-        // Warm pentatonic frequency based on ayah number
-        const baseFreq = 261.63; // C4
-        const pentatonicIntervals = [1, 9 / 8, 5 / 4, 3 / 2, 5 / 3, 2];
-        const freq = baseFreq * pentatonicIntervals[(ayahNum - 1) % pentatonicIntervals.length];
-
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, ctx.currentTime);
-
-        gain.gain.setValueAtTime(0, ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.2, ctx.currentTime + 0.15);
-        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 2.0);
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-
-        osc.start();
-        osc.stop(ctx.currentTime + 2.2);
-
-        setTimeout(() => {
-          setIsPlayingAudio(null);
-          void ctx.close();
-        }, 2200);
-      } else {
-        setTimeout(() => setIsPlayingAudio(null), 1500);
-      }
-    } catch {
-      setTimeout(() => setIsPlayingAudio(null), 1000);
-    }
-  }, []);
 
   const handleWordSelect = (word: QuranWord, ayah: QuranAyah) => {
     setSelectedWord(selectedWord?.id === word.id ? null : word);
     setActiveAyahNumber(ayah.number);
   };
+
+  // ── NOTE: No audio playback is implemented in this version.
+  // Quran recitation requires a verified recording with confirmed reciter
+  // identity, verse-level alignment, and confirmed licensing before it
+  // can be presented to learners. The listen button is intentionally disabled.
 
   // Vocab choice selection
   const handleVocabChoice = (opt: { id: string; correct: boolean }) => {
@@ -112,13 +83,15 @@ export default function QuranOdyssey() {
     const nextBank = bankWords.filter((w) => w.id !== word.id);
     setPlacedWords(nextPlaced);
     setBankWords(nextBank);
+    setBuilderOrderWrong(false);
 
-    // Check if fully placed in order
+    // Check if fully placed — only mark complete if order is correct
     if (nextPlaced.length === activePuzzle.scrambledWords.length) {
       const isCorrect = nextPlaced.every((w, idx) => w.correctIndex === idx);
       if (isCorrect) {
         setBuilderComplete(true);
-        playContemplativeChime(activePuzzle.ayahNumber);
+      } else {
+        setBuilderOrderWrong(true);
       }
     }
   };
@@ -127,6 +100,7 @@ export default function QuranOdyssey() {
     if (builderComplete) return;
     setPlacedWords(placedWords.filter((w) => w.id !== word.id));
     setBankWords([...bankWords, word]);
+    setBuilderOrderWrong(false);
   };
 
   const nextBuilderPuzzle = () => {
@@ -137,6 +111,7 @@ export default function QuranOdyssey() {
     setPlacedWords([]);
     setBankWords(activePuzzle.scrambledWords);
     setBuilderComplete(false);
+    setBuilderOrderWrong(false);
   };
 
   return (
@@ -219,7 +194,6 @@ export default function QuranOdyssey() {
             <div className="ayah-container">
               {surah.ayahs.map((ayah) => {
                 const isActive = activeAyahNumber === ayah.number;
-                const isPlaying = isPlayingAudio === ayah.number;
 
                 return (
                   <article
@@ -231,18 +205,15 @@ export default function QuranOdyssey() {
                       <span className="ayah-number-badge" aria-label={`Ayah ${ayah.number}`}>
                         {num(ayah.number)}
                       </span>
-                      <button
-                        type="button"
-                        className={`ayah-audio-btn ${isPlaying ? 'playing' : ''}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          playContemplativeChime(ayah.number);
-                        }}
-                        aria-label={`Listen to Ayah ${ayah.number}`}
+                      {/* Audio intentionally unavailable — requires verified recitation recording */}
+                      <span
+                        className="ayah-audio-btn ayah-audio-unavailable"
+                        aria-label={t('quran.listenUnavailable' as unknown as 'app.name')}
+                        title={t('quran.listenUnavailableTitle' as unknown as 'app.name')}
                       >
                         <Icon name="mic" size={14} />
-                        <span>{isPlaying ? t('quran.playing' as unknown as 'state.loading') : t('quran.listen' as unknown as 'a.open')}</span>
-                      </button>
+                        <span>{t('quran.listenUnavailable' as unknown as 'app.name')}</span>
+                      </span>
                     </header>
 
                     {/* Word-by-word interactive Arabic text */}
@@ -425,8 +396,13 @@ export default function QuranOdyssey() {
                 "{l(activePuzzle.translation)}"
               </p>
 
-              {/* Target Drop Zone */}
-              <div className={`builder-drop-zone ${builderComplete ? 'completed' : ''}`}>
+              {/* Attempt Zone — clearly labeled as learner arrangement, NOT authentic Quranic text */}
+              <div className="builder-attempt-label">
+                <Icon name="layers" size={12} />
+                <span>{t('quran.yourAttempt' as unknown as 'app.name')}</span>
+                <span className="builder-attempt-note">{t('quran.attemptNote' as unknown as 'app.name')}</span>
+              </div>
+              <div className={`builder-drop-zone ${builderComplete ? 'completed' : ''} ${builderOrderWrong ? 'order-wrong' : ''}`}>
                 {placedWords.length === 0 ? (
                   <span style={{ color: 'var(--slate-400)', fontSize: 'var(--fs-small)' }}>
                     {t('quran.tapWordsInstruction' as unknown as 'app.name')}
@@ -451,6 +427,14 @@ export default function QuranOdyssey() {
                 )}
               </div>
 
+              {/* Wrong order feedback — clarify this is not the Quranic verse */}
+              {builderOrderWrong && !builderComplete && (
+                <div className="builder-wrong-order-notice">
+                  <Icon name="info" size={14} />
+                  <span>{t('quran.wrongOrder' as unknown as 'app.name')}</span>
+                </div>
+              )}
+
               {/* Bank of remaining scrambled words */}
               <div style={{ marginTop: '20px' }}>
                 <p style={{ color: 'var(--text-faint)', fontSize: 'var(--fs-caption)', marginBottom: '10px' }}>
@@ -470,12 +454,16 @@ export default function QuranOdyssey() {
                 </div>
               </div>
 
-              {/* Victory state */}
+              {/* Victory state — shows the verified source text as reference */}
               {builderComplete && (
                 <div style={{ marginTop: '24px', padding: '16px', background: 'rgba(34, 176, 140, 0.15)', border: '1px solid var(--emerald-500)', borderRadius: '12px' }}>
                   <div style={{ color: 'var(--emerald-500)', fontWeight: 700, fontSize: '1.2rem', marginBottom: '8px' }}>
                     ✨ {t('quran.ayahCompleted' as unknown as 'a.done')}
                   </div>
+                  {/* Verified source text — displayed after correct completion for reference only */}
+                  <p style={{ color: 'var(--slate-400)', fontSize: 'var(--fs-caption)', marginBottom: '4px' }}>
+                    {t('quran.verifiedSourceText' as unknown as 'app.name')}
+                  </p>
                   <p style={{ color: 'var(--ivory-50)', fontFamily: 'Amiri, serif', fontSize: '1.8rem', lineHeight: '2' }}>
                     {activePuzzle.targetArabic}
                   </p>
@@ -493,6 +481,11 @@ export default function QuranOdyssey() {
         {/* ── MODE 4: TAFSIR & REFLECTION ── */}
         {mode === 'tafsir' && (
           <section aria-label="Tafsir & Reflections">
+            {/* Scholarly review notice for Tafsir content */}
+            <div className="tafsir-review-notice">
+              <Icon name="seal" size={14} />
+              <span>{t('quran.tafsirReviewNotice' as unknown as 'app.name')}</span>
+            </div>
             {surah.ayahs.map((ayah) => (
               <article key={ayah.number} className="reflection-card">
                 <div className="reflection-theme-badge">
@@ -503,6 +496,11 @@ export default function QuranOdyssey() {
                   {ayah.arabic}
                 </div>
                 <p className="reflection-tafsir-text">{l(ayah.tafsir)}</p>
+                {/* Unverified flag — pending scholar board approval */}
+                <div className="reflection-unverified-badge">
+                  <Icon name="info" size={12} />
+                  <span>{t('quran.tafsirUnverified' as unknown as 'app.name')}</span>
+                </div>
               </article>
             ))}
           </section>
