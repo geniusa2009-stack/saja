@@ -70,6 +70,7 @@ export const ar: Dict = {
   'quran.reconstructAyah': 'رتّب نظم الآية',
   'quran.tapWordsInstruction': 'المس الكلمات من المستودع بالأسفل بترتيبها القرآني الشريف',
   'quran.wordBank': 'مستودع الكلمات (المس للإدراج)',
+  'quran.remainingWords': 'كلمات متبقية',
   'quran.ayahCompleted': 'ما شاء الله! اكتمل نظم الآية الكريمة بإحكام.',
   'quran.nextAyah': 'الآية التالية',
   'quran.sourcesTitle': 'المصادر والتحقق العلمي',

@@ -68,6 +68,7 @@ export const en = {
   'quran.reconstructAyah': 'Weave Ayah',
   'quran.tapWordsInstruction': 'Tap the words from the bank below in their sacred Quranic order',
   'quran.wordBank': 'Available Words (tap to place)',
+  'quran.remainingWords': 'words remaining',
   'quran.ayahCompleted': 'Masha’Allah! Verse assembled in sacred order.',
   'quran.nextAyah': 'Next Verse',
   'quran.sourcesTitle': 'Sources & Scholarly Verification',

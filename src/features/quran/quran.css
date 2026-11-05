@@ -1,7 +1,7 @@
 /* ── Quran Odyssey · Visual & Interactive Styles ───────────────── */
 
 .quran-page {
-  padding-bottom: 96px;
+  padding-bottom: clamp(100px, 15vh, 160px);
   max-width: 960px;
   margin: 0 auto;
 }
@@ -80,6 +80,7 @@
   margin: 20px 0;
   overflow-x: auto;
   scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
 }
 
 .quran-nav-tabs::-webkit-scrollbar {
@@ -139,20 +140,44 @@
   pointer-events: none;
 }
 
-.mushaf-bismillah {
-  text-align: center;
-  padding: 16px 0 24px;
-  margin-bottom: 24px;
-  border-bottom: 1px solid rgba(201, 164, 92, 0.2);
+/* Bismillah Gilded Cartouche */
+.bismillah-cartouche {
   position: relative;
+  margin: 8px auto 28px;
+  max-width: 540px;
+  padding: 14px 28px;
+  background: linear-gradient(135deg, rgba(201, 164, 92, 0.08) 0%, rgba(19, 32, 74, 0.5) 50%, rgba(201, 164, 92, 0.08) 100%);
+  border: 1px solid rgba(201, 164, 92, 0.35);
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.bismillah-cartouche::before,
+.bismillah-cartouche::after {
+  content: '❖';
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--gold-300);
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+.bismillah-cartouche::before {
+  left: 12px;
+}
+
+.bismillah-cartouche::after {
+  right: 12px;
 }
 
 .mushaf-bismillah-arabic {
-  font-family: 'Amiri', 'Traditional Arabic', 'IBM Plex Sans Arabic', serif;
-  font-size: clamp(2rem, 5vw, 3rem);
+  font-family: 'Amiri', 'Traditional Arabic', serif;
+  font-size: clamp(2rem, 5vw, 2.8rem);
   color: var(--gold-300);
-  line-height: 2.2;
-  text-shadow: 0 0 16px rgba(221, 190, 127, 0.2);
+  line-height: 2.1;
+  text-shadow: 0 0 16px rgba(221, 190, 127, 0.25);
   direction: rtl;
 }
 
@@ -232,12 +257,12 @@
   box-shadow: 0 0 12px rgba(201, 164, 92, 0.4);
 }
 
-/* ── Arabic Typography ───────────────────────────────────────── */
+/* ── Arabic Typography & Ayah Medallion ──────────────────────── */
 
 .ayah-arabic-flow {
   direction: rtl;
   text-align: right;
-  font-family: 'Amiri', 'Traditional Arabic', 'IBM Plex Sans Arabic', serif;
+  font-family: 'Amiri', 'Traditional Arabic', serif;
   font-size: clamp(1.8rem, 4.2vw, 2.5rem);
   line-height: 2.3;
   color: var(--ivory-50);
@@ -247,7 +272,7 @@
 
 .quran-word-interactive {
   display: inline-block;
-  padding: 0 4px;
+  padding: 0 5px;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
@@ -258,7 +283,7 @@
 .quran-word-interactive:hover {
   color: var(--gold-300);
   background: rgba(201, 164, 92, 0.18);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
 
 .quran-word-interactive.selected-word {
@@ -269,11 +294,25 @@
   text-shadow: 0 0 10px rgba(221, 190, 127, 0.4);
 }
 
-.ayah-end-symbol {
-  font-family: 'Amiri', serif;
+/* Authentic Quranic Ayah End Medallion */
+.ayah-medallion {
+  display: inline-inline;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6em;
+  height: 1.6em;
+  margin: 0 0.2em;
+  vertical-align: middle;
+  background: radial-gradient(circle, rgba(201, 164, 92, 0.22) 0%, rgba(19, 32, 74, 0.6) 70%);
+  border: 1.5px solid var(--gold-500);
+  border-radius: 50%;
   color: var(--gold-300);
-  font-size: 1.1em;
-  padding: 0 6px;
+  font-family: 'Amiri', 'IBM Plex Sans Arabic', sans-serif;
+  font-size: 0.72em;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 0 8px rgba(201, 164, 92, 0.3);
   user-select: none;
 }
 
@@ -297,7 +336,7 @@
 
 .word-inspector-card {
   margin-top: 14px;
-  padding: 16px;
+  padding: 18px;
   background: rgba(11, 21, 48, 0.95);
   border: 1px solid var(--gold-500);
   border-radius: 12px;
@@ -311,12 +350,12 @@
   justify-content: space-between;
   border-bottom: 1px solid var(--hairline);
   padding-bottom: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .word-inspector-arabic {
   font-family: 'Amiri', 'Traditional Arabic', serif;
-  font-size: 1.8rem;
+  font-size: 1.9rem;
   color: var(--gold-300);
   line-height: 1.4;
   direction: rtl;
@@ -325,14 +364,14 @@
 .word-meta-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-  gap: 10px;
+  gap: 12px;
   font-size: var(--fs-small);
 }
 
 .word-meta-item {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
 .word-meta-label {
@@ -379,7 +418,7 @@
   background: rgba(34, 179, 191, 0.12);
   border: 1px solid var(--turquoise-500);
   color: var(--turquoise-300);
-  padding: 3px 12px;
+  padding: 3px 14px;
   border-radius: 9999px;
   font-size: var(--fs-caption);
   margin-bottom: 24px;
@@ -412,7 +451,7 @@
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  min-height: 64px;
+  min-height: 68px;
   justify-content: center;
 }
 
@@ -444,7 +483,7 @@
 }
 
 .builder-drop-zone {
-  min-height: 80px;
+  min-height: 84px;
   background: rgba(7, 13, 31, 0.7);
   border: 2px dashed rgba(201, 164, 92, 0.4);
   border-radius: 14px;
@@ -478,6 +517,7 @@
   gap: 8px;
   cursor: pointer;
   animation: quranPopIn 0.2s ease-out;
+  min-height: 48px;
 }
 
 .builder-word-slot:hover {

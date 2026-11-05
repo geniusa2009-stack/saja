@@ -6,7 +6,7 @@
  * Religious safeguards: Clearly disclosed demo review status with cited sources.
  */
 import { useState, useCallback, useEffect } from 'react';
-import { Button, DemoNote, Chip } from '@/design-system';
+import { Button, DemoNote, Chip, Bar } from '@/design-system';
 import { Icon } from '@/brand/Icon';
 import { useI18n } from '@/i18n';
 import { Page } from '@/app/Page';
@@ -17,7 +17,7 @@ import './quran.css';
 type Mode = 'mushaf' | 'vocab' | 'builder' | 'tafsir';
 
 export default function QuranOdyssey() {
-  const { t, l } = useI18n();
+  const { t, l, num } = useI18n();
   const surah = SURAH_AL_FATIHA;
 
   const [mode, setMode] = useState<Mode>('mushaf');
@@ -152,10 +152,10 @@ export default function QuranOdyssey() {
           <div className="row wrap justify-between items-center" style={{ gap: '12px' }}>
             <span className="quran-surah-badge">
               <Icon name="star" size={14} />
-              {t('quran.surah' as unknown as 'app.name')} {surah.number} · {t(`quran.${surah.revelationPlace}` as unknown as 'app.name')}
+              {t('quran.surah' as unknown as 'app.name')} {num(surah.number)} · {t(`quran.${surah.revelationPlace}` as unknown as 'app.name')}
             </span>
             <Chip tone="quiet">
-              {surah.ayahsCount} {t('quran.ayahs' as unknown as 'app.name')}
+              {num(surah.ayahsCount)} {t('quran.ayahs' as unknown as 'app.name')}
             </Chip>
           </div>
 
@@ -177,7 +177,7 @@ export default function QuranOdyssey() {
             className={`quran-tab-btn ${mode === 'mushaf' ? 'active' : ''}`}
             onClick={() => setMode('mushaf')}
           >
-            <Icon name="learn" size={16} />
+            <Icon name="quran" size={16} />
             <span>{t('quran.tabMushaf' as unknown as 'a.open')}</span>
           </button>
           <button
@@ -212,7 +212,7 @@ export default function QuranOdyssey() {
         {/* ── MODE 1: MUSHAF & INTERACTIVE WORD EXPLORER ── */}
         {mode === 'mushaf' && (
           <section className="mushaf-card" aria-label="Surah Al-Fatiha Mushaf">
-            <div className="mushaf-bismillah">
+            <div className="bismillah-cartouche">
               <div className="mushaf-bismillah-arabic">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>
             </div>
 
@@ -229,7 +229,7 @@ export default function QuranOdyssey() {
                   >
                     <header className="ayah-header">
                       <span className="ayah-number-badge" aria-label={`Ayah ${ayah.number}`}>
-                        {ayah.number}
+                        {num(ayah.number)}
                       </span>
                       <button
                         type="button"
@@ -263,7 +263,9 @@ export default function QuranOdyssey() {
                           </span>
                         );
                       })}
-                      <span className="ayah-end-symbol"> ۝{ayah.number} </span>
+                      <span className="ayah-medallion" aria-label={`Ayah ${ayah.number}`}>
+                        {num(ayah.number)}
+                      </span>
                     </div>
 
                     <div className="ayah-translation-en">{l(ayah.translation)}</div>
@@ -273,8 +275,21 @@ export default function QuranOdyssey() {
                     {selectedWord && selectedWord.id.startsWith(`1:${ayah.number}:`) && (
                       <div className="word-inspector-card">
                         <div className="word-inspector-header">
-                          <span className="word-inspector-arabic">{selectedWord.arabic}</span>
-                          <Chip tone="gold">{selectedWord.transliteration}</Chip>
+                          <div className="row items-center gap-2">
+                            <span className="word-inspector-arabic">{selectedWord.arabic}</span>
+                            <Chip tone="gold">{selectedWord.transliteration}</Chip>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedWord(null);
+                            }}
+                            className="ayah-audio-btn"
+                            aria-label={t('a.close')}
+                          >
+                            <Icon name="close" size={14} />
+                          </button>
                         </div>
                         <div className="word-meta-grid">
                           <div className="word-meta-item">
@@ -304,15 +319,21 @@ export default function QuranOdyssey() {
           <section className="vocab-studio-panel" aria-label="Quranic Vocabulary Studio">
             {(() => {
               const currentQ = FATIHA_VOCAB_CHALLENGES[vocabIndex];
+              const progressRatio = (vocabIndex + 1) / FATIHA_VOCAB_CHALLENGES.length;
+
               return (
                 <div className="vocab-quiz-card">
                   <div className="row justify-between items-center" style={{ marginBottom: '16px' }}>
                     <Chip tone="quiet">
-                      {t('quran.wordChallenge' as unknown as 'app.name')} {vocabIndex + 1} / {FATIHA_VOCAB_CHALLENGES.length}
+                      {t('quran.wordChallenge' as unknown as 'app.name')} {num(vocabIndex + 1)} / {num(FATIHA_VOCAB_CHALLENGES.length)}
                     </Chip>
                     <Chip tone="gold">
-                      {t('quran.score' as unknown as 'app.name')}: {vocabScore}
+                      {t('quran.score' as unknown as 'app.name')}: {num(vocabScore)}
                     </Chip>
+                  </div>
+
+                  <div style={{ marginBottom: '16px' }}>
+                    <Bar value={progressRatio} gold label={t('quran.wordChallenge' as unknown as 'app.name')} />
                   </div>
 
                   <p style={{ color: 'var(--slate-400)', fontSize: 'var(--fs-small)' }}>
@@ -393,7 +414,7 @@ export default function QuranOdyssey() {
             <div className="vocab-quiz-card">
               <div className="row justify-between items-center" style={{ marginBottom: '16px' }}>
                 <Chip tone="gold">
-                  {t('quran.reconstructAyah' as unknown as 'app.name')} {activePuzzle.ayahNumber} / {FATIHA_BUILDER_PUZZLES.length}
+                  {t('quran.reconstructAyah' as unknown as 'app.name')} {num(activePuzzle.ayahNumber)} / {num(FATIHA_BUILDER_PUZZLES.length)}
                 </Chip>
                 <Button variant="secondary" size="sm" onClick={resetBuilder}>
                   <Icon name="refresh" size={14} /> {t('a.retry')}
@@ -422,6 +443,11 @@ export default function QuranOdyssey() {
                       <span>{w.arabic}</span>
                     </button>
                   ))
+                )}
+                {placedWords.length > 0 && placedWords.length < activePuzzle.scrambledWords.length && (
+                  <span style={{ color: 'var(--text-faint)', fontSize: 'var(--fs-caption)', alignSelf: 'center' }}>
+                    ({num(activePuzzle.scrambledWords.length - placedWords.length)} {t('quran.remainingWords' as unknown as 'app.name')})
+                  </span>
                 )}
               </div>
 
@@ -471,7 +497,7 @@ export default function QuranOdyssey() {
               <article key={ayah.number} className="reflection-card">
                 <div className="reflection-theme-badge">
                   <Icon name="sparkle" size={14} />
-                  <span>Ayah {ayah.number} · {l(ayah.reflectionTheme)}</span>
+                  <span>Ayah {num(ayah.number)} · {l(ayah.reflectionTheme)}</span>
                 </div>
                 <div style={{ fontFamily: 'Amiri, serif', fontSize: '1.4rem', color: 'var(--gold-300)', marginBottom: '10px', direction: 'rtl' }}>
                   {ayah.arabic}
