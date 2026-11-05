@@ -44,6 +44,7 @@ const ResetPassword = lazy(() => import('@/features/account/Account').then((m) =
 const Inbox = lazy(() => import('@/features/account/Inbox'));
 const Staff = lazy(() => import('@/features/staff/Staff'));
 const Messages = lazy(() => import('@/features/community/Messages'));
+const QuranOdyssey = lazy(() => import('@/features/quran/QuranOdyssey'));
 const SirajLayer = lazy(() => import('@/features/tutor/SirajLayer'));
 const CelebrationLayer = lazy(() => import('@/features/world/CelebrationLayer'));
 
@@ -169,6 +170,9 @@ export function App() {
                 <Route index element={<WorldHome />} />
                 <Route path="journey" element={<Journey />} />
                 <Route path="learn" element={<Learn />} />
+                <Route path="quran" element={<QuranOdyssey />} />
+                <Route path="quran/:surahId" element={<QuranOdyssey />} />
+                <Route path="quran-studio" element={<QuranOdyssey />} />
                 <Route path="day" element={<MyDay />} />
                 <Route path="circles" element={<Circles />} />
                 <Route path="circles/:id" element={<CircleRoom />} />

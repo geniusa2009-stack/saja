@@ -71,6 +71,33 @@ export default function Learn() {
           ))}
         </div>
 
+        {(topic === 'all' || topic === 'quran') && (
+          <div
+            className="card card--interactive"
+            onClick={() => navigate('/quran')}
+            style={{
+              background: 'linear-gradient(135deg, rgba(19, 32, 74, 0.8) 0%, rgba(11, 21, 48, 0.95) 100%)',
+              border: '1px solid var(--gold-500)',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '18px 24px',
+              gap: '16px',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div style={{ background: 'rgba(201, 164, 92, 0.15)', padding: '12px', borderRadius: '12px', color: 'var(--gold-300)' }}>
+                <Icon name="quran" size={28} />
+              </div>
+              <div>
+                <strong style={{ fontSize: '1.2rem', color: 'var(--gold-300)', display: 'block' }}>{t('nav.quran')}</strong>
+                <span style={{ fontSize: '0.9rem', color: 'var(--sand-100)', opacity: 0.85 }}>{t('quran.sub')}</span>
+              </div>
+            </div>
+            <Icon name="forward" size={20} className="gold" />
+          </div>
+        )}
+
         {topic !== 'all' && (
           <div className="card card--flat learn-topic">
             <div className="row" style={{ justifyContent: 'space-between' }}>
