@@ -23,6 +23,15 @@ interface Props {
 }
 
 const WORLD_SCALE = 50;
+/**
+ * Longest slice of game time simulated in one frame. A stalled frame (shader compile, slow GPU,
+ * background tab) slows the game down instead of teleporting the traveller — the same policy as
+ * the 2D fallback's fixedSteps(). At 10 fps and above the game runs in real time.
+ */
+const MAX_FRAME_SECONDS = 0.1;
+/** Contacts whose normal points mostly up are the ground, not a wall. */
+const WALL_NORMAL_MAX_Y = 0.5;
+const CLIP_HISTORY = 12;
 const VILLAGE_ASSET_URL = '/assets/game/saja-village.glb?v=b45804f5';
 const worldPoint = (x: number, y: number): [number, number, number] => [x / WORLD_SCALE - 18, 0, 11 - y / WORLD_SCALE];
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
@@ -205,7 +214,8 @@ function RiggedTraveller({ look, animation, reducedMotion }: { look: CharacterLo
     }
     // Slow idle and interaction motion for reduced-motion users while keeping gait synced to Rapier.
     const motionScale = reducedMotion && !state.moving ? 0.7 : 1;
-    mixer.update(delta * motionScale);
+    // Same cap as movement, so the gait stays in step with the distance actually covered.
+    mixer.update(Math.min(delta, MAX_FRAME_SECONDS) * motionScale);
   });
 
   const availableClips = gltf.animations.map((clip) => clip.name).join('|');
@@ -243,7 +253,8 @@ function Player(props: Props) {
   const lastDesiredHeading = useRef(heading.current);
   const lastTurnRequestAt = useRef(0);
   const collisionCount = useRef(0);
-  const [telemetry, setTelemetry] = useState({ x: 0, z: 0, hits: 0, cameraYaw: yaw.current, facingYaw: heading.current, animation: 'Idle' });
+  const clipHistory = useRef<string[]>(['Idle']);
+  const [telemetry, setTelemetry] = useState({ x: 0, z: 0, hits: 0, cameraYaw: yaw.current, facingYaw: heading.current, animation: 'Idle', history: 'Idle' });
   const direction = useMemo(() => new THREE.Vector3(), []);
   const right = useMemo(() => new THREE.Vector3(), []);
   const forward = useMemo(() => new THREE.Vector3(), []);
@@ -304,11 +315,12 @@ function Player(props: Props) {
     };
   }, [stageRef]);
 
-  useFrame(({ camera }, dt) => {
+  useFrame(({ camera }, frameSeconds) => {
     const rigidBody = body.current;
     const playerCollider = capsule.current;
     const character = controller.current;
     if (!rigidBody || !playerCollider || !character) return;
+    const dt = Math.min(frameSeconds, MAX_FRAME_SECONDS);
 
     const keySet = keys.current;
     const rawX = Number(keySet.has('ArrowRight') || keySet.has('KeyD')) - Number(keySet.has('ArrowLeft') || keySet.has('KeyA'));
@@ -348,11 +360,15 @@ function Player(props: Props) {
     const desiredSpeed = isMoving && enabled ? maxSpeed : 0;
     const acceleration = isMoving ? 13 : 16;
     desiredVelocity.copy(direction).multiplyScalar(desiredSpeed);
-    velocity.current.lerp(desiredVelocity, 1 - Math.exp(-acceleration * Math.min(dt, 0.05)));
-    verticalSpeed.current = Math.max(-18, verticalSpeed.current - 9.81 * Math.min(dt, 0.05));
+    velocity.current.lerp(desiredVelocity, 1 - Math.exp(-acceleration * dt));
+    verticalSpeed.current = Math.max(-18, verticalSpeed.current - 9.81 * dt);
     delta.set(velocity.current.x * dt, verticalSpeed.current * dt, velocity.current.z * dt);
     character.computeColliderMovement(playerCollider, delta);
-    collisionCount.current += character.numComputedCollisions();
+    // Count walls only: standing on the ground is a contact every frame and must not look like a collision.
+    for (let i = 0; i < character.numComputedCollisions(); i++) {
+      const hit = character.computedCollision(i);
+      if (hit && Math.abs(hit.normal1.y) < WALL_NORMAL_MAX_Y) collisionCount.current += 1;
+    }
     const allowed = character.computedMovement();
     if (character.computedGrounded() && verticalSpeed.current < 0) verticalSpeed.current = -1.2;
     const actualSpeed = Math.hypot(allowed.x, allowed.z) / Math.max(dt, 0.001);
@@ -363,7 +379,7 @@ function Player(props: Props) {
     rigidBody.setNextKinematicTranslation(next);
 
     if (visual.current) {
-      visual.current.rotation.y += Math.atan2(Math.sin(heading.current - visual.current.rotation.y), Math.cos(heading.current - visual.current.rotation.y)) * (reducedMotion ? 1 : 1 - Math.exp(-10 * Math.min(dt, 0.05)));
+      visual.current.rotation.y += Math.atan2(Math.sin(heading.current - visual.current.rotation.y), Math.cos(heading.current - visual.current.rotation.y)) * (reducedMotion ? 1 : 1 - Math.exp(-10 * dt));
     }
     const dNpc = Math.hypot(next.x - npcX, next.z - npcZ);
     const isNear = dNpc <= 2.25;
@@ -386,12 +402,16 @@ function Player(props: Props) {
     const hit = world.castRay(new rapier.Ray(rayFrom, rayDir), desiredDistance, true, undefined, undefined, playerCollider);
     const safeDistance = hit ? Math.max(1.55, hit.timeOfImpact - 0.35) : desiredDistance;
     wanted.copy(target).addScaledVector(rayDir, safeDistance);
-    camera.position.lerp(wanted, reducedMotion ? 1 : 1 - Math.exp(-8 * Math.min(dt, 0.05)));
+    camera.position.lerp(wanted, reducedMotion ? 1 : 1 - Math.exp(-8 * dt));
     camera.lookAt(target);
 
-    if (performance.now() - lastTelemetry.current > 140) {
+    // Clip changes are published at once (one-shot clips can be shorter than the sampling interval).
+    const clip = playerAnimation.current.activeClip;
+    const clipChanged = clip !== clipHistory.current[clipHistory.current.length - 1];
+    if (clipChanged) clipHistory.current = [...clipHistory.current, clip].slice(-CLIP_HISTORY);
+    if (clipChanged || performance.now() - lastTelemetry.current > 140) {
       lastTelemetry.current = performance.now();
-      setTelemetry({ x: (next.x + 18) * WORLD_SCALE, z: (11 - next.z) * WORLD_SCALE, hits: collisionCount.current, cameraYaw: yaw.current, facingYaw: visual.current?.rotation.y ?? heading.current, animation: playerAnimation.current.activeClip });
+      setTelemetry({ x: (next.x + 18) * WORLD_SCALE, z: (11 - next.z) * WORLD_SCALE, hits: collisionCount.current, cameraYaw: yaw.current, facingYaw: visual.current?.rotation.y ?? heading.current, animation: clip, history: clipHistory.current.join('|') });
     }
   });
 
@@ -408,7 +428,7 @@ function Player(props: Props) {
       <ringGeometry args={[2.15, 2.22, 40]} /><meshBasicMaterial color={nearby.current ? '#f4d991' : '#4f8574'} transparent opacity={0.8} />
     </mesh>
     <Html style={{ display: 'none' }}>
-      <span data-testid="three-player-state" data-x={telemetry.x.toFixed(1)} data-z={telemetry.z.toFixed(1)} data-collisions={telemetry.hits} data-camera-yaw={telemetry.cameraYaw.toFixed(3)} data-facing-yaw={telemetry.facingYaw.toFixed(3)} data-animation={telemetry.animation} data-animations={availableClips} data-required-animations={REQUIRED_CLIPS.join('|')} />
+      <span data-testid="three-player-state" data-x={telemetry.x.toFixed(1)} data-z={telemetry.z.toFixed(1)} data-collisions={telemetry.hits} data-camera-yaw={telemetry.cameraYaw.toFixed(3)} data-facing-yaw={telemetry.facingYaw.toFixed(3)} data-animation={telemetry.animation} data-animation-history={telemetry.history} data-animations={availableClips} data-required-animations={REQUIRED_CLIPS.join('|')} />
     </Html>
   </>;
 }
@@ -432,7 +452,10 @@ export function Village3D(props: Props) {
       <ambientLight intensity={1.15} color="#f5ead3" />
       <hemisphereLight intensity={1.15} color="#d4e2da" groundColor="#80694b" />
       <directionalLight position={[-6, 13, -5]} intensity={2.2} color="#ffe2b3" castShadow={!coarse} shadow-mapSize-width={1024} shadow-mapSize-height={1024} shadow-camera-left={-22} shadow-camera-right={22} shadow-camera-top={18} shadow-camera-bottom={-18} shadow-bias={-0.0002} />
-      <Physics gravity={[0, -9.81, 0]} timeStep={1 / 60} colliders={false}>
+      {/* One physics step per rendered frame: the player is kinematic and moves by the frame's
+          (capped) delta, so a fixed 1/60 step would either skip frames on fast displays (stale
+          translation, lost movement) or run many full steps per frame on slow devices. */}
+      <Physics gravity={[0, -9.81, 0]} timeStep="vary" colliders={false}>
         <VillagePhysics scene={props.scene} />
         <Suspense fallback={<LoadingVillage />}>
           <VillageAsset />

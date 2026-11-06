@@ -2,7 +2,7 @@
 import { chromium } from 'playwright-core';
 import { mkdirSync } from 'node:fs';
 
-export const BASE = process.env.SAJA_URL ?? 'http://localhost:8899';
+export const BASE = process.env.SAJA_URL ?? `http://localhost:${process.env.E2E_PORT ?? 8899}`;
 export const SHOTS = process.env.SAJA_SHOTS ?? 'e2e/screenshots';
 mkdirSync(SHOTS, { recursive: true });
 
