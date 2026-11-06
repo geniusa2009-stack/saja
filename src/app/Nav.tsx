@@ -25,6 +25,7 @@ const PRIMARY: Item[] = [
   { to: '/', icon: 'home', label: 'nav.home' },
   { to: '/journey', icon: 'journey', label: 'nav.journey' },
   { to: '/learn', icon: 'learn', label: 'nav.learn' },
+  { to: '/hadith', icon: 'quote', label: 'nav.hadith' },
   { to: '/day', icon: 'day', label: 'nav.day' },
   { to: '/circles', icon: 'community', label: 'nav.community' },
   { to: '/scholar', icon: 'scholar', label: 'nav.scholar' },
@@ -34,9 +35,10 @@ const TOOLS: Item[] = [
   { to: '/amanah', icon: 'seal', label: 'nav.amanah', desc: 'am.sub' },
   { to: '/nour', icon: 'eye', label: 'nav.nour', desc: 'nour.sub' },
 ];
-const MOBILE: Item[] = [PRIMARY[0], PRIMARY[1], PRIMARY[3], PRIMARY[4]];
+const MOBILE: Item[] = [PRIMARY[0], PRIMARY[1], PRIMARY[4], PRIMARY[5]];
 const MORE: Item[] = [
   { to: '/learn', icon: 'learn', label: 'nav.learn', desc: 'learn.sub' },
+  { to: '/hadith', icon: 'quote', label: 'nav.hadith', desc: 'hadith.sub' },
   { to: '/scholar', icon: 'scholar', label: 'nav.scholar', desc: 'sch.sub' },
   { to: '/explore', icon: 'explore', label: 'nav.explore', desc: 'ex.sub' },
   { to: '/inbox', icon: 'bell', label: 'nav.inbox', desc: 'inbox.sub' },

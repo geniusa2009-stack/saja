@@ -29,12 +29,30 @@ function server(routes: Record<string, unknown>) {
 // Each test gets fresh module instances (bootstrap runs once per module), so stores are imported alongside.
 async function fresh() {
   vi.resetModules();
-  const [{ bootstrap }, { useConnection }, { useProfile }] = await Promise.all([import('./sync'), import('@/store/connection'), import('@/store/profile')]);
+  const [{ bootstrap, resetLocal }, { useConnection }, { useProfile }, { useHadith }] = await Promise.all([
+    import('./sync'),
+    import('@/store/connection'),
+    import('@/store/profile'),
+    import('@/store/hadith'),
+  ]);
   useProfile.getState().reset();
-  return { bootstrap, useConnection, useProfile };
+  useHadith.getState().reset();
+  return { bootstrap, resetLocal, useConnection, useProfile, useHadith };
 }
 
 describe('connection bootstrap', () => {
+  it('clears private hadith saves and reflections when the device session is reset', async () => {
+    const { resetLocal, useHadith } = await fresh();
+    useHadith.setState({
+      saved: ['h-bukhari-1'],
+      explored: ['h-bukhari-1'],
+      completed: ['reflection-mercy'],
+      reflections: [{ id: 'hr1', activityId: 'reflection-mercy', at: 1, lines: ['private'] }],
+    });
+    resetLocal();
+    expect(useHadith.getState()).toMatchObject({ saved: [], explored: [], completed: [], reflections: [] });
+  });
+
   it('falls back to offline demo mode when there is no server', async () => {
     globalThis.fetch = (() => Promise.reject(new TypeError('down'))) as typeof fetch;
     const { bootstrap, useConnection } = await fresh();

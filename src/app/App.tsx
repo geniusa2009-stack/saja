@@ -29,6 +29,10 @@ const Onboarding = lazy(() => import('@/features/onboarding/Onboarding'));
 const MissionRunner = lazyWithPreload(() => import('@/features/missions/MissionRunner'));
 const Journey = lazy(() => import('@/features/journey/Journey'));
 const Learn = lazy(() => import('@/features/learn/Learn'));
+const HadithLibrary = lazy(() => import('@/features/hadith/HadithLibrary'));
+const HadithDetail = lazy(() => import('@/features/hadith/HadithDetail'));
+const HadithDiscover = lazy(() => import('@/features/hadith/Discover'));
+const HadithActivityPlayer = lazy(() => import('@/features/hadith/ActivityPlayer'));
 const MyDay = lazy(() => import('@/features/day/MyDay'));
 const Circles = lazy(() => import('@/features/community/Circles'));
 const CircleRoom = lazy(() => import('@/features/community/CircleRoom'));
@@ -169,6 +173,10 @@ export function App() {
                 <Route index element={<WorldHome />} />
                 <Route path="journey" element={<Journey />} />
                 <Route path="learn" element={<Learn />} />
+                <Route path="hadith" element={<HadithLibrary />} />
+                <Route path="hadith/discover" element={<HadithDiscover />} />
+                <Route path="hadith/discover/:activityId" element={<HadithActivityPlayer />} />
+                <Route path="hadith/:id" element={<HadithDetail />} />
                 <Route path="day" element={<MyDay />} />
                 <Route path="circles" element={<Circles />} />
                 <Route path="circles/:id" element={<CircleRoom />} />

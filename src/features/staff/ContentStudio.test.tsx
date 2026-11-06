@@ -12,7 +12,9 @@ import { buildMissionDefinition } from '@/domain/missionDefinitions';
 import { MISSION_BY_ID, WUDU_STEPS, SALAH_STEPS, MATCH_SETS, CHOICE_STORIES, CLUE_HUNTS, REFLECTION_PROMPTS } from '@/content/missions';
 import { useProfile } from '@/store/profile';
 import { DEFAULT_LOOK } from '@/features/character/palette';
-import { ContentStatus, KnowledgeStudio, MissionStudio } from './ContentStudio';
+import { HADITHS } from '@/content/hadith';
+import { hadithSnapshot } from '@/domain/hadith';
+import { ContentStatus, KnowledgeStudio, MissionStudio, TextsStudio } from './ContentStudio';
 
 const me = (roles: Me['user']['roles']): Me => ({
   user: {
@@ -54,6 +56,7 @@ describe('content status dashboard', () => {
           claimRules: { ...counts(18, 18), usedBy: ['amanah', 'nour'] },
           conceptStories: counts(4, 4),
           quizzes: counts(6, 6),
+          hadith: counts(11, 11),
           scholars: { unverified: 0, pending: 1, verified: 0, suspended: 0, sample: 2 },
           scholarAnswers: { sample: 2, real: 0 },
         },
@@ -69,6 +72,9 @@ describe('content status dashboard', () => {
     expect(within(scholars).getByText('Sample').nextSibling).toHaveTextContent('2');
     expect(screen.getByText('Answers: 0 by verified scholars · 2 sample')).toBeInTheDocument();
     expect(screen.getByText(/used by both AMANAH and NOUR/)).toBeInTheDocument();
+    const hadith = screen.getByText('Hadith library').closest('li')!;
+    expect(within(hadith).getByText('11', { selector: '.t-h3' })).toBeInTheDocument();
+    expect(within(hadith).getByText('Demo').nextSibling).toHaveTextContent('11');
   });
 });
 
@@ -163,5 +169,42 @@ describe('knowledge editor', () => {
     expect(screen.getByText('No review steps yet.')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Edit as draft' })).toBeNull();
     expect(screen.queryByText(/Verified scholar/)).toBeNull();
+  });
+});
+
+describe('hadith review', () => {
+  it('shows the exact Arabic, reference and grading snapshot, and sends only a review step', async () => {
+    const calls = fakeServer({
+      '/content/blocks': () => [
+        200,
+        {
+          blocks: [
+            {
+              kind: 'hadith',
+              id: HADITHS[0].id,
+              current_version: 1,
+              published_version: null,
+              review_status: 'draft',
+              is_demo: true,
+              updated_at: new Date().toISOString(),
+              next: ['internal_review'],
+              content: { record: hadithSnapshot(HADITHS[0]) },
+            },
+          ],
+        },
+      ],
+      '/content/blocks/hadith/h-bukhari-1/reviews': () => [200, { reviews: [] }],
+      'POST /content/blocks/hadith/h-bukhari-1/review': () => [200, { from: 'draft', to: 'internal_review', version: 1 }],
+    });
+    render(<TextsStudio />);
+    await userEvent.click(await screen.findByRole('button', { name: /Hadith · 1/ }));
+    expect(screen.getByText(/Sahih al-Bukhari 1/)).toBeInTheDocument();
+    expect(screen.getByText(/الأَعْمَالُ/)).toBeInTheDocument();
+    expect(screen.getByText('Learners: demo')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Review' }));
+    expect(await screen.findByText('No review steps yet.')).toBeInTheDocument();
+    await userEvent.type(screen.getByRole('textbox', { name: /scope/i }), 'Arabic and meaning');
+    await userEvent.click(screen.getByRole('button', { name: '→ Internal review' }));
+    expect(calls.find((c) => c.method === 'POST' && c.url.endsWith('/review'))?.body).toEqual({ to: 'internal_review', scope: 'Arabic and meaning' });
   });
 });

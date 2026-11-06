@@ -67,6 +67,10 @@ describe('SAJA app', () => {
     ['/', /The Village/],
     ['/journey', /Your path so far/],
     ['/learn', /Knowledge with its sources/],
+    ['/hadith', /Words that stayed/],
+    ['/hadith/h-bukhari-1', /Actions and intentions/],
+    ['/hadith/discover', /Learning by exploring/],
+    ['/hadith/discover/scenario-new-neighbour', /The new neighbour/],
     ['/day', /Prayer times/],
     ['/circles', /Learning Circles/],
     ['/circles/first-steps', /First Steps Circle/],
@@ -114,6 +118,8 @@ describe('SAJA app', () => {
   }, 15000);
 
   const AR_ROUTES: [string, string][] = [
+    ['/hadith', 'كلمات باقية'],
+    ['/hadith/h-bukhari-1', 'الأعمال والنيات'],
     ['/circles', 'حلقات التعلم'],
     ['/scholar', 'اسأل عالمًا'],
     ['/nour', 'تحقّق من شيء رأيته أو سمعته.'],

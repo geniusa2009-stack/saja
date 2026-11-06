@@ -133,3 +133,62 @@
 .ex-story[data-locked] {
   opacity: 0.75;
 }
+
+/* Hadith feature — a room off the map, not a new world. */
+.ex-hadith {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: clamp(14px, 3vw, 26px);
+  align-items: center;
+  padding: clamp(18px, 3.5vw, 28px);
+  border-radius: var(--r-lg);
+  border: 1px solid rgb(221 190 127 / 0.3);
+  background:
+    radial-gradient(ellipse 60% 90% at 100% 0%, rgb(221 190 127 / 0.12), transparent 70%),
+    linear-gradient(150deg, rgb(19 32 74 / 0.8), rgb(11 21 48 / 0.68));
+  box-shadow: var(--shadow-1);
+}
+.ex-hadith__arch {
+  display: grid;
+  place-items: center;
+  width: 66px;
+  height: 78px;
+  border-radius: 50% 50% 14px 14px / 40% 40% 14px 14px;
+  border: 1px solid rgb(221 190 127 / 0.45);
+  background: radial-gradient(ellipse at 50% 90%, #1e3a66, #070d1f 75%);
+  color: var(--gold-300);
+}
+.ex-hadith__copy {
+  display: grid;
+  gap: 6px;
+}
+.ex-hadith__copy h2,
+.ex-hadith__copy p {
+  margin: 0;
+}
+.ex-hadith__copy p {
+  max-width: 60ch;
+}
+.ex-hadith__actions {
+  display: grid;
+  gap: 8px;
+  justify-items: stretch;
+}
+@media (max-width: 860px) {
+  .ex-hadith {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .ex-hadith__actions {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+}
+@media (max-width: 520px) {
+  .ex-hadith {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ex-hadith__arch {
+    width: 54px;
+    height: 64px;
+  }
+}
