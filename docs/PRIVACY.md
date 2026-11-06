@@ -52,3 +52,7 @@ Logs are JSON lines. Fields named like passwords, tokens, bodies, questions, con
 - **Age is declared, not verified.** A guardian link binds an account, not a device. A determined child can clear the app's data and start a new guest journey with a different age. Stronger age assurance would need an identity provider and a legal basis.
 - Retention periods are product defaults and need legal review per jurisdiction.
 - Backups (outside the app) must follow the same retention schedule. That is an operator task.
+
+## Third-party requests from the browser
+
+None for fonts: the web fonts (Manrope, Instrument Serif, IBM Plex Sans Arabic, Reem Kufi, Amiri, JetBrains Mono; SIL Open Font License 1.1) are bundled and served from SAJA's own origin, so opening SAJA does not send a visitor's IP address to a font CDN. The Content Security Policy only allows fonts from `'self'`.

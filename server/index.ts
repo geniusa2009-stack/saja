@@ -28,8 +28,8 @@ if (staticDir && existsSync(join(staticDir, 'index.html'))) {
   const CSP = [
     "default-src 'self'",
     "script-src 'self' 'wasm-unsafe-eval'",
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-    "font-src 'self' https://fonts.gstatic.com",
+    "style-src 'self' 'unsafe-inline'",
+    "font-src 'self'",
     "img-src 'self' data: blob:",
     "media-src 'self' blob:",
     "connect-src 'self'",

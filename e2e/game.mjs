@@ -239,7 +239,7 @@ try {
   await page.keyboard.press('e');
   await page.getByRole('dialog', { name: 'الجد يوسف' }).waitFor();
   await page.screenshot({ path: 'docs/game/courtyard-playable.png' });
-  const unexpectedErrors = errors.filter((error) => !error.includes('fonts.googleapis.com'));
+  const unexpectedErrors = errors;
   if (unexpectedErrors.length) throw new Error(unexpectedErrors.join('\n'));
   console.log('✓ Village 3D: shared spawn, Rapier tree blocking, camera-relative WASD, avatar facing, camera orbit, proximity and mission dialogue');
   console.log('✓ Village 3D: English/Arabic UI, mobile joystick, axe WCAG 2.1 A/AA scans');
