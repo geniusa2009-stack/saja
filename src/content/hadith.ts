@@ -18,13 +18,13 @@ const meaningNote = {
   ar: 'شرح من سجى لمعنى الحديث، وليس ترجمة منشورة. راجع النص العربي ورابط المصدر المباشر.',
 };
 
-const sahihNote = (collection: string) => ({
-  en: `${collection} is received as an authentic collection in Sunni scholarship. Sunnah.com does not print a separate grade for this entry; this note describes the collection, not a fresh grading by SAJA.`,
-  ar: `${collection} من الكتب المتلقّاة بالقبول عند أهل السنة. ولا يعرض موقع سنّة.كوم درجة منفصلة لهذا الحديث؛ وهذه الملاحظة تصف الكتاب ولا تُعدّ تصنيفًا علميًا جديدًا من سجى.`,
+const sahihNote = (collection: { en: string; ar: string }) => ({
+  en: `${collection.en} is received as an authentic collection in Sunni scholarship. Sunnah.com does not print a separate grade for this entry; this note describes the collection, not a fresh grading by SAJA.`,
+  ar: `${collection.ar} من الكتب المتلقّاة بالقبول عند أهل السنة. ولا يعرض موقع سنّة.كوم درجة منفصلة لهذا الحديث؛ وهذه الملاحظة تصف الكتاب ولا تُعدّ تصنيفًا علميًا جديدًا من سجى.`,
 });
 
-const bukhariNote = sahihNote('Sahih al-Bukhari');
-const muslimNote = sahihNote('Sahih Muslim');
+const bukhariNote = sahihNote({ en: 'Sahih al-Bukhari', ar: 'صحيح البخاري' });
+const muslimNote = sahihNote({ en: 'Sahih Muslim', ar: 'صحيح مسلم' });
 
 export const HADITHS: HadithRecord[] = [
   {
