@@ -14,6 +14,16 @@ import { useState, useEffect, type KeyboardEvent } from 'react';
 import { Button, DemoNote, Chip, Bar } from '@/design-system';
 import { Icon } from '@/brand/Icon';
 import { useI18n } from '@/i18n';
+import { mayShow, TEXT_RIGHTS } from '@/content/rights';
+
+/**
+ * The Saheeh International English (reuse permission pending) is a separate module. In a
+ * production build this condition is the constant `false`, so the module is not bundled at all.
+ */
+const loadSaheeh =
+  import.meta.env.MODE !== 'production' || import.meta.env.VITE_SAJA_DRAFT_CONTENT === 'true'
+    ? () => import('./data/fatiha.saheeh').then((m) => m.SAHEEH_FATIHA)
+    : null;
 import { Page } from '@/app/Page';
 import { SURAH_AL_FATIHA, FATIHA_VOCAB_CHALLENGES, FATIHA_BUILDER_PUZZLES } from './data/fatiha';
 import type { QuranWord, QuranAyah } from './types';
@@ -22,7 +32,19 @@ import './quran.css';
 type Mode = 'mushaf' | 'vocab' | 'builder' | 'tafsir';
 
 export default function QuranOdyssey() {
-  const { t, l, num, isRTL } = useI18n();
+  const { t, l, num, isRTL, locale } = useI18n();
+  const [saheeh, setSaheeh] = useState<Record<number, string> | null>(null);
+  useEffect(() => {
+    if (!loadSaheeh || !mayShow(TEXT_RIGHTS.saheehInternational)) return;
+    let live = true;
+    void loadSaheeh().then((texts) => live && setSaheeh(texts));
+    return () => {
+      live = false;
+    };
+  }, []);
+  /** English: the permitted translation, or an honest note. Arabic: SAJA's own simplified meaning. */
+  const meaning = (ayahNumber: number, own: { en: string; ar: string }) =>
+    locale === 'ar' ? own.ar : (saheeh?.[ayahNumber] ?? null);
   const surah = SURAH_AL_FATIHA;
 
   const [mode, setMode] = useState<Mode>('mushaf');
@@ -143,14 +165,14 @@ export default function QuranOdyssey() {
   };
 
   return (
-    <Page eyebrow={t('nav.quran' as unknown as 'nav.journey')} title={l(surah.name)} sub={l(surah.titleMeaning)}>
+    <Page eyebrow={t('nav.quran')} title={l(surah.name)} sub={l(surah.titleMeaning)}>
       <div className="quran-page">
         {/* Religious Content Review Safeguard */}
         <div style={{ marginBottom: '20px' }}>
-          <DemoNote>{t('quran.reviewDisclaimer' as unknown as 'state.demoContentLong')}</DemoNote>
+          <DemoNote>{t('quran.reviewDisclaimer')}</DemoNote>
         </div>
         <p className="quran-learning-guide" role="note">
-          {t('quran.learningGuide' as unknown as 'app.name')}
+          {t('quran.learningGuide')}
         </p>
 
         {/* Surah Header Card */}
@@ -158,10 +180,10 @@ export default function QuranOdyssey() {
           <div className="row wrap justify-between items-center" style={{ gap: '12px' }}>
             <span className="quran-surah-badge">
               <Icon name="star" size={14} />
-              {t('quran.surah' as unknown as 'app.name')} {num(surah.number)} · {t(`quran.${surah.revelationPlace}` as unknown as 'app.name')}
+              {t('quran.surah')} {num(surah.number)} · {t(`quran.${surah.revelationPlace}`)}
             </span>
             <Chip tone="quiet">
-              {num(surah.ayahsCount)} {t('quran.ayahs' as unknown as 'app.name')}
+              {num(surah.ayahsCount)} {t('quran.ayahs')}
             </Chip>
           </div>
 
@@ -176,7 +198,7 @@ export default function QuranOdyssey() {
         </header>
 
         {/* Navigation Tabs */}
-        <nav className="quran-nav-tabs" role="tablist" aria-label={t('quran.studyModes' as unknown as 'app.name')} onKeyDown={handleModeKeyDown}>
+        <nav className="quran-nav-tabs" role="tablist" aria-label={t('quran.studyModes')} onKeyDown={handleModeKeyDown}>
           <button
             type="button"
             id="quran-tab-mushaf"
@@ -188,7 +210,7 @@ export default function QuranOdyssey() {
             onClick={() => setMode('mushaf')}
           >
             <Icon name="quran" size={16} />
-            <span>{t('quran.tabMushaf' as unknown as 'a.open')}</span>
+            <span>{t('quran.tabMushaf')}</span>
           </button>
           <button
             type="button"
@@ -201,7 +223,7 @@ export default function QuranOdyssey() {
             onClick={() => setMode('vocab')}
           >
             <Icon name="sparkle" size={16} />
-            <span>{t('quran.tabVocab' as unknown as 'a.open')}</span>
+            <span>{t('quran.tabVocab')}</span>
           </button>
           <button
             type="button"
@@ -214,7 +236,7 @@ export default function QuranOdyssey() {
             onClick={() => setMode('builder')}
           >
             <Icon name="layers" size={16} />
-            <span>{t('quran.tabBuilder' as unknown as 'a.open')}</span>
+            <span>{t('quran.tabBuilder')}</span>
           </button>
           <button
             type="button"
@@ -227,7 +249,7 @@ export default function QuranOdyssey() {
             onClick={() => setMode('tafsir')}
           >
             <Icon name="info" size={16} />
-            <span>{t('quran.tabTafsir' as unknown as 'a.open')}</span>
+            <span>{t('quran.tabTafsir')}</span>
           </button>
         </nav>
 
@@ -251,11 +273,11 @@ export default function QuranOdyssey() {
                       {/* Audio intentionally unavailable — requires verified recitation recording */}
                       <span
                         className="ayah-audio-btn ayah-audio-unavailable"
-                        aria-label={t('quran.listenUnavailable' as unknown as 'app.name')}
-                        title={t('quran.listenUnavailableTitle' as unknown as 'app.name')}
+                        aria-label={t('quran.listenUnavailable')}
+                        title={t('quran.listenUnavailableTitle')}
                       >
                         <Icon name="mic" size={14} />
-                        <span>{t('quran.listenUnavailable' as unknown as 'app.name')}</span>
+                        <span>{t('quran.listenUnavailable')}</span>
                       </span>
                     </header>
 
@@ -286,7 +308,13 @@ export default function QuranOdyssey() {
                       </span>
                     </div>
 
-                    <div className="ayah-translation-en">{l(ayah.translation)}</div>
+                    {/* The English is Saheeh International: shown only once its reuse is permitted (content/rights.ts).
+                        The Arabic line is SAJA's own simplified meaning. */}
+                    {meaning(ayah.number, ayah.translation) ? (
+                      <div className="ayah-translation-en">{meaning(ayah.number, ayah.translation)}</div>
+                    ) : (
+                      <div className="ayah-translation-en ayah-translation-pending">{t('quran.translationPending')}</div>
+                    )}
                     <div className="ayah-transliteration">{ayah.transliteration}</div>
 
                     {/* Word Inspector popover if word in this ayah is selected */}
@@ -311,15 +339,15 @@ export default function QuranOdyssey() {
                         </div>
                         <div className="word-meta-grid">
                           <div className="word-meta-item">
-                            <span className="word-meta-label">{t('quran.meaning' as unknown as 'app.name')}</span>
+                            <span className="word-meta-label">{t('quran.meaning')}</span>
                             <span className="word-meta-value">{l(selectedWord.translation)}</span>
                           </div>
                           <div className="word-meta-item">
-                            <span className="word-meta-label">{t('quran.root' as unknown as 'app.name')}</span>
+                            <span className="word-meta-label">{t('quran.root')}</span>
                             <span className="word-meta-value">{selectedWord.root ? `[ ${selectedWord.root} ]` : '—'}</span>
                           </div>
                           <div className="word-meta-item">
-                            <span className="word-meta-label">{t('quran.grammar' as unknown as 'app.name')}</span>
+                            <span className="word-meta-label">{t('quran.grammar')}</span>
                             <span className="word-meta-value">{l(selectedWord.grammar)}</span>
                           </div>
                         </div>
@@ -338,10 +366,10 @@ export default function QuranOdyssey() {
             {vocabFinished ? (
               <div className="vocab-quiz-card quran-lesson-complete" role="status">
                 <span className="quran-completion-emblem" aria-hidden="true">✦</span>
-                <h2>{t('quran.vocabFinished' as unknown as 'app.name')}</h2>
-                <p>{t('quran.vocabResult' as unknown as 'app.name')}: <strong>{num(vocabScore)} / {num(FATIHA_VOCAB_CHALLENGES.length)}</strong></p>
-                <p>{t('quran.learningReminder' as unknown as 'app.name')}</p>
-                <Button variant="primary" onClick={restartVocab}>{t('quran.reviewAgain' as unknown as 'app.name')}</Button>
+                <h2>{t('quran.vocabFinished')}</h2>
+                <p>{t('quran.vocabResult')}: <strong>{num(vocabScore)} / {num(FATIHA_VOCAB_CHALLENGES.length)}</strong></p>
+                <p>{t('quran.learningReminder')}</p>
+                <Button variant="primary" onClick={restartVocab}>{t('quran.reviewAgain')}</Button>
               </div>
             ) : (() => {
               const currentQ = FATIHA_VOCAB_CHALLENGES[vocabIndex];
@@ -351,26 +379,26 @@ export default function QuranOdyssey() {
                 <div className="vocab-quiz-card">
                   <div className="row justify-between items-center" style={{ marginBottom: '16px' }}>
                     <Chip tone="quiet">
-                      {t('quran.wordChallenge' as unknown as 'app.name')} {num(vocabIndex + 1)} / {num(FATIHA_VOCAB_CHALLENGES.length)}
+                      {t('quran.wordChallenge')} {num(vocabIndex + 1)} / {num(FATIHA_VOCAB_CHALLENGES.length)}
                     </Chip>
                     <Chip tone="gold">
-                      {t('quran.score' as unknown as 'app.name')}: {num(vocabScore)}
+                      {t('quran.score')}: {num(vocabScore)}
                     </Chip>
                   </div>
 
                   <div style={{ marginBottom: '16px' }}>
-                    <Bar value={progressRatio} gold label={t('quran.wordChallenge' as unknown as 'app.name')} />
+                    <Bar value={progressRatio} gold label={t('quran.wordChallenge')} />
                   </div>
 
                   <p style={{ color: 'var(--slate-400)', fontSize: 'var(--fs-small)' }}>
-                    {t('quran.vocabPrompt' as unknown as 'app.name')}
+                    {t('quran.vocabPrompt')}
                   </p>
 
                   <div className="vocab-prompt-arabic">{currentQ.word.arabic}</div>
 
                   {currentQ.word.root && (
                     <div className="vocab-prompt-root">
-                      {t('quran.root' as unknown as 'app.name')}: {currentQ.word.root} ({currentQ.word.transliteration})
+                      {t('quran.root')}: {currentQ.word.root} ({currentQ.word.transliteration})
                     </div>
                   )}
 
@@ -407,7 +435,7 @@ export default function QuranOdyssey() {
                         onClick={() => setShowVocabHint(!showVocabHint)}
                       >
                         <Icon name="lantern" size={16} />
-                        {showVocabHint ? t('a.close') : t('m.hint' as unknown as 'a.open')}
+                        {showVocabHint ? t('a.close') : t('m.hint')}
                       </Button>
                     )}
 
@@ -420,7 +448,7 @@ export default function QuranOdyssey() {
                     {vocabAnswer && (
                       <div className="row items-center gap-2" style={{ width: '100%', justifyContent: 'flex-end', marginTop: '10px' }}>
                         <span style={{ color: vocabAnswer.correct ? 'var(--emerald-500)' : 'var(--gold-300)', fontWeight: 600 }}>
-                          {vocabAnswer.correct ? `✨ ${t('quran.wellDone' as unknown as 'a.done')}` : `📖 ${l(currentQ.hint)}`}
+                          {vocabAnswer.correct ? `✨ ${t('quran.wellDone')}` : `📖 ${l(currentQ.hint)}`}
                         </span>
                         <Button variant="primary" onClick={nextVocabQuestion}>
                           {t('a.next')} <Icon name="forward" size={16} />
@@ -440,7 +468,7 @@ export default function QuranOdyssey() {
             <div className="vocab-quiz-card">
               <div className="row justify-between items-center" style={{ marginBottom: '16px' }}>
                 <Chip tone="gold">
-                  {t('quran.reconstructAyah' as unknown as 'app.name')} {num(activePuzzle.ayahNumber)} / {num(FATIHA_BUILDER_PUZZLES.length)}
+                  {t('quran.reconstructAyah')} {num(activePuzzle.ayahNumber)} / {num(FATIHA_BUILDER_PUZZLES.length)}
                 </Chip>
                 <Button variant="secondary" size="sm" onClick={resetBuilder}>
                   <Icon name="refresh" size={14} /> {t('a.retry')}
@@ -448,19 +476,19 @@ export default function QuranOdyssey() {
               </div>
 
               <p style={{ color: 'var(--sand-100)', fontSize: 'var(--fs-body)', marginBottom: '16px', fontStyle: 'italic' }}>
-                "{l(activePuzzle.translation)}"
+                {meaning(activePuzzle.ayahNumber, activePuzzle.translation) ? `“${meaning(activePuzzle.ayahNumber, activePuzzle.translation)}”` : t('quran.translationPending')}
               </p>
 
               {/* Attempt Zone — clearly labeled as learner arrangement, NOT authentic Quranic text */}
               <div className="builder-attempt-label">
                 <Icon name="layers" size={12} />
-                <span>{t('quran.yourAttempt' as unknown as 'app.name')}</span>
-                <span className="builder-attempt-note">{t('quran.attemptNote' as unknown as 'app.name')}</span>
+                <span>{t('quran.yourAttempt')}</span>
+                <span className="builder-attempt-note">{t('quran.attemptNote')}</span>
               </div>
               <div className={`builder-drop-zone ${builderComplete ? 'completed' : ''} ${builderOrderWrong ? 'order-wrong' : ''}`}>
                 {placedWords.length === 0 ? (
                   <span style={{ color: 'var(--slate-400)', fontSize: 'var(--fs-small)' }}>
-                    {t('quran.tapWordsInstruction' as unknown as 'app.name')}
+                    {t('quran.tapWordsInstruction')}
                   </span>
                 ) : (
                   placedWords.map((w) => (
@@ -477,7 +505,7 @@ export default function QuranOdyssey() {
                 )}
                 {placedWords.length > 0 && placedWords.length < activePuzzle.scrambledWords.length && (
                   <span style={{ color: 'var(--text-faint)', fontSize: 'var(--fs-caption)', alignSelf: 'center' }}>
-                    ({num(activePuzzle.scrambledWords.length - placedWords.length)} {t('quran.remainingWords' as unknown as 'app.name')})
+                    ({num(activePuzzle.scrambledWords.length - placedWords.length)} {t('quran.remainingWords')})
                   </span>
                 )}
               </div>
@@ -486,14 +514,14 @@ export default function QuranOdyssey() {
               {builderOrderWrong && !builderComplete && (
                 <div className="builder-wrong-order-notice">
                   <Icon name="info" size={14} />
-                  <span>{t('quran.wrongOrder' as unknown as 'app.name')}</span>
+                  <span>{t('quran.wrongOrder')}</span>
                 </div>
               )}
 
               {/* Bank of remaining scrambled words */}
               <div style={{ marginTop: '20px' }}>
                 <p style={{ color: 'var(--text-faint)', fontSize: 'var(--fs-caption)', marginBottom: '10px' }}>
-                  {t('quran.wordBank' as unknown as 'app.name')}
+                  {t('quran.wordBank')}
                 </p>
                 <div className="builder-bank">
                   {bankWords.map((w) => (
@@ -513,18 +541,18 @@ export default function QuranOdyssey() {
               {builderComplete && (
                 <div style={{ marginTop: '24px', padding: '16px', background: 'rgba(34, 176, 140, 0.15)', border: '1px solid var(--emerald-500)', borderRadius: '12px' }}>
                   <div style={{ color: 'var(--emerald-500)', fontWeight: 700, fontSize: '1.2rem', marginBottom: '8px' }}>
-                    ✨ {t('quran.ayahCompleted' as unknown as 'a.done')}
+                    ✨ {t('quran.ayahCompleted')}
                   </div>
                   {/* Verified source text — displayed after correct completion for reference only */}
                   <p style={{ color: 'var(--slate-400)', fontSize: 'var(--fs-caption)', marginBottom: '4px' }}>
-                    {t('quran.verifiedSourceText' as unknown as 'app.name')}
+                    {t('quran.verifiedSourceText')}
                   </p>
                   <p style={{ color: 'var(--ivory-50)', fontFamily: 'Amiri, serif', fontSize: '1.8rem', lineHeight: '2' }}>
                     {activePuzzle.targetArabic}
                   </p>
                   <div style={{ marginTop: '16px' }}>
                     <Button variant="primary" onClick={nextBuilderPuzzle}>
-                      {t('quran.nextAyah' as unknown as 'a.next')} <Icon name="forward" size={16} />
+                      {t('quran.nextAyah')} <Icon name="forward" size={16} />
                     </Button>
                   </div>
                 </div>
@@ -539,7 +567,7 @@ export default function QuranOdyssey() {
             {/* Scholarly review notice for Tafsir content */}
             <div className="tafsir-review-notice">
               <Icon name="seal" size={14} />
-              <span>{t('quran.tafsirReviewNotice' as unknown as 'app.name')}</span>
+              <span>{t('quran.tafsirReviewNotice')}</span>
             </div>
             {surah.ayahs.map((ayah) => (
               <article key={ayah.number} className="reflection-card">
@@ -554,7 +582,7 @@ export default function QuranOdyssey() {
                 {/* Unverified flag — pending scholar board approval */}
                 <div className="reflection-unverified-badge">
                   <Icon name="info" size={12} />
-                  <span>{t('quran.tafsirUnverified' as unknown as 'app.name')}</span>
+                  <span>{t('quran.tafsirUnverified')}</span>
                 </div>
               </article>
             ))}
@@ -565,16 +593,16 @@ export default function QuranOdyssey() {
         <footer className="quran-trust-footer">
           <div className="row items-center gap-2" style={{ marginBottom: '8px' }}>
             <Icon name="seal" size={16} />
-            <strong>{t('quran.sourcesTitle' as unknown as 'app.name')}</strong>
+            <strong>{t('quran.sourcesTitle')}</strong>
           </div>
           <p style={{ margin: '4px 0' }}>
-            • <strong>{t('quran.mushafSource' as unknown as 'app.name')}:</strong> {surah.sources.mushaf}
+            • <strong>{t('quran.mushafSource')}:</strong> {surah.sources.mushaf}
           </p>
           <p style={{ margin: '4px 0' }}>
-            • <strong>{t('quran.translationSource' as unknown as 'app.name')}:</strong> {surah.sources.translation}
+            • <strong>{t('quran.translationSource')}:</strong> {surah.sources.translation}
           </p>
           <p style={{ margin: '4px 0' }}>
-            • <strong>{t('quran.tafsirSource' as unknown as 'app.name')}:</strong> {surah.sources.tafsir}
+            • <strong>{t('quran.tafsirSource')}:</strong> {surah.sources.tafsir}
           </p>
           <p style={{ margin: '4px 0', color: 'var(--gold-300)' }}>
             • {surah.sources.verificationNotice}
@@ -583,7 +611,7 @@ export default function QuranOdyssey() {
             <p>Tanzil Quran Text (Uthmani, version 1.1). Copyright (C) 2007–2021 Tanzil Project. CC BY 3.0. Text may be reproduced verbatim with attribution; changes are not permitted.</p>
             <a href="https://tanzil.net" target="_blank" rel="noopener noreferrer">Tanzil Project</a>
             <span aria-hidden="true"> · </span>
-            <a href="https://tanzil.net/docs/Text_License" target="_blank" rel="noopener noreferrer">{t('quran.licenseTerms' as unknown as 'app.name')}</a>
+            <a href="https://tanzil.net/docs/Text_License" target="_blank" rel="noopener noreferrer">{t('quran.licenseTerms')}</a>
           </div>
         </footer>
       </div>

@@ -75,6 +75,7 @@ export const ar: Dict = {
   'quran.nextAyah': 'الآية التالية',
   'quran.sourcesTitle': 'المصادر والتحقق العلمي',
   'quran.mushafSource': 'رسم المصحف الشريف',
+  'quran.translationPending': 'ستظهر الترجمة الإنجليزية بعد تأكيد الإذن باستخدامها.',
   'quran.translationSource': 'مصدر الترجمة الإنجليزية (حقوق النشر قيد التحقق)',
   'quran.tafsirSource': 'مراجع التفسير',
   'quran.studyModes': 'طرق التعلّم',

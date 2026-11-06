@@ -73,6 +73,7 @@ export const en = {
   'quran.nextAyah': 'Next Verse',
   'quran.sourcesTitle': 'Sources & Scholarly Verification',
   'quran.mushafSource': 'Mushaf Calligraphy',
+  'quran.translationPending': 'The English translation will appear once permission to use it is confirmed.',
   'quran.translationSource': 'English translation (reuse rights pending)',
   'quran.tafsirSource': 'Tafsir References',
   'quran.studyModes': 'Learning modes',

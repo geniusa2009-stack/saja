@@ -29,10 +29,10 @@ export const SURAH_AL_FATIHA: QuranSurah = {
     {
       number: 1,
       surahNumber: 1,
-      arabic: 'بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ',
+      arabic: 'بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ',
       transliteration: 'Bismillāhir-Raḥmānir-Raḥīm',
       translation: {
-        en: 'In the name of Allah, the Entirely Merciful, the Especially Merciful.',
+        en: '',
         ar: 'أبدأ قراءتي مستعينًا باسم الله وحده، الرحمن بجميع خلقه، الرحيم بالمؤمنين.',
       },
       tafsir: {
@@ -62,7 +62,7 @@ export const SURAH_AL_FATIHA: QuranSurah = {
         },
         {
           id: '1:1:3',
-          arabic: 'ٱلرَّحْمَٰنِ',
+          arabic: 'ٱلرَّحْمَـٰنِ',
           transliteration: 'ar-Raḥmān',
           translation: { en: 'the Entirely Merciful', ar: 'الواسع الرحمة' },
           root: 'ر ح م',
@@ -81,10 +81,10 @@ export const SURAH_AL_FATIHA: QuranSurah = {
     {
       number: 2,
       surahNumber: 1,
-      arabic: 'ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَٰلَمِينَ',
+      arabic: 'ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَـٰلَمِينَ',
       transliteration: 'Al-ḥamdu lillāhi Rabbil-‘ālamīn',
       translation: {
-        en: '[All] praise is [due] to Allah, Lord of the worlds -',
+        en: '',
         ar: 'الثناء الكامل والمحبة الخالصة لله وحده، مالك جميع الخلائق ومربيهم بنعمه.',
       },
       tafsir: {
@@ -122,7 +122,7 @@ export const SURAH_AL_FATIHA: QuranSurah = {
         },
         {
           id: '1:2:4',
-          arabic: 'ٱلْعَٰلَمِينَ',
+          arabic: 'ٱلْعَـٰلَمِينَ',
           transliteration: 'al-‘ālamīn',
           translation: { en: 'of the worlds', ar: 'الْخَلَائِقِ كُلِّهَا' },
           root: 'ع ل م',
@@ -133,10 +133,10 @@ export const SURAH_AL_FATIHA: QuranSurah = {
     {
       number: 3,
       surahNumber: 1,
-      arabic: 'ٱلرَّحْمَٰنِ ٱلرَّحِيمِ',
+      arabic: 'ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ',
       transliteration: 'Ar-Raḥmānir-Raḥīm',
       translation: {
-        en: 'The Entirely Merciful, the Especially Merciful,',
+        en: '',
         ar: 'الرحمن الذي وسعت رحمته كل شيء، الرحيم بعباده المؤمنين.',
       },
       tafsir: {
@@ -150,7 +150,7 @@ export const SURAH_AL_FATIHA: QuranSurah = {
       words: [
         {
           id: '1:3:1',
-          arabic: 'ٱلرَّحْمَٰنِ',
+          arabic: 'ٱلرَّحْمَـٰنِ',
           transliteration: 'ar-Raḥmān',
           translation: { en: 'The Entirely Merciful', ar: 'الرَّحْمَنِ' },
           root: 'ر ح م',
@@ -169,10 +169,10 @@ export const SURAH_AL_FATIHA: QuranSurah = {
     {
       number: 4,
       surahNumber: 1,
-      arabic: 'مَٰلِكِ يَوْمِ ٱلدِّينِ',
+      arabic: 'مَـٰلِكِ يَوْمِ ٱلدِّينِ',
       transliteration: 'Māliki Yawmid-Dīn',
       translation: {
-        en: 'Sovereign of the Day of Recompense.',
+        en: '',
         ar: 'المالك المتصرف وحده في يوم القيامة والجزاء والحساب.',
       },
       tafsir: {
@@ -186,7 +186,7 @@ export const SURAH_AL_FATIHA: QuranSurah = {
       words: [
         {
           id: '1:4:1',
-          arabic: 'مَٰلِكِ',
+          arabic: 'مَـٰلِكِ',
           transliteration: 'Māliki',
           translation: { en: 'Sovereign / Master', ar: 'مَالِكِ وَصَاحِبِ' },
           root: 'م ل ك',
@@ -216,7 +216,7 @@ export const SURAH_AL_FATIHA: QuranSurah = {
       arabic: 'إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ',
       transliteration: 'Iyyāka na‘budu wa-iyyāka nasta‘īn',
       translation: {
-        en: 'It is You we worship and You we ask for help.',
+        en: '',
         ar: 'نخصك وحدك بالعبادة، ونطلب منك وحدك العون والتوفيق في كل أمورنا.',
       },
       tafsir: {
@@ -268,7 +268,7 @@ export const SURAH_AL_FATIHA: QuranSurah = {
       arabic: 'ٱهْدِنَا ٱلصِّرَٰطَ ٱلْمُسْتَقِيمَ',
       transliteration: 'Ihdinaṣ-ṣirāṭal-mustaqīm',
       translation: {
-        en: 'Guide us to the straight path -',
+        en: '',
         ar: 'دُلَّنا وأرشدنا وثبّتنا على الطريق الواضح القويم الموصل إلى رضاك وجنتك.',
       },
       tafsir: {
@@ -312,7 +312,7 @@ export const SURAH_AL_FATIHA: QuranSurah = {
       arabic: 'صِرَٰطَ ٱلَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ ٱلْمَغْضُوبِ عَلَيْهِمْ وَلَا ٱلضَّآلِّينَ',
       transliteration: 'Ṣirāṭal-ladhīna an‘amta ‘alayhim ghayril-maghḍūbi ‘alayhim wa-laḍ-ḍāllīn',
       translation: {
-        en: 'The path of those upon whom You have bestowed favor, not of those who have evoked [Your] anger or of those who are astray.',
+        en: '',
         ar: 'طريق الأنبياء والصديقين والشهداء والصالحين، لا طريق من عرف الحق وتركه، ولا طريق من ضل عن جهل وهوى.',
       },
       tafsir: {
@@ -472,13 +472,13 @@ export const FATIHA_VOCAB_CHALLENGES: VocabChallenge[] = [
 export const FATIHA_BUILDER_PUZZLES: AyahBuilderPuzzle[] = [
   {
     ayahNumber: 1,
-    targetArabic: 'بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ',
+    targetArabic: 'بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ',
     translation: {
-      en: 'In the name of Allah, the Entirely Merciful, the Especially Merciful.',
+      en: '',
       ar: 'بسم الله الرحمن الرحيم',
     },
     scrambledWords: [
-      { id: 'w-3', arabic: 'ٱلرَّحْمَٰنِ', correctIndex: 2 },
+      { id: 'w-3', arabic: 'ٱلرَّحْمَـٰنِ', correctIndex: 2 },
       { id: 'w-1', arabic: 'بِسْمِ', correctIndex: 0 },
       { id: 'w-4', arabic: 'ٱلرَّحِيمِ', correctIndex: 3 },
       { id: 'w-2', arabic: 'ٱللَّهِ', correctIndex: 1 },
@@ -486,14 +486,14 @@ export const FATIHA_BUILDER_PUZZLES: AyahBuilderPuzzle[] = [
   },
   {
     ayahNumber: 2,
-    targetArabic: 'ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَٰلَمِينَ',
+    targetArabic: 'ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَـٰلَمِينَ',
     translation: {
-      en: '[All] praise is [due] to Allah, Lord of the worlds -',
+      en: '',
       ar: 'الحمد لله رب العالمين',
     },
     scrambledWords: [
       { id: 'w-2', arabic: 'لِلَّهِ', correctIndex: 1 },
-      { id: 'w-4', arabic: 'ٱلْعَٰلَمِينَ', correctIndex: 3 },
+      { id: 'w-4', arabic: 'ٱلْعَـٰلَمِينَ', correctIndex: 3 },
       { id: 'w-1', arabic: 'ٱلْحَمْدُ', correctIndex: 0 },
       { id: 'w-3', arabic: 'رَبِّ', correctIndex: 2 },
     ],
@@ -502,7 +502,7 @@ export const FATIHA_BUILDER_PUZZLES: AyahBuilderPuzzle[] = [
     ayahNumber: 5,
     targetArabic: 'إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ',
     translation: {
-      en: 'It is You we worship and You we ask for help.',
+      en: '',
       ar: 'إياك نعبد وإياك نستعين',
     },
     scrambledWords: [
@@ -516,7 +516,7 @@ export const FATIHA_BUILDER_PUZZLES: AyahBuilderPuzzle[] = [
     ayahNumber: 6,
     targetArabic: 'ٱهْدِنَا ٱلصِّرَٰطَ ٱلْمُسْتَقِيمَ',
     translation: {
-      en: 'Guide us to the straight path -',
+      en: '',
       ar: 'اهدنا الصراط المستقيم',
     },
     scrambledWords: [

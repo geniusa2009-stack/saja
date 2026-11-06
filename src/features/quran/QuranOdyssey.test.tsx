@@ -40,7 +40,7 @@ describe('Quran Odyssey · Surah Al-Fatiha Milestone', () => {
     expect(screen.getByText(/The greatest Surah in the Qur’an/)).toBeInTheDocument();
   });
 
-  it('displays all 7 authentic verses in Uthmani calligraphy with translations', () => {
+  it('displays all 7 authentic verses in Uthmani calligraphy with translations', async () => {
     render(
       <MemoryRouter>
         <QuranOdyssey />
@@ -50,7 +50,8 @@ describe('Quran Odyssey · Surah Al-Fatiha Milestone', () => {
     // Verify first and last verse are present
     expect(screen.getByRole('button', { name: 'بِسْمِ' })).toBeInTheDocument();
     expect(document.querySelectorAll('.ayah-card')).toHaveLength(7);
-    expect(screen.getByText(/In the name of Allah, the Entirely Merciful/)).toBeInTheDocument();
+    // The English translation (reuse permission pending) is loaded separately, and only in draft/review builds.
+    expect(await screen.findByText(/In the name of Allah, the Entirely Merciful/)).toBeInTheDocument();
 
     // Verify ayah 7
     expect(screen.getByText(/The path of those upon whom You have bestowed favor/)).toBeInTheDocument();
@@ -108,10 +109,10 @@ describe('Quran Odyssey · Surah Al-Fatiha Milestone', () => {
 
     expect(screen.getByText(/Tap the words from the bank below/i)).toBeInTheDocument();
 
-    // Click words in correct order: بِسْمِ -> ٱللَّهِ -> ٱلرَّحْمَٰنِ -> ٱلرَّحِيمِ
+    // Click words in correct order: بِسْمِ -> ٱللَّهِ -> ٱلرَّحْمَـٰنِ -> ٱلرَّحِيمِ
     fireEvent.click(screen.getByRole('button', { name: 'بِسْمِ' }));
     fireEvent.click(screen.getByRole('button', { name: 'ٱللَّهِ' }));
-    fireEvent.click(screen.getByRole('button', { name: 'ٱلرَّحْمَٰنِ' }));
+    fireEvent.click(screen.getByRole('button', { name: 'ٱلرَّحْمَـٰنِ' }));
     fireEvent.click(screen.getByRole('button', { name: 'ٱلرَّحِيمِ' }));
 
     // Verify completion
