@@ -7,6 +7,8 @@ import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js';
 import type { CharacterLook } from '@/domain/types';
 import { HAIR_COLORS, HIJAB_COLORS, OUTFIT_COLORS, SKIN_TONES } from '@/features/character/palette';
 import type { GameScene } from './game/types';
+import { useI18n } from '@/i18n';
+import { VILLAGE_ASSET_URL } from './villageAssets';
 
 interface Props {
   scene: GameScene;
@@ -32,7 +34,6 @@ const MAX_FRAME_SECONDS = 0.1;
 /** Contacts whose normal points mostly up are the ground, not a wall. */
 const WALL_NORMAL_MAX_Y = 0.5;
 const CLIP_HISTORY = 12;
-const VILLAGE_ASSET_URL = '/assets/game/saja-village.glb?v=b45804f5';
 const worldPoint = (x: number, y: number): [number, number, number] => [x / WORLD_SCALE - 18, 0, 11 - y / WORLD_SCALE];
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 
@@ -70,7 +71,8 @@ function VillagePhysics({ scene }: { scene: GameScene }) {
 }
 
 function LoadingVillage() {
-  return <Html center><div className="play-world__loading-card">Loading village</div></Html>;
+  const { l } = useI18n();
+  return <Html center><div className="play-world__loading-card" role="status">{l({ en: 'Loading the village…', ar: 'جارٍ تحميل القرية…' })}</div></Html>;
 }
 
 interface TravellerAnimationState {
@@ -434,13 +436,14 @@ function Player(props: Props) {
 }
 
 export function Village3D(props: Props) {
+  const { l } = useI18n();
   const coarse = useMemo(() => typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches, []);
   return <div className="play-world__three">
     <Canvas
       shadows={!coarse}
       dpr={coarse ? 1 : [1, 1.5]}
       camera={{ position: [-6, 2.8, -3.5], fov: 48, near: 0.1, far: 140 }}
-      fallback={<div role="status">3D graphics are unavailable on this device. Switch to 2D mode.</div>}
+      fallback={<div role="status">{l({ en: '3D graphics are unavailable on this device. Use 2D mode.', ar: 'الرسوم ثلاثية الأبعاد غير متاحة على هذا الجهاز. استخدم الوضع ثنائي الأبعاد.' })}</div>}
       gl={{ antialias: !coarse, alpha: false, powerPreference: 'high-performance' }}
       onCreated={({ gl, scene }) => {
         gl.setPixelRatio(coarse ? 1 : Math.min(window.devicePixelRatio || 1, 1.5));

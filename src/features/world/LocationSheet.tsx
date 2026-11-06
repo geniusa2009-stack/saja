@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { webglAvailable } from './game/webgl';
 import type { LocationId } from '@/domain/types';
 import { LOCATION_BY_ID } from '@/content/world';
 import { missionsAt } from '@/content/missions';
@@ -21,6 +23,14 @@ export function LocationSheet({ id, onClose, completed, unlocked, onExplore }: {
   const remaining = loc ? missionsUntilUnlock(loc, { completed: [...completed] }) : 0;
   const allDone = missions.length > 0 && missions.every((m) => completed.has(m.id));
   const explorationId = loc?.id === 'village' || loc?.id === 'mosque' ? loc.id : null;
+  // While the learner reads about the village, fetch its 3D code and model (≈1.8 MB) so
+  // "Explore" opens faster. Only where 3D will actually be used, and only when unlocked.
+  const prefetch3D = explorationId === 'village' && !asleep && !!onExplore;
+  useEffect(() => {
+    if (!prefetch3D || !webglAvailable()) return;
+    // The 3D component's code, then the model.
+    void import('./Village3D').then(() => import('./villageAssets')).then((m) => m.preloadVillageAssets()).catch(() => undefined);
+  }, [prefetch3D]);
 
   return (
     <Sheet open={!!loc} onClose={onClose} title={loc ? l(loc.name) : ''} icon={<span className="tile__icon"><Icon name={asleep ? 'moon' : 'lantern'} size={20} /></span>}>

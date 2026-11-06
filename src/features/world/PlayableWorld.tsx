@@ -15,6 +15,7 @@ import { isPlayerMoving, renderedFacing } from './game/animation';
 import { startGameLoop } from './game/gameLoop';
 import type { GameSceneId, PlayerState, Point } from './game/types';
 import { questsForNpc } from '@/features/quests/definitions';
+import { webglAvailable } from './game/webgl';
 import { QuestRunner } from '@/features/quests/QuestRunner';
 
 const Village3D = lazy(() => import('./Village3D').then((module) => ({ default: module.Village3D })));
@@ -54,7 +55,9 @@ export function PlayableWorld({ sceneId, look, playerName, rtl, reducedMotion, o
   const [talking, setTalking] = useState(false);
   const [line, setLine] = useState(0);
   const [moving, setMoving] = useState(false);
-  const [use3D, setUse3D] = useState(sceneId === 'village');
+  // 3D only where the browser can draw it; otherwise the 2D village (same scene, same gameplay).
+  const can3D = sceneId === 'village' && webglAvailable();
+  const [use3D, setUse3D] = useState(can3D);
   const sprintRef = useRef(false);
   const [facing, setFacing] = useState<'left' | 'right'>(rtl ? 'left' : 'right');
   const npc = NPCS.find((entry) => entry.id === scene.npc.id)!;
@@ -281,7 +284,7 @@ export function PlayableWorld({ sceneId, look, playerName, rtl, reducedMotion, o
         <header className="play-world__header">
           <div><span className="play-world__eyebrow">SAJA · {isRTL ? 'استكشاف' : 'EXPLORATION'}</span><h1>{isRTL ? title.ar : title.en}</h1></div>
           <div className="play-world__header-actions">
-            {sceneId === 'village' && <Button variant="ghost" size="sm" onClick={() => { setUse3D((current) => !current); setTalking(false); keysRef.current.clear(); }}>{use3D ? (isRTL ? 'الوضع ثنائي الأبعاد' : '2D mode') : (isRTL ? 'الوضع ثلاثي الأبعاد' : '3D mode')}</Button>}
+            {can3D && <Button variant="ghost" size="sm" onClick={() => { setUse3D((current) => !current); setTalking(false); keysRef.current.clear(); }}>{use3D ? (isRTL ? 'الوضع ثنائي الأبعاد' : '2D mode') : (isRTL ? 'الوضع ثلاثي الأبعاد' : '3D mode')}</Button>}
             <Button variant="secondary" size="sm" icon="back" onClick={onExit}>{isRTL ? 'العودة إلى العالم' : 'Back to world'}</Button>
           </div>
         </header>
