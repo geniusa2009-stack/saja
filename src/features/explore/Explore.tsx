@@ -190,15 +190,15 @@ export default function Explore() {
               </Section>
               <Section title={t('ex.events')} id="events">
                 <div className="stack">
-                  {(policy.ageBand === 'child' ? [['ex.event1', 'ex.event1Sub']] : [['ex.event2', 'ex.event2Sub'], ['ex.event1', 'ex.event1Sub']])
+                  {(policy.ageBand === 'child' ? [['ex.event1', 'ex.event1Sub'] as const] : [['ex.event2', 'ex.event2Sub'] as const, ['ex.event1', 'ex.event1Sub'] as const])
                     .slice(0, policy.ageBand === 'adult' ? 1 : 2)
                     .map(([a, b]) => (
                       <div key={a} className="card card--flat row">
                         <Icon name="clock" size={20} />
                         <span>
-                          <strong>{t(a as TKey)}</strong>
+                          <strong>{t(a)}</strong>
                           <span className="t-small muted" style={{ display: 'block' }}>
-                            {t(b as TKey)}
+                            {t(b)}
                           </span>
                         </span>
                       </div>

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Icon, type IconName } from '@/brand/Icon';
 import { Button, EmptyState, ErrorState, Section, StarLoader, Switch, toast } from '@/design-system';
 import { Page } from '@/app/Page';
-import { useI18n, type TKey } from '@/i18n';
+import { useI18n } from '@/i18n';
 import { useConnection } from '@/store/connection';
 import { api } from '@/api/client';
 import { onServerEvent, refreshUnread } from '@/api/sync';
@@ -137,7 +137,7 @@ export default function Inbox() {
                     <span>
                       {t('inbox.push')}
                       <span className="t-small muted" style={{ display: 'block' }}>
-                        {t(`inbox.push.${push}` as TKey)}
+                        {t(`inbox.push.${push}`)}
                       </span>
                     </span>
                     <Switch
