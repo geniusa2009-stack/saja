@@ -6,7 +6,7 @@ import { fileURLToPath, URL } from 'node:url';
 export default defineConfig({
   plugins: [react()],
   resolve: {
-    alias: { '@': fileURLToPath(new URL('./src', import.meta.url)), '@dimforge/rapier3d-compat': '@dimforge/rapier3d' },
+    alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },
   server: {
     port: 5173,
@@ -21,9 +21,6 @@ export default defineConfig({
         // Keep the framework + motion runtime in stable, long-cacheable chunks.
         manualChunks(id: string) {
           if (id.includes('node_modules/motion') || id.includes('node_modules/framer-motion')) return 'motion';
-          if (id.includes('node_modules/@dimforge/rapier3d-compat') || id.includes('node_modules/@react-three/rapier')) return 'rapier';
-          if (id.includes('node_modules/@react-three/drei') || id.includes('node_modules/@react-three/fiber') || id.includes('node_modules/three-stdlib')) return 'react-three';
-          if (id.includes('node_modules/three/')) return 'three';
           if (id.includes('node_modules/react') || id.includes('node_modules/scheduler')) return 'react';
           return undefined;
         },
