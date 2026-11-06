@@ -1,6 +1,7 @@
 import { serve } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { Hono } from 'hono';
+import { compress } from 'hono/compress';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { loadConfig } from './config.ts';
@@ -18,6 +19,7 @@ startScheduler(services);
 // In production the same process serves the built web app, so the API and the
 // pages share one origin (cookies stay SameSite, no CORS surface at all).
 const root = new Hono();
+root.use('*', compress());
 root.route('/', api);
 root.all('/api/*', (c) => c.json({ error: { code: 'not_found', message: 'No such endpoint.' } }, 404));
 const staticDir = config.STATIC_DIR;
@@ -25,7 +27,7 @@ if (staticDir && existsSync(join(staticDir, 'index.html'))) {
   const indexHtml = readFileSync(join(staticDir, 'index.html'), 'utf8');
   const CSP = [
     "default-src 'self'",
-    "script-src 'self'",
+    "script-src 'self' 'wasm-unsafe-eval'",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: blob:",
@@ -63,3 +65,4 @@ if (staticDir && existsSync(join(staticDir, 'index.html'))) {
 serve({ fetch: root.fetch, port: config.PORT }, (info) => {
   log.info('server.started', { port: info.port, capabilities: Object.entries(config.modes).map(([k, v]) => `${k}=${v}`).join(' '), static: Boolean(staticDir) });
 });
+
