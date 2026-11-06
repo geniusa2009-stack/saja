@@ -10,7 +10,7 @@
  * a verified recording, confirmed reciter identity, and proper licensing before
  * it can be enabled. The listen/recitation button is intentionally disabled.
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type KeyboardEvent } from 'react';
 import { Button, DemoNote, Chip, Bar } from '@/design-system';
 import { Icon } from '@/brand/Icon';
 import { useI18n } from '@/i18n';
@@ -22,7 +22,7 @@ import './quran.css';
 type Mode = 'mushaf' | 'vocab' | 'builder' | 'tafsir';
 
 export default function QuranOdyssey() {
-  const { t, l, num } = useI18n();
+  const { t, l, num, isRTL } = useI18n();
   const surah = SURAH_AL_FATIHA;
 
   const [mode, setMode] = useState<Mode>('mushaf');
@@ -34,6 +34,7 @@ export default function QuranOdyssey() {
   const [vocabAnswer, setVocabAnswer] = useState<{ id: string; correct: boolean } | null>(null);
   const [vocabScore, setVocabScore] = useState(0);
   const [showVocabHint, setShowVocabHint] = useState(false);
+  const [vocabFinished, setVocabFinished] = useState(false);
 
   // Ayah Builder state
   const [builderIndex, setBuilderIndex] = useState(0);
@@ -50,6 +51,21 @@ export default function QuranOdyssey() {
     setBuilderComplete(false);
     setBuilderOrderWrong(false);
   }, [builderIndex, activePuzzle]);
+
+  const handleModeKeyDown = (event: KeyboardEvent<HTMLElement>) => {
+    const modes: Mode[] = ['mushaf', 'vocab', 'builder', 'tafsir'];
+    const index = modes.indexOf(mode);
+    const rtl = isRTL;
+    let next: number;
+    if (event.key === 'Home') next = 0;
+    else if (event.key === 'End') next = modes.length - 1;
+    else if (event.key === 'ArrowRight') next = (index + (rtl ? -1 : 1) + modes.length) % modes.length;
+    else if (event.key === 'ArrowLeft') next = (index + (rtl ? 1 : -1) + modes.length) % modes.length;
+    else return;
+    event.preventDefault();
+    setMode(modes[next]);
+    event.currentTarget.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next]?.focus();
+  };
 
   const handleWordSelect = (word: QuranWord, ayah: QuranAyah) => {
     setSelectedWord(selectedWord?.id === word.id ? null : word);
@@ -71,9 +87,21 @@ export default function QuranOdyssey() {
   };
 
   const nextVocabQuestion = () => {
+    if (vocabIndex === FATIHA_VOCAB_CHALLENGES.length - 1) {
+      setVocabFinished(true);
+      return;
+    }
     setVocabAnswer(null);
     setShowVocabHint(false);
-    setVocabIndex((idx) => (idx + 1) % FATIHA_VOCAB_CHALLENGES.length);
+    setVocabIndex((idx) => idx + 1);
+  };
+
+  const restartVocab = () => {
+    setVocabIndex(0);
+    setVocabScore(0);
+    setVocabAnswer(null);
+    setShowVocabHint(false);
+    setVocabFinished(false);
   };
 
   // Builder actions
@@ -121,6 +149,9 @@ export default function QuranOdyssey() {
         <div style={{ marginBottom: '20px' }}>
           <DemoNote>{t('quran.reviewDisclaimer' as unknown as 'state.demoContentLong')}</DemoNote>
         </div>
+        <p className="quran-learning-guide" role="note">
+          {t('quran.learningGuide' as unknown as 'app.name')}
+        </p>
 
         {/* Surah Header Card */}
         <header className="quran-header-card">
@@ -145,9 +176,13 @@ export default function QuranOdyssey() {
         </header>
 
         {/* Navigation Tabs */}
-        <nav className="quran-nav-tabs" role="tablist" aria-label="Quran Study Modes">
+        <nav className="quran-nav-tabs" role="tablist" aria-label={t('quran.studyModes' as unknown as 'app.name')} onKeyDown={handleModeKeyDown}>
           <button
+            type="button"
+            id="quran-tab-mushaf"
             role="tab"
+            aria-controls="quran-panel-mushaf"
+            tabIndex={mode === 'mushaf' ? 0 : -1}
             aria-selected={mode === 'mushaf'}
             className={`quran-tab-btn ${mode === 'mushaf' ? 'active' : ''}`}
             onClick={() => setMode('mushaf')}
@@ -156,7 +191,11 @@ export default function QuranOdyssey() {
             <span>{t('quran.tabMushaf' as unknown as 'a.open')}</span>
           </button>
           <button
+            type="button"
+            id="quran-tab-vocab"
             role="tab"
+            aria-controls="quran-panel-vocab"
+            tabIndex={mode === 'vocab' ? 0 : -1}
             aria-selected={mode === 'vocab'}
             className={`quran-tab-btn ${mode === 'vocab' ? 'active' : ''}`}
             onClick={() => setMode('vocab')}
@@ -165,7 +204,11 @@ export default function QuranOdyssey() {
             <span>{t('quran.tabVocab' as unknown as 'a.open')}</span>
           </button>
           <button
+            type="button"
+            id="quran-tab-builder"
             role="tab"
+            aria-controls="quran-panel-builder"
+            tabIndex={mode === 'builder' ? 0 : -1}
             aria-selected={mode === 'builder'}
             className={`quran-tab-btn ${mode === 'builder' ? 'active' : ''}`}
             onClick={() => setMode('builder')}
@@ -174,7 +217,11 @@ export default function QuranOdyssey() {
             <span>{t('quran.tabBuilder' as unknown as 'a.open')}</span>
           </button>
           <button
+            type="button"
+            id="quran-tab-tafsir"
             role="tab"
+            aria-controls="quran-panel-tafsir"
+            tabIndex={mode === 'tafsir' ? 0 : -1}
             aria-selected={mode === 'tafsir'}
             className={`quran-tab-btn ${mode === 'tafsir' ? 'active' : ''}`}
             onClick={() => setMode('tafsir')}
@@ -186,11 +233,7 @@ export default function QuranOdyssey() {
 
         {/* ── MODE 1: MUSHAF & INTERACTIVE WORD EXPLORER ── */}
         {mode === 'mushaf' && (
-          <section className="mushaf-card" aria-label="Surah Al-Fatiha Mushaf">
-            <div className="bismillah-cartouche">
-              <div className="mushaf-bismillah-arabic">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>
-            </div>
-
+          <section id="quran-panel-mushaf" role="tabpanel" aria-labelledby="quran-tab-mushaf" className="mushaf-card">
             <div className="ayah-container">
               {surah.ayahs.map((ayah) => {
                 const isActive = activeAyahNumber === ayah.number;
@@ -221,8 +264,12 @@ export default function QuranOdyssey() {
                       {ayah.words.map((w) => {
                         const isWordSelected = selectedWord?.id === w.id;
                         return (
-                          <span
+                          <button
                             key={w.id}
+                            type="button"
+                            lang="ar"
+                            dir="rtl"
+                            aria-pressed={isWordSelected}
                             className={`quran-word-interactive ${isWordSelected ? 'selected-word' : ''}`}
                             onClick={(e) => {
                               e.stopPropagation();
@@ -231,7 +278,7 @@ export default function QuranOdyssey() {
                             title={`${w.transliteration} · ${l(w.translation)}`}
                           >
                             {w.arabic}
-                          </span>
+                          </button>
                         );
                       })}
                       <span className="ayah-medallion" aria-label={`Ayah ${ayah.number}`}>
@@ -287,8 +334,16 @@ export default function QuranOdyssey() {
 
         {/* ── MODE 2: VOCABULARY TREASURE CHALLENGE ── */}
         {mode === 'vocab' && (
-          <section className="vocab-studio-panel" aria-label="Quranic Vocabulary Studio">
-            {(() => {
+          <section id="quran-panel-vocab" role="tabpanel" aria-labelledby="quran-tab-vocab" className="vocab-studio-panel">
+            {vocabFinished ? (
+              <div className="vocab-quiz-card quran-lesson-complete" role="status">
+                <span className="quran-completion-emblem" aria-hidden="true">✦</span>
+                <h2>{t('quran.vocabFinished' as unknown as 'app.name')}</h2>
+                <p>{t('quran.vocabResult' as unknown as 'app.name')}: <strong>{num(vocabScore)} / {num(FATIHA_VOCAB_CHALLENGES.length)}</strong></p>
+                <p>{t('quran.learningReminder' as unknown as 'app.name')}</p>
+                <Button variant="primary" onClick={restartVocab}>{t('quran.reviewAgain' as unknown as 'app.name')}</Button>
+              </div>
+            ) : (() => {
               const currentQ = FATIHA_VOCAB_CHALLENGES[vocabIndex];
               const progressRatio = (vocabIndex + 1) / FATIHA_VOCAB_CHALLENGES.length;
 
@@ -381,7 +436,7 @@ export default function QuranOdyssey() {
 
         {/* ── MODE 3: AYAH BUILDER PUZZLE ── */}
         {mode === 'builder' && (
-          <section className="builder-panel" aria-label="Ayah Builder Activity">
+          <section id="quran-panel-builder" role="tabpanel" aria-labelledby="quran-tab-builder" className="builder-panel">
             <div className="vocab-quiz-card">
               <div className="row justify-between items-center" style={{ marginBottom: '16px' }}>
                 <Chip tone="gold">
@@ -480,7 +535,7 @@ export default function QuranOdyssey() {
 
         {/* ── MODE 4: TAFSIR & REFLECTION ── */}
         {mode === 'tafsir' && (
-          <section aria-label="Tafsir & Reflections">
+          <section id="quran-panel-tafsir" role="tabpanel" aria-labelledby="quran-tab-tafsir">
             {/* Scholarly review notice for Tafsir content */}
             <div className="tafsir-review-notice">
               <Icon name="seal" size={14} />
@@ -524,6 +579,12 @@ export default function QuranOdyssey() {
           <p style={{ margin: '4px 0', color: 'var(--gold-300)' }}>
             • {surah.sources.verificationNotice}
           </p>
+          <div className="quran-license-note">
+            <p>Tanzil Quran Text (Uthmani, version 1.1). Copyright (C) 2007–2021 Tanzil Project. CC BY 3.0. Text may be reproduced verbatim with attribution; changes are not permitted.</p>
+            <a href="https://tanzil.net" target="_blank" rel="noopener noreferrer">Tanzil Project</a>
+            <span aria-hidden="true"> · </span>
+            <a href="https://tanzil.net/docs/Text_License" target="_blank" rel="noopener noreferrer">{t('quran.licenseTerms' as unknown as 'app.name')}</a>
+          </div>
         </footer>
       </div>
     </Page>

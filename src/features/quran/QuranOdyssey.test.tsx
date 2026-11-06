@@ -4,6 +4,7 @@ import { useSettings } from '@/store/settings';
 import { useProfile } from '@/store/profile';
 import { DEFAULT_LOOK } from '@/features/character/palette';
 import QuranOdyssey from './QuranOdyssey';
+import { SURAH_AL_FATIHA } from './data/fatiha';
 
 beforeEach(() => {
   useSettings.setState({ locale: 'en' });
@@ -47,7 +48,8 @@ describe('Quran Odyssey · Surah Al-Fatiha Milestone', () => {
     );
 
     // Verify first and last verse are present
-    expect(screen.getByText('بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'بِسْمِ' })).toBeInTheDocument();
+    expect(document.querySelectorAll('.ayah-card')).toHaveLength(7);
     expect(screen.getByText(/In the name of Allah, the Entirely Merciful/)).toBeInTheDocument();
 
     // Verify ayah 7
@@ -139,11 +141,34 @@ describe('Quran Odyssey · Surah Al-Fatiha Milestone', () => {
     );
 
     // Religious disclaimer
-    expect(screen.getByText(/Demo Content: Quranic Arabic text is verified against standard Hafs/i)).toBeInTheDocument();
+    expect(screen.getByText(/Demo Content: Quranic Arabic text is displayed from an attributed Uthmani source/i)).toBeInTheDocument();
 
     // Sources footer
-    expect(screen.getByText(/King Fahd Complex for the Printing of the Holy Quran/i)).toBeInTheDocument();
+    expect(screen.getByText(/Attributed source: Tanzil Quran Text/i)).toBeInTheDocument();
     expect(screen.getByText(/Saheeh International/i)).toBeInTheDocument();
     expect(screen.getByText(/Tafsir al-Muyassar/i)).toBeInTheDocument();
+  });
+
+
+  it('makes each Quranic word an accessible, selectable button', () => {
+    render(<MemoryRouter><QuranOdyssey /></MemoryRouter>);
+    const word = screen.getByRole('button', { name: 'ٱلْحَمْدُ' });
+    expect(word).toHaveAttribute('lang', 'ar');
+    expect(word).toHaveAttribute('aria-pressed', 'false');
+    fireEvent.click(word);
+    expect(word).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('supports arrow-key navigation between study modes', () => {
+    render(<MemoryRouter><QuranOdyssey /></MemoryRouter>);
+    const tabs = screen.getByRole('tablist');
+    fireEvent.keyDown(tabs, { key: 'ArrowRight' });
+    expect(screen.getByRole('tab', { name: /Word Treasure/i })).toHaveAttribute('aria-selected', 'true');
+  });
+
+  it('keeps the draft Arabic word sequence internally consistent with each verse', () => {
+    for (const ayah of SURAH_AL_FATIHA.ayahs) {
+      expect(ayah.words.map((word) => word.arabic).join(' ')).toBe(ayah.arabic);
+    }
   });
 });

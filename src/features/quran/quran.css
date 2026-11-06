@@ -628,3 +628,97 @@
     opacity: 1;
   }
 }
+
+/* SAJA Quran Odyssey · editorial reading refinement (v2) */
+.quran-learning-guide {
+  margin: 0 0 18px;
+  padding: 12px 16px;
+  border-inline-start: 3px solid var(--gold-500);
+  background: rgba(201, 164, 92, 0.075);
+  color: var(--sand-100);
+  font-size: var(--fs-small);
+  line-height: 1.8;
+  border-radius: 8px;
+}
+
+/* A calm, warm-ivory reading surface inside SAJA's midnight-blue identity. */
+.mushaf-card {
+  background: linear-gradient(155deg, #fbf7ea 0%, #f0e8d7 65%, #e9dfcc 100%);
+  border: 1px solid #ad9773;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.22), inset 0 0 0 6px rgba(255, 255, 255, 0.3);
+}
+.mushaf-card::after { border-color: rgba(116, 88, 51, 0.19); }
+.ayah-card {
+  background: rgba(255, 255, 255, 0.42);
+  border-color: rgba(68, 65, 53, 0.12);
+  border-radius: 14px;
+}
+.ayah-card:hover { background: rgba(255, 255, 255, 0.66); border-color: rgba(145, 107, 52, 0.3); }
+.ayah-card.active-ayah { background: #fffaf0; border-color: #987341; box-shadow: 0 8px 22px rgba(68, 48, 16, 0.12); }
+.ayah-card:first-child {
+  border-color: #b89963;
+  background: linear-gradient(160deg, #fffaf0, #f4e9d2);
+  text-align: center;
+}
+.ayah-card:first-child .ayah-arabic-flow { text-align: center; }
+.ayah-arabic-flow { color: #172a38; }
+.ayah-number-badge, .ayah-medallion {
+  color: #694820;
+  background: rgba(181, 134, 69, 0.15);
+  border-color: #9a784b;
+  box-shadow: none;
+}
+.ayah-translation-en { color: #374956; line-height: 1.85; }
+.ayah-transliteration { color: #51626c; }
+.ayah-audio-unavailable { color: #54636d; background: rgba(93, 109, 122, 0.08); cursor: default; }
+.quran-word-interactive {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  vertical-align: baseline;
+  text-align: inherit;
+  white-space: normal;
+  min-height: 44px;
+}
+.quran-word-interactive:hover { color: #77531e; background: rgba(173, 121, 51, 0.13); }
+.quran-word-interactive.selected-word { color: #54350d; background: rgba(218, 176, 98, 0.32); text-shadow: none; }
+.quran-word-interactive:focus-visible,
+.quran-tab-btn:focus-visible,
+.vocab-option-btn:focus-visible,
+.builder-chip-btn:focus-visible,
+.builder-word-slot:focus-visible {
+  outline: 3px solid #15a0b1;
+  outline-offset: 3px;
+}
+.quran-lesson-complete { display: grid; justify-items: center; gap: 14px; }
+.quran-lesson-complete h2 { color: var(--gold-300); font-size: clamp(1.4rem, 3vw, 2rem); }
+.quran-lesson-complete p { color: var(--sand-100); line-height: 1.8; }
+.quran-completion-emblem { color: var(--gold-300); font-size: 3rem; line-height: 1; }
+.quran-license-note { border-top: 1px solid var(--hairline); margin-top: 20px; padding-top: 14px; line-height: 1.8; }
+.quran-license-note a { color: var(--gold-300); text-underline-offset: 3px; }
+.quran-license-note a:hover { color: var(--ivory-50); }
+@media (max-width: 640px) {
+  .mushaf-card { padding: 15px 12px; }
+  .ayah-container { gap: 13px; }
+  .ayah-card { padding: 14px 10px; }
+  .ayah-arabic-flow { font-size: clamp(1.85rem, 7vw, 2.35rem); line-height: 2.45; }
+  .quran-word-interactive { padding: 0 4px; }
+  .ayah-translation-en { font-size: 0.99rem; }
+  .quran-nav-tabs { scroll-padding-inline: 16px; }
+  .quran-tab-btn { min-height: 48px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .quran-page *, .quran-page *::before, .quran-page *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+:root[data-motion='reduced'] .quran-page * {
+  animation-duration: 0.01ms !important;
+  transition-duration: 0.01ms !important;
+}
