@@ -85,8 +85,8 @@ export const WORDS_OF_PEACE_QUEST: QuestDef = {
       scene: 'village',
       object: { en: 'A folded note near the fountain', ar: 'مذكرة مطوية قرب النافورة' },
       fragment: {
-        en: '"As-salamu alaykum" — peace be upon you. It's how Muslims greet one another.',
-        ar: '«السلام عليكم» — السلام عليك. هكذا يتحية المسلمون بعضهم.',
+        en: '“As-salamu alaykum” — peace be upon you. It’s how Muslims greet one another.',
+        ar: '«السلام عليكم» — أي: السلامُ عليكم ورحمةُ الله. هكذا يُحيّي المسلمون بعضُهم بعضًا.',
       },
       position: { x: 30, y: 55 },
     },
@@ -137,7 +137,7 @@ export const WORDS_OF_PEACE_QUEST: QuestDef = {
   ],
 
   offerText: {
-    en: 'Accept Amina's quest and help light the village lanterns?',
+    en: 'Accept Amina’s quest and help light the village lanterns?',
     ar: 'هل تقبل مهمة أمينة وتساعد في إضاءة فوانيس القرية؟',
   },
 
@@ -160,7 +160,7 @@ export const WORDS_OF_PEACE_QUEST: QuestDef = {
       ar: 'أحد الأدلة مخفي داخل فانوس بعينه. ربما تعرف الفوانيس سرها الخاص.',
     },
     {
-      en: 'Once you have all three clues, return to Amina — she'll show you how to light them all at once.',
+      en: 'Once you have all three clues, return to Amina — she’ll show you how to light them all at once.',
       ar: 'حين تجمع الأدلة الثلاثة، عُد إلى أمينة — ستريك كيف تضيئها جميعًا دفعة واحدة.',
     },
   ],

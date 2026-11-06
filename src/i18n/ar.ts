@@ -1272,5 +1272,18 @@ export const ar: Dict = {
   'hadith.activity.sourceActivity': 'نشاط من تأليف سجى · ليس حديثًا',
   'hadith.activity.hadithNotice': 'نص الحديث ومصدره على بعد لمسة دائمًا. هذا النشاط من مواد سجى التعليمية.',
 
+  'quest.journal': 'دفتر المهمات',
+  'quest.active': 'قيد التنفيذ',
+  'quest.completed': 'مكتملة',
+  'quest.accept': 'اقبل المهمة',
+  'quest.notNow': 'ليس الآن',
+  'quest.hint': 'تلميح',
+  'quest.objDone': 'تم',
+  'quest.objPending': 'لم يتم بعد',
+  'quest.clueArea': 'أماكن للبحث عن الأدلة',
+  'quest.discoverClue': 'ابحث هنا عن دليل',
+  'quest.clueFound': 'وجدت دليلًا',
+  'quest.cluesFound': 'وُجد {n} من {total} من الأدلة',
+
   'char.nameReserved': 'هذا الاسم يوحي بدور أو توثيق (عالم، مشرف، موثّق…). اختر اسمًا آخر من فضلك.',
 };

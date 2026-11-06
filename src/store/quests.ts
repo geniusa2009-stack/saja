@@ -45,7 +45,7 @@ interface QuestsState {
   completeQuest: (questId: string) => void;
 
   /** Increment hint counter for a quest. */
-  useHint: (questId: string) => void;
+  takeHint: (questId: string) => void;
 
   /** Read a single quest's state (returns a sensible default if unknown). */
   getQuest: (questId: string) => QuestState;
@@ -157,7 +157,7 @@ export const useQuests = create<QuestsState>()(
         emitQuestEvent('quest:completed', { questId });
       },
 
-      useHint: (questId) => {
+      takeHint: (questId) => {
         set((s) => ({
           quests: {
             ...s.quests,

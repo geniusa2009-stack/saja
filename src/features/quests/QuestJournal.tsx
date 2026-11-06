@@ -22,7 +22,7 @@ interface Props {
 export function QuestJournal({ onClose }: Props) {
   const { l, t } = useI18n();
   const questsState = useQuests((s) => s.quests);
-  const useHint = useQuests((s) => s.useHint);
+  const takeHint = useQuests((s) => s.takeHint);
   const [openQuestId, setOpenQuestId] = useState<string | null>(null);
 
   const allStates = Object.values(questsState);
@@ -77,7 +77,7 @@ export function QuestJournal({ onClose }: Props) {
                     state={qs}
                     isOpen={isOpen}
                     onToggle={() => setOpenQuestId(isOpen ? null : qs.questId)}
-                    onHint={() => useHint(qs.questId)}
+                    onHint={() => takeHint(qs.questId)}
                   />
                 );
               })}

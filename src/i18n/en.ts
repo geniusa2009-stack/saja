@@ -1270,6 +1270,19 @@ export const en = {
   'hadith.activity.sourceActivity': 'Original SAJA activity · not a hadith',
   'hadith.activity.hadithNotice': 'The hadith text and its source are always one tap away. This activity is SAJA’s teaching material.',
 
+  'quest.journal': 'Quest journal',
+  'quest.active': 'In progress',
+  'quest.completed': 'Completed',
+  'quest.accept': 'Accept the quest',
+  'quest.notNow': 'Not now',
+  'quest.hint': 'Hint',
+  'quest.objDone': 'done',
+  'quest.objPending': 'not done yet',
+  'quest.clueArea': 'Places to look for clues',
+  'quest.discoverClue': 'Look here for a clue',
+  'quest.clueFound': 'Clue found',
+  'quest.cluesFound': '{n} of {total} clues found',
+
   'char.nameReserved': 'This name sounds like a role or a verification (scholar, moderator, verified…). Please choose another name.',
 };
 

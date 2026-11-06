@@ -229,7 +229,7 @@ export function NpcDialogue({ quest, onClose, onAccept }: Props) {
                 onClick={(e) => e.stopPropagation()}
               >
                 <p className="npc-dialogue__offer-text">
-                  {l({ en: 'You've already lit every lantern — well done!', ar: 'لقد أضأت كل الفوانيس — أحسنت!' })}
+                  {l({ en: 'You’ve already lit every lantern — well done!', ar: 'لقد أضأت كل الفوانيس — أحسنت!' })}
                 </p>
                 <Button iconEnd="forward" onClick={onClose}>
                   {t('a.continue')}

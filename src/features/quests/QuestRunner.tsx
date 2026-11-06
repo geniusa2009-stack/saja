@@ -13,7 +13,7 @@
  * The existing MissionRunner handles mission execution and server-authoritative
  * completion; QuestRunner listens to the progress store and bridges the two.
  */
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import { useProgress } from '@/store/progress';
@@ -46,7 +46,6 @@ export function QuestRunner({ quest, onDismiss }: Props) {
   const acceptQuest = useQuests((s) => s.acceptQuest);
   const completeQuest = useQuests((s) => s.completeQuest);
   const completeObjective = useQuests((s) => s.completeObjective);
-  const getQuest = useQuests((s) => s.getQuest);
   const results = useProgress((s) => s.results);
 
   const [phase, setPhase] = useState<Phase>('dialogue');
@@ -54,7 +53,7 @@ export function QuestRunner({ quest, onDismiss }: Props) {
   const questState = useQuests((s) => s.quests[quest.id]);
   const status = questState?.status ?? 'available';
   const foundClues = questState?.foundClues ?? [];
-  const completedObjectives = questState?.completedObjectives ?? [];
+  const completedObjectives = useMemo(() => questState?.completedObjectives ?? [], [questState?.completedObjectives]);
   const allCluesFound = foundClues.length >= quest.clues.length;
 
   // Watch for mission completion and auto-complete the quest objective + quest itself.
