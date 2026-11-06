@@ -62,6 +62,7 @@ const P = {
   seal: ['M12 3L19 6V11C19 15.5 16 19 12 21C8 19 5 15.5 5 11V6Z', 'circle:12,11,2.5'],
   keyboard: ['M3 7H21V17H3Z', 'M6 10H7M9 10H10M12 10H13M15 10H16M18 10H18.5M7 14H17'],
   edit: ['M4 20H8L19 9L15 5L4 16Z', 'M13 7L17 11'],
+  quran: ['M3 5C6 4 9 4 12 6V20C9 18 6 18 3 19Z', 'M21 5C18 4 15 4 12 6V20C15 18 18 18 21 19Z', 'M12 6V20', 'M7 9C8.5 8.5 10 8.5 11 9M13 9C14 8.5 15.5 8.5 17 9'],
 } satisfies Record<string, string[]>;
 
 export type IconName = keyof typeof P;

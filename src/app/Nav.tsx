@@ -24,6 +24,7 @@ interface Item {
 const PRIMARY: Item[] = [
   { to: '/', icon: 'home', label: 'nav.home' },
   { to: '/journey', icon: 'journey', label: 'nav.journey' },
+  { to: '/quran', icon: 'quran', label: 'nav.quran' },
   { to: '/learn', icon: 'learn', label: 'nav.learn' },
   { to: '/day', icon: 'day', label: 'nav.day' },
   { to: '/circles', icon: 'community', label: 'nav.community' },
@@ -36,6 +37,7 @@ const TOOLS: Item[] = [
 ];
 const MOBILE: Item[] = [PRIMARY[0], PRIMARY[1], PRIMARY[3], PRIMARY[4]];
 const MORE: Item[] = [
+  { to: '/quran', icon: 'quran', label: 'nav.quran', desc: 'quran.sub' },
   { to: '/learn', icon: 'learn', label: 'nav.learn', desc: 'learn.sub' },
   { to: '/scholar', icon: 'scholar', label: 'nav.scholar', desc: 'sch.sub' },
   { to: '/explore', icon: 'explore', label: 'nav.explore', desc: 'ex.sub' },
