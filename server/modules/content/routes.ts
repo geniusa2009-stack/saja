@@ -15,7 +15,7 @@ import { ReviewIn } from '../knowledge/routes.ts';
 
 export const contentRoutes = new Hono<AppEnv>();
 
-const BLOCK_KIND = z.enum(['claim_rule', 'concept_story', 'quiz']);
+const BLOCK_KIND = z.enum(['claim_rule', 'concept_story', 'quiz', 'hadith']);
 
 type Counts = { total: number; byStatus: Record<ReviewStatus, number>; served: { published: number; demo: number; hidden: number } };
 
@@ -67,6 +67,7 @@ contentRoutes.get('/status', async (c) => {
     claimRules: { ...blocks.claim_rule, usedBy: ['amanah', 'nour'] },
     conceptStories: blocks.concept_story,
     quizzes: blocks.quiz,
+    hadith: blocks.hadith,
     scholars: Object.fromEntries(['unverified', 'pending', 'verified', 'suspended', 'sample'].map((s) => [s, scholars.find((r) => r.verification_status === s)?.n ?? 0])),
     scholarAnswers: answers,
   });

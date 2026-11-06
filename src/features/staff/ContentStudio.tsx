@@ -13,6 +13,7 @@ import { hasRole, useRoles } from '@/store/connection';
 import { api } from '@/api/client';
 import type { L10n } from '@/domain/types';
 import type { MissionDefinition } from '@/domain/missionDefinitions';
+import type { HadithSnapshot } from '@/domain/hadith';
 import { MISSION_BY_ID } from '@/content/missions';
 import { MECHANICS } from '@/features/missions/registry';
 import { MissionPayloadProvider } from '@/features/missions/payload';
@@ -130,6 +131,7 @@ interface StatusData {
   claimRules: Counts & { usedBy: string[] };
   conceptStories: Counts;
   quizzes: Counts;
+  hadith: Counts;
   scholars: Record<'unverified' | 'pending' | 'verified' | 'suspended' | 'sample', number>;
   scholarAnswers: { sample: number; real: number };
 }
@@ -204,6 +206,7 @@ export function ContentStatus() {
         <StatusCard title={t('cs.rules')} sub={t('cs.rulesSub')} c={data.claimRules} />
         <StatusCard title={t('cs.stories')} sub={t('cs.codeSub')} c={data.conceptStories} />
         <StatusCard title={t('cs.quizzes')} sub={t('cs.codeSub')} c={data.quizzes} />
+        <StatusCard title={t('cs.hadith')} sub={t('cs.hadithSub')} c={data.hadith} />
         <li className="card cs-stat">
           <strong>{t('cs.scholars')}</strong>
           <dl className="cs-served cs-served--5">
@@ -706,7 +709,7 @@ function MissionTexts({ id, texts, version, canWrite, onSaved }: { id: string; t
 
 /* ── Texts that live in code ─────────────────────────────────── */
 
-type BlockKind = 'claim_rule' | 'concept_story' | 'quiz';
+type BlockKind = 'claim_rule' | 'concept_story' | 'quiz' | 'hadith';
 interface Block {
   kind: BlockKind;
   id: string;
@@ -724,6 +727,7 @@ interface Block {
     pages?: L10n[];
     q?: L10n;
     options?: { label: L10n; correct: boolean; why: L10n }[];
+    record?: HadithSnapshot;
   };
 }
 
@@ -750,7 +754,7 @@ export function TextsStudio() {
         label={t('cs.textsTab')}
         value={kind}
         onChange={(k) => (setKind(k), setOpen(null))}
-        options={(['claim_rule', 'concept_story', 'quiz'] as const).map((k) => ({ value: k, label: `${t(`cs.kind.${k}`)} · ${data.blocks.filter((b) => b.kind === k).length}` }))}
+        options={(['claim_rule', 'concept_story', 'quiz', 'hadith'] as const).map((k) => ({ value: k, label: `${t(`cs.kind.${k}`)} · ${data.blocks.filter((b) => b.kind === k).length}` }))}
       />
       <ul className="staff-list">
         {rows.map((b) => {
@@ -815,6 +819,25 @@ function BlockBody({ b }: { b: Block }) {
         ))}
       </ol>
     );
+  if (b.kind === 'hadith') {
+    const r = c.record;
+    if (!r) return <p className="t-small muted">{t('cs.noPreview')}</p>;
+    return (
+      <div className="stack" style={{ gap: 8 }}>
+        <div className="row wrap" style={{ gap: 6 }}>
+          <span className="chip chip--quiet" dir="ltr">
+            {r.source.reference}
+          </span>
+          <Chip tone="quiet">{t('hadith.detail.gradingLabel')}: {r.grading.label.en} / {r.grading.label.ar}</Chip>
+        </div>
+        <p className="arabic-text" dir="rtl" lang="ar" style={{ margin: 0 }}>
+          {r.arabic}
+        </p>
+        <Bi value={r.title} strong />
+        <Bi value={r.meaning} />
+      </div>
+    );
+  }
   return (
     <div className="stack" style={{ gap: 6 }}>
       <Bi value={c.q} strong />

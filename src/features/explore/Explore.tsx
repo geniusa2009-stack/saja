@@ -9,6 +9,8 @@ import { LOCATIONS } from '@/content/world';
 import { MISSIONS } from '@/content/missions';
 import { CIRCLES, MEMBERS } from '@/content/community';
 import { KNOWLEDGE } from '@/content/knowledge';
+import { HADITHS } from '@/content/hadith';
+import { HADITH_ACTIVITIES } from '@/content/hadithActivities';
 import { Chip, EmptyState, Section, TextInput } from '@/design-system';
 import { Icon } from '@/brand/Icon';
 import { useI18n, type TKey } from '@/i18n';
@@ -93,6 +95,33 @@ export default function Explore() {
             <div className="ex-hero">
               <WorldMapDiagram current={here} onSelect={(id) => walk(id)} />
             </div>
+
+            <section className="ex-hadith" aria-labelledby="ex-hadith-title">
+              <div className="ex-hadith__arch" aria-hidden>
+                <Icon name="quote" size={24} />
+              </div>
+              <div className="ex-hadith__copy">
+                <span className="t-caption eyebrow">{t('ex.hadithEyebrow')}</span>
+                <h2 id="ex-hadith-title" className="t-h2">
+                  {t('ex.hadith')}
+                </h2>
+                <p className="muted">{t('ex.hadithSub')}</p>
+                <div className="row wrap" style={{ gap: 8 }}>
+                  <Chip tone="quiet">{t('hadith.count', { n: HADITHS.length })}</Chip>
+                  <Chip tone="quiet">{t('hadith.activitiesCount', { n: HADITH_ACTIVITIES.length })}</Chip>
+                </div>
+              </div>
+              <div className="ex-hadith__actions">
+                <button type="button" className="btn btn--secondary" onClick={() => navigate('/hadith')}>
+                  <Icon name="learn" size={18} />
+                  {t('ex.hadithOpen')}
+                </button>
+                <button type="button" className="btn btn--ghost" onClick={() => navigate('/hadith/discover')}>
+                  <Icon name="compass" size={18} />
+                  {t('ex.hadithDiscover')}
+                </button>
+              </div>
+            </section>
 
             <Section title={t('ex.places')} id="places">
               <div className="ex-rail">

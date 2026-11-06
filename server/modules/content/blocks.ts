@@ -14,6 +14,8 @@ import { log } from '../../lib/log.ts';
 import { CLAIM_RULES } from '../../../src/content/claims.ts';
 import { CONCEPT_STORIES } from '../../../src/content/missions.ts';
 import { QUIZZES } from '../../../src/content/quizzes.ts';
+import { HADITHS } from '../../../src/content/hadith.ts';
+import { hadithSnapshot } from '../../../src/domain/hadith.ts';
 import type { BlockKind } from './review.ts';
 
 export interface CodeBlock {
@@ -38,6 +40,9 @@ export function codeBlocks(): CodeBlock[] {
     })),
     ...Object.entries(CONCEPT_STORIES).map(([id, pages]) => ({ kind: 'concept_story' as const, id, content: { pages } })),
     ...Object.entries(QUIZZES).map(([id, quiz]) => ({ kind: 'quiz' as const, id, content: quiz })),
+    // A hadith snapshot includes the verified Arabic, reference, grading and
+    // SAJA's paraphrase. Reviewing it reviews exactly this object, no more.
+    ...HADITHS.map((record) => ({ kind: 'hadith' as const, id: record.id, content: { record: hadithSnapshot(record) } })),
   ];
 }
 
