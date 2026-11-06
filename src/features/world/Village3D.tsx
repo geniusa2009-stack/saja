@@ -5,7 +5,7 @@ import { Html, Sky, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js';
 import type { CharacterLook } from '@/domain/types';
-import { HAIR_COLORS, OUTFIT_COLORS, SKIN_TONES } from '@/features/character/palette';
+import { HAIR_COLORS, HIJAB_COLORS, OUTFIT_COLORS, SKIN_TONES } from '@/features/character/palette';
 import type { GameScene } from './game/types';
 
 interface Props {
@@ -23,11 +23,12 @@ interface Props {
 }
 
 const WORLD_SCALE = 50;
+const VILLAGE_ASSET_URL = '/assets/game/saja-village.glb?v=b45804f5';
 const worldPoint = (x: number, y: number): [number, number, number] => [x / WORLD_SCALE - 18, 0, 11 - y / WORLD_SCALE];
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 
 function VillageAsset() {
-  const gltf = useGLTF('/assets/game/saja-village.glb');
+  const gltf = useGLTF(VILLAGE_ASSET_URL);
   const environment = useMemo(() => {
     const clone = cloneSkinned(gltf.scene);
     clone.getObjectByName('TravelerRoot')?.removeFromParent();
@@ -63,55 +64,83 @@ function LoadingVillage() {
   return <Html center><div className="play-world__loading-card">Loading village</div></Html>;
 }
 
-function RiggedTraveller({ look, moving, running, greeting, reducedMotion }: { look: CharacterLook; moving: boolean; running: boolean; greeting: boolean; reducedMotion: boolean }) {
-  const gltf = useGLTF('/assets/game/saja-village.glb');
+interface TravellerAnimationState {
+  moving: boolean;
+  running: boolean;
+  speed: number;
+  turnRequest: number;
+  turnDirection: number;
+  interaction: number;
+  activeClip: string;
+}
+
+const REQUIRED_CLIPS = ['Idle', 'Walk', 'Run', 'WalkStart', 'WalkStop', 'TurnLeft', 'TurnRight', 'Interact'];
+
+function RiggedTraveller({ look, animation, reducedMotion }: { look: CharacterLook; animation: MutableRefObject<TravellerAnimationState>; reducedMotion: boolean }) {
+  const gltf = useGLTF(VILLAGE_ASSET_URL);
   const rig = useMemo(() => {
     const source = gltf.scene.getObjectByName('TravelerRoot');
     const clone = source ? cloneSkinned(source) : new THREE.Group();
     const outfitColor = OUTFIT_COLORS[look.outfitColor] ?? OUTFIT_COLORS[1];
     const skinColor = SKIN_TONES[look.skin] ?? SKIN_TONES[2];
     const hairColor = HAIR_COLORS[look.hairColor] ?? HAIR_COLORS[0];
+    const hijabColor = HIJAB_COLORS[look.outfitColor % HIJAB_COLORS.length] ?? HIJAB_COLORS[0];
+    const visibleStyle = 'Traveler Style ' + (look.hair === 'kufi' ? 'Kufi' : look.hair[0].toUpperCase() + look.hair.slice(1));
     clone.traverse((object) => {
       if (!(object instanceof THREE.Mesh)) return;
       object.castShadow = true;
       object.receiveShadow = true;
+      if (object.name.startsWith('Traveler Style ')) object.visible = object.name === visibleStyle;
+      if (object.name === 'Traveler Satchel') object.visible = look.accessory === 'satchel';
       const sourceMaterials = Array.isArray(object.material) ? object.material : [object.material];
       const materials = sourceMaterials.map((original) => {
         const material = original.clone();
-        if (/Traveler anatomical base/i.test(object.name)) material.color.set(skinColor);
-        if (/Long modest tunic|Long robe sleeve|Tunic hem braid|Woven sleeve cuff|Woven waist sash/i.test(object.name)) material.color.set(outfitColor);
-        if (/Kufi cap|Kufi gold band/i.test(object.name) && !['kufi', 'hijab', 'wrap'].includes(look.hair)) object.visible = false;
-        if (/Satchel/i.test(object.name) && look.accessory !== 'satchel') object.visible = false;
+        if (material.name === 'Traveler Skin') material.color.set(skinColor);
+        if (material.name === 'Traveler Garment') material.color.set(outfitColor);
+        if (material.name === 'Traveler Trousers') material.color.set(outfitColor).multiplyScalar(0.74);
+        if (material.name === 'Traveler Hair' || material.name === 'Traveler Pupil and Brows') material.color.set(hairColor);
+        if (material.name === 'Traveler Head Covering') material.color.set(hijabColor);
         return material;
       });
       object.material = Array.isArray(object.material) ? materials : materials[0];
     });
-    if (look.hair !== 'kufi') {
-      const head = clone.getObjectByName('head');
-      if (head) {
-        const covering = look.hair === 'hijab' || look.hair === 'wrap';
-        const hair = new THREE.Mesh(
-          new THREE.SphereGeometry(covering ? 0.235 : 0.205, 14, 10),
-          new THREE.MeshStandardMaterial({ color: covering ? outfitColor : hairColor, roughness: 0.94 }),
-        );
-        hair.name = covering ? 'SAJA profile hijab placeholder' : 'SAJA profile hair placeholder';
-        hair.position.set(0, 0.12, 0);
-        hair.scale.set(1, covering ? 0.92 : 0.74, 1.08);
-        hair.castShadow = true;
-        head.add(hair);
-      }
-    }
     return clone;
   }, [gltf.scene, look.accessory, look.hair, look.hairColor, look.outfitColor, look.skin]);
-  const bindPose = useRef<Map<string, THREE.Euler>>(new Map());
+  const mixerRef = useRef<THREE.AnimationMixer | null>(null);
+  const actionsRef = useRef<Map<string, THREE.AnimationAction>>(new Map());
+  const driver = useRef<{ action: THREE.AnimationAction | null; name: string; oneShot: boolean; lastMoving: boolean; lastInteraction: number; lastTurn: number }>({
+    action: null, name: '', oneShot: false, lastMoving: false, lastInteraction: animation.current.interaction, lastTurn: animation.current.turnRequest,
+  });
+
   useEffect(() => {
-    bindPose.current.clear();
-    const names = ['thigh.L', 'thigh.R', 'shin.L', 'shin.R', 'upper_arm.L', 'upper_arm.R', 'forearm.L', 'forearm.R', 'spine', 'chest'];
-    for (const name of names) {
-      const bone = rig.getObjectByName(name);
-      if (bone) bindPose.current.set(name, bone.rotation.clone());
+    const mixer = new THREE.AnimationMixer(rig);
+    const actions = new Map<string, THREE.AnimationAction>();
+    for (const clip of gltf.animations) actions.set(clip.name, mixer.clipAction(clip));
+    mixerRef.current = mixer;
+    actionsRef.current = actions;
+    const state = driver.current;
+    state.action = null;
+    state.name = '';
+    state.oneShot = false;
+    state.lastMoving = false;
+    state.lastInteraction = animation.current.interaction;
+    state.lastTurn = animation.current.turnRequest;
+    const idle = actions.get('Idle');
+    if (idle) {
+      idle.setLoop(THREE.LoopRepeat, Infinity);
+      idle.play();
+      state.action = idle;
+      state.name = 'Idle';
+      animation.current.activeClip = 'Idle';
+    } else {
+      animation.current.activeClip = 'Missing clips';
     }
     return () => {
+      mixer.stopAllAction();
+      mixer.uncacheRoot(rig);
+      actions.clear();
+      actionsRef.current = new Map();
+      mixerRef.current = null;
       rig.traverse((object) => {
         if (object instanceof THREE.Mesh) {
           const materials = Array.isArray(object.material) ? object.material : [object.material];
@@ -119,29 +148,83 @@ function RiggedTraveller({ look, moving, running, greeting, reducedMotion }: { l
         }
       });
     };
-  }, [rig]);
-  useFrame(({ clock }) => {
-    const phase = clock.elapsedTime * (running ? 12 : 9);
-    const swing = moving && !reducedMotion ? Math.sin(phase) * (running ? 0.62 : 0.43) : 0;
-    const set = (name: string, x: number, y = 0, z = 0) => {
-      const bone = rig.getObjectByName(name);
-      const base = bindPose.current.get(name);
-      if (bone && base) bone.rotation.set(base.x + x, base.y + y, base.z + z);
-    };
-    set('thigh.L', swing);
-    set('thigh.R', -swing);
-    set('shin.L', Math.max(0, -swing) * 0.5);
-    set('shin.R', Math.max(0, swing) * 0.5);
-    set('upper_arm.L', -swing * 0.62);
-    set('upper_arm.R', greeting ? -1.05 + Math.sin(phase * 1.7) * 0.12 : swing * 0.62, 0, greeting ? -0.22 : 0);
-    set('forearm.R', greeting ? -0.28 : 0);
-    set('spine', 0, 0, moving && !reducedMotion ? Math.sin(phase * 2) * 0.018 : 0);
-  });
-  return <group position={[0, -0.78, 0]} userData={{ temporaryPlaceholder: true, source: 'Blender SAJA humanoid rig' }}><primitive object={rig} dispose={null} /></group>;
-}
+  }, [animation, gltf.animations, rig]);
 
+  useFrame((_, delta) => {
+    const mixer = mixerRef.current;
+    const actions = actionsRef.current;
+    if (!mixer) return;
+    const state = animation.current;
+    const current = driver.current;
+    const play = (name: string, loop = true) => {
+      const next = actions.get(name);
+      if (!next) {
+        state.activeClip = 'Missing clips';
+        return;
+      }
+      if (current.name === name && next.isRunning()) return;
+      next.reset();
+      next.enabled = true;
+      next.setEffectiveWeight(1);
+      next.setLoop(loop ? THREE.LoopRepeat : THREE.LoopOnce, loop ? Infinity : 1);
+      next.clampWhenFinished = !loop;
+      if (current.action && current.action !== next) next.crossFadeFrom(current.action, loop ? 0.18 : 0.12, true);
+      else next.fadeIn(0.12);
+      next.play();
+      current.action = next;
+      current.name = name;
+      current.oneShot = !loop;
+      state.activeClip = name;
+    };
+
+    if (current.oneShot && current.action && !current.action.isRunning()) current.oneShot = false;
+    if (state.interaction !== current.lastInteraction) {
+      current.lastInteraction = state.interaction;
+      play('Interact', false);
+    } else if (state.turnRequest !== current.lastTurn) {
+      current.lastTurn = state.turnRequest;
+      play(state.turnDirection < 0 ? 'TurnRight' : 'TurnLeft', false);
+    } else if (!current.oneShot) {
+      if (state.moving !== current.lastMoving) {
+        current.lastMoving = state.moving;
+        play(state.moving ? 'WalkStart' : 'WalkStop', false);
+      } else {
+        play(state.moving ? (state.running ? 'Run' : 'Walk') : 'Idle', true);
+      }
+    }
+
+    if (current.action) {
+      const cycleSeconds = current.name === 'Run' ? 0.8 : 1;
+      const strideLength = current.name === 'Run' ? 3.2 : 2.05;
+      const playbackRate = current.name === 'Walk' || current.name === 'Run'
+        ? clamp(state.speed * cycleSeconds / strideLength, 0.68, 2.2)
+        : current.name === 'WalkStart' || current.name === 'WalkStop'
+          ? clamp(state.speed / 4.1, 0.78, 1.18)
+          : 1;
+      current.action.setEffectiveTimeScale(playbackRate);
+    }
+    // Slow idle and interaction motion for reduced-motion users while keeping gait synced to Rapier.
+    const motionScale = reducedMotion && !state.moving ? 0.7 : 1;
+    mixer.update(delta * motionScale);
+  });
+
+  const availableClips = gltf.animations.map((clip) => clip.name).join('|');
+  return <group position={[0, -0.78, 0]} userData={{ source: 'Blender SAJA rig', animationClips: availableClips }}><primitive object={rig} dispose={null} /></group>;
+}
 function Player(props: Props) {
   const { scene, look, playerName, keys, joystick, talking, reducedMotion, sprint, stageRef, onNearby, onMoving } = props;
+  const gltf = useGLTF(VILLAGE_ASSET_URL);
+  const availableClips = gltf.animations.map((clip) => clip.name).join('|');
+  const playerAnimation = useRef<TravellerAnimationState>({ moving: false, running: false, speed: 0, turnRequest: 0, turnDirection: 1, interaction: 0, activeClip: 'Idle' });
+  const npcAnimation = useRef<TravellerAnimationState>({ moving: false, running: false, speed: 0, turnRequest: 0, turnDirection: 1, interaction: 0, activeClip: 'Idle' });
+  const previousTalking = useRef(talking);
+  useEffect(() => {
+    if (talking && !previousTalking.current) {
+      playerAnimation.current.interaction += 1;
+      npcAnimation.current.interaction += 1;
+    }
+    previousTalking.current = talking;
+  }, [talking]);
   const body = useRef<RapierRigidBody>(null);
   const capsule = useRef<RapierCollider>(null);
   const visual = useRef<THREE.Group>(null);
@@ -157,8 +240,10 @@ function Player(props: Props) {
   const moving = useRef(false);
   const running = useRef(false);
   const lastTelemetry = useRef(0);
+  const lastDesiredHeading = useRef(heading.current);
+  const lastTurnRequestAt = useRef(0);
   const collisionCount = useRef(0);
-  const [telemetry, setTelemetry] = useState({ x: 0, z: 0, hits: 0, cameraYaw: yaw.current, facingYaw: heading.current });
+  const [telemetry, setTelemetry] = useState({ x: 0, z: 0, hits: 0, cameraYaw: yaw.current, facingYaw: heading.current, animation: 'Idle' });
   const direction = useMemo(() => new THREE.Vector3(), []);
   const right = useMemo(() => new THREE.Vector3(), []);
   const forward = useMemo(() => new THREE.Vector3(), []);
@@ -247,7 +332,17 @@ function Player(props: Props) {
       onMoving(currentMoving);
     }
     const state = rigidBody.translation();
-    if (isMoving) heading.current = Math.atan2(direction.x, direction.z);
+    if (isMoving) {
+      heading.current = Math.atan2(direction.x, direction.z);
+      const turn = Math.atan2(Math.sin(heading.current - lastDesiredHeading.current), Math.cos(heading.current - lastDesiredHeading.current));
+      const now = performance.now();
+      if (Math.abs(turn) > 1.05 && now - lastTurnRequestAt.current > 650) {
+        playerAnimation.current.turnRequest += 1;
+        playerAnimation.current.turnDirection = Math.sign(turn);
+        lastTurnRequestAt.current = now;
+      }
+      lastDesiredHeading.current = heading.current;
+    }
     const maxSpeed = sprint.current || keySet.has('ShiftLeft') || keySet.has('ShiftRight') ? 6.3 : 4.1;
     running.current = isMoving && maxSpeed > 5;
     const desiredSpeed = isMoving && enabled ? maxSpeed : 0;
@@ -260,6 +355,10 @@ function Player(props: Props) {
     collisionCount.current += character.numComputedCollisions();
     const allowed = character.computedMovement();
     if (character.computedGrounded() && verticalSpeed.current < 0) verticalSpeed.current = -1.2;
+    const actualSpeed = Math.hypot(allowed.x, allowed.z) / Math.max(dt, 0.001);
+    playerAnimation.current.moving = currentMoving && actualSpeed > 0.16;
+    playerAnimation.current.running = playerAnimation.current.moving && running.current;
+    playerAnimation.current.speed = actualSpeed;
     const next = { x: state.x + allowed.x, y: state.y + allowed.y, z: state.z + allowed.z };
     rigidBody.setNextKinematicTranslation(next);
 
@@ -292,24 +391,24 @@ function Player(props: Props) {
 
     if (performance.now() - lastTelemetry.current > 140) {
       lastTelemetry.current = performance.now();
-      setTelemetry({ x: (next.x + 18) * WORLD_SCALE, z: (11 - next.z) * WORLD_SCALE, hits: collisionCount.current, cameraYaw: yaw.current, facingYaw: visual.current?.rotation.y ?? heading.current });
+      setTelemetry({ x: (next.x + 18) * WORLD_SCALE, z: (11 - next.z) * WORLD_SCALE, hits: collisionCount.current, cameraYaw: yaw.current, facingYaw: visual.current?.rotation.y ?? heading.current, animation: playerAnimation.current.activeClip });
     }
   });
 
   return <>
     <RigidBody ref={body} type="kinematicPosition" colliders={false} position={[startX, 0.78, startZ]} enabledRotations={[false, false, false]} userData={{ kind: 'player', displayName: playerName }}>
       <CapsuleCollider ref={capsule} args={[0.5, 0.28]} />
-      <group ref={visual}><RiggedTraveller look={look} moving={moving.current} running={running.current} greeting={false} reducedMotion={reducedMotion} /></group>
+      <group ref={visual}><RiggedTraveller look={look} animation={playerAnimation} reducedMotion={reducedMotion} /></group>
     </RigidBody>
     <RigidBody type="fixed" colliders={false} position={[npcX, 0.78, npcZ]} userData={{ kind: 'npc', id: scene.npc.id }}>
       <CapsuleCollider args={[0.52, 0.28]} />
-      <RiggedTraveller look={{ skin: 2, hair: 'wrap', hairColor: 1, outfit: 'abaya', outfitColor: 3, accessory: 'none' }} moving={false} running={false} greeting={talking} reducedMotion={reducedMotion} />
+      <RiggedTraveller look={{ skin: 2, hair: 'wrap', hairColor: 1, outfit: 'abaya', outfitColor: 3, accessory: 'none' }} animation={npcAnimation} reducedMotion={reducedMotion} />
     </RigidBody>
     <mesh position={[npcX, 2.35, npcZ]} rotation={[-Math.PI / 2, 0, 0]}>
       <ringGeometry args={[2.15, 2.22, 40]} /><meshBasicMaterial color={nearby.current ? '#f4d991' : '#4f8574'} transparent opacity={0.8} />
     </mesh>
     <Html style={{ display: 'none' }}>
-      <span data-testid="three-player-state" data-x={telemetry.x.toFixed(1)} data-z={telemetry.z.toFixed(1)} data-collisions={telemetry.hits} data-camera-yaw={telemetry.cameraYaw.toFixed(3)} data-facing-yaw={telemetry.facingYaw.toFixed(3)} />
+      <span data-testid="three-player-state" data-x={telemetry.x.toFixed(1)} data-z={telemetry.z.toFixed(1)} data-collisions={telemetry.hits} data-camera-yaw={telemetry.cameraYaw.toFixed(3)} data-facing-yaw={telemetry.facingYaw.toFixed(3)} data-animation={telemetry.animation} data-animations={availableClips} data-required-animations={REQUIRED_CLIPS.join('|')} />
     </Html>
   </>;
 }
@@ -343,4 +442,7 @@ export function Village3D(props: Props) {
     </Canvas>
   </div>;
 }
+
+
+
 

@@ -17,6 +17,11 @@ try {
   await page.locator('.play-world__three canvas').waitFor({ state: 'visible', timeout: 15000 });
   const playerState = page.getByTestId('three-player-state');
   await playerState.waitFor({ state: 'attached', timeout: 15000 });
+  const requiredClips = ['Idle', 'Walk', 'Run', 'WalkStart', 'WalkStop', 'TurnLeft', 'TurnRight', 'Interact'];
+  const availableClips = (await playerState.getAttribute('data-animations') ?? '').split('|');
+  const missingClips = requiredClips.filter((name) => !availableClips.includes(name));
+  if (missingClips.length) throw new Error('GLB is missing animation clips: ' + missingClips.join(', '));
+  if (await playerState.getAttribute('data-animation') !== 'Idle') throw new Error('Traveler did not start in the Idle clip');
   await page.waitForFunction(() => { const state = document.querySelector('[data-testid="three-player-state"]'); return state?.getAttribute('data-x') === '220.0' && state?.getAttribute('data-z') === '730.0'; }, null, { timeout: 15000 });
   const initialX = Number(await playerState.getAttribute('data-x'));
   const initialZ = Number(await playerState.getAttribute('data-z'));
@@ -38,8 +43,10 @@ try {
   }));
   await game.focus();
   await page.keyboard.down('KeyA');
+  await page.waitForFunction(() => ['WalkStart', 'Walk'].includes(document.querySelector('[data-testid="three-player-state"]')?.getAttribute('data-animation')), null, { timeout: 10000 });
   await page.waitForFunction(() => Number(document.querySelector('[data-testid="three-player-state"]')?.getAttribute('data-z')) <= 630, null, { timeout: 15000 });
   await page.keyboard.up('KeyA');
+  await page.waitForFunction(() => ['WalkStop', 'Idle'].includes(document.querySelector('[data-testid="three-player-state"]')?.getAttribute('data-animation')), null, { timeout: 10000 });
   const firstBlockedZ = Number(await playerState.getAttribute('data-z'));
   await page.waitForTimeout(650);
   const secondBlockedZ = Number(await playerState.getAttribute('data-z'));
@@ -49,17 +56,22 @@ try {
   if (Math.abs(wallFacing) > 0.45) throw new Error(`Avatar did not turn into its movement direction: yaw=${wallFacing}`);
   if (await page.getByRole('button', { name: /talk to amina/i }).isVisible().catch(() => false)) throw new Error('NPC prompt appeared before reaching Amina');
   await page.keyboard.down('KeyD');
+  await page.waitForFunction(() => ['TurnLeft', 'TurnRight'].includes(document.querySelector('[data-testid="three-player-state"]')?.getAttribute('data-animation')), null, { timeout: 10000 });
   await page.waitForTimeout(650);
   await page.keyboard.up('KeyD');
   const sideFacing = Number(await playerState.getAttribute('data-facing-yaw'));
   if (Math.abs(Math.abs(sideFacing) - Math.PI) > 0.5) throw new Error(`Avatar did not rotate during the lateral turn: yaw=${sideFacing}`);
   const aminaPrompt = page.getByRole('button', { name: /talk to amina/i });
+  await page.keyboard.down('ShiftLeft');
   await page.keyboard.down('KeyW');
+  await page.waitForFunction(() => document.querySelector('[data-testid="three-player-state"]')?.getAttribute('data-animation') === 'Run', null, { timeout: 10000 });
   await aminaPrompt.waitFor({ timeout: 15000 });
   await page.keyboard.up('KeyW');
+  await page.keyboard.up('ShiftLeft');
   const playerYaw = Number(await playerState.getAttribute('data-facing-yaw'));
   if (Math.abs(playerYaw - Math.PI / 2) > 0.45) throw new Error(`Avatar did not face its camera-relative forward direction: yaw=${playerYaw}`);
   await page.keyboard.press('e');
+  await page.waitForFunction(() => document.querySelector('[data-testid="three-player-state"]')?.getAttribute('data-animation') === 'Interact', null, { timeout: 10000 });
   await page.getByRole('dialog', { name: 'Amina' }).getByText(/As-salamu alaykum/i).waitFor();
   await page.screenshot({ path: 'docs/game/village-3d-en.png' });
   await page.evaluate(axe.source);
@@ -148,3 +160,4 @@ try {
 } finally {
   await browser.close();
 }
+

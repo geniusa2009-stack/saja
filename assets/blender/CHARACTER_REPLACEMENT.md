@@ -1,37 +1,38 @@
-# Temporary traveler replacement contract
+# SAJA traveler character and animation contract
 
-Replace the engineering placeholder before describing this as a finished character. Preserve the runtime interface below so SAJA can replace the model without changing movement or mission code.
+## Delivered character
 
-## Root, scale, orientation
+The Village GLB now contains a complete, stylized rigged traveler with face details, neck, ears, hands, tailored tunic and trim, sleeves, trousers, shoes, a cross-body satchel, and six separately selectable hair/headwear styles. The profile adapter applies skin, outfit, hair, and head-covering colors and toggles the selected style and accessory.
 
-- glTF scene root must contain `TravelerRoot` at the ground midpoint.
-- Author in Blender Z-up metres at approximately 1.64 m tall, with feet at z=0 and the character facing Blender -Y. The current GLB conversion yields Three.js Y-up; verify its forward direction after export.
-- Keep all walk/run clips in place. Rapier owns world translation and collision.
-- Keep the model centered over the kinematic capsule (0.28 m radius, 1.56 m overall height) with feet aligned to ground height 0.
+- Editable source: `assets/blender/saja-village.blend`
+- Phase 2 Blender revision: `assets/blender/saja-village-phase2.py`
+- GLB animation compiler: `assets/blender/compile-character-clips.py`
+- Runtime asset: `public/assets/game/saja-village.glb`
+- Runtime controller: `src/features/world/Village3D.tsx`
 
-## Skeleton and clips
+The character uses original SAJA geometry and original keyframed motion created for this project. No third-party motion files or motion-library licenses are involved. The character is a polished stylized game model; it is not presented as photorealistic or likeness-accurate.
 
-Retain these case-sensitive bones or update the runtime mapping together with the asset:
+## Rig and motion
+
+The glTF skeleton retains these case-sensitive bone names:
 
 `root`, `hips`, `spine`, `chest`, `neck`, `head`, `upper_arm.L`, `forearm.L`, `hand.L`, `upper_arm.R`, `forearm.R`, `hand.R`, `thigh.L`, `shin.L`, `foot.L`, `thigh.R`, `shin.R`, `foot.R`.
 
-Required glTF animation clip names:
+The GLB's `gltf.animations` contains eight usable clips: `Idle`, `Walk`, `Run`, `WalkStart`, `WalkStop`, `TurnLeft`, `TurnRight`, and `Interact`. Walk and Run are closed cycles with alternating leg and arm swing, knee flex, ankle movement, and torso counter-motion. The transition, turn, and interaction actions are finite clips. Every clip has 18 bone rotation channels.
 
-`Idle`, `Walk`, `Run`, `WalkStart`, `WalkStop`, `TurnLeft`, `TurnRight`, `Interact`.
+All clips are in place. They contain no root position track. Rapier remains the only owner of world translation, collision, and ground contact. The runtime crossfades between actions and derives gait playback rate from the Rapier controller's actual displacement and the authored stride length, which keeps footfalls closer to planted at both walking and running speeds.
 
-Crossfade between locomotion states, scale walk/run playback from measured player speed, and keep foot contact stable. Confirm `gltf.animations` contains all eight names in the browser before removing the runtime gait. The current GLB has a skinned mesh but `gltf.animations` is empty; the `.blend` source contains draft actions only.
+## Export path
 
-## Mesh/material mapping
+The editable Blender source contains the eight named actions on separate NLA tracks. The hosted Blender compatibility export bakes the current scene as a single animation named `Scene`; it does not preserve the action library as separate glTF clips. `compile-character-clips.py` is the deterministic post-export step: it replaces that combined animation with the eight named standard glTF clips and writes the result back into the GLB binary. The browser and end-to-end checks verify the final names and play the clips through Three.js `AnimationMixer`.
 
-Keep modest outfit meshes and separate semantic pieces. The temporary Three.js profile adapter currently uses these mesh names for palette/accessory changes:
+To revise the model, open the saved `.blend`, run `saja-village-phase2.py` against its `TravelerRoot` and `TravelerArmature`, export the scene, then run:
 
-- `Traveler anatomical base` — skin tone
-- `Long modest tunic`, `Long robe sleeve`, `Tunic hem braid`, `Woven sleeve cuff`, `Woven waist sash` — outfit color
-- `Kufi cap`, `Kufi gold band` — kufi/covering visibility
-- `Satchel body`, `Satchel flap` — satchel visibility
+```sh
+python3 assets/blender/compile-character-clips.py exported-scene.glb public/assets/game/saja-village.glb
+```
 
-Implement the remaining SAJA looks deliberately: tunic, thobe, abaya, jubba, hoodie, short/curly/long hair, hijab/wrap/kufi, and none/glasses/scarf/satchel/lantern accessories. Do not infer a finished or likeness-accurate design from the current placeholder.
+## Profile mapping
 
-## Export and validation
+The runtime uses the mesh groups `Traveler Skin`, `Traveler Outfit`, `Traveler Outfit Trim`, `Traveler Trousers`, `Traveler Shoes`, `Traveler Satchel`, `Traveler Eyes`, `Traveler Irises`, `Traveler Pupils`, `Traveler Brows`, and the style groups `Traveler Style Short/Curly/Long/Hijab/Wrap/Kufi`. Outfit choices use the same modest tunic silhouette with the selected palette; the existing profile and 2D character flows remain available.
 
-Export a self-contained GLB with skins, named armature, materials, UVs, and all eight named clips. Keep a clean editable `.blend` source. Before delivery, inspect the full-body silhouette and feet, confirm the skinned mesh deforms cleanly at shoulders/hips/knees, play every clip in Blender and the browser, and check material palette swaps for every supported modest outfit/head covering. Record the GLB hash and validate the final scene in Chrome at desktop and mobile viewport sizes.
