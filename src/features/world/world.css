@@ -3,51 +3,89 @@
  * Each sky phase re-lights the same art through CSS variables.
  * ════════════════════════════════════════════════════════════ */
 .world {
-  /* Layl (night) — the brand's home state */
-  --sky-top: #03060f;
-  --sky-mid: #0b1530;
-  --sky-low: #1a2c5c;
-  --horizon: rgb(221 190 127 / 0.34);
-  --hill-far: #16264f;
-  --hill-mid: #0f3a4a;
-  --ground-top: #0c4a3c;
-  --ground: #062a24;
-  --wall: #22325e;
-  --wall-shade: #18264c;
-  --roof: #2c3f73;
-  --dome: #1f5a64;
-  --dome-hi: #8fdde3;
-  --door: #0b1530;
-  --pillar: #2e4178;
-  --window: #f3e2ba;
-  --window-glow: 0.95;
-  --metal: #7d6a48;
+  /* Layl (night) — the brand's home state. */
+  --sky-top: #02050f;
+  --sky-mid: #081127;
+  --sky-low: #16284f;
+  --horizon: rgb(221 190 127 / 0.32);
+  --haze: #6f84b8;
+  --cloud: #9aa9d6;
+  --hill-far: #1a2b56;
+  --hill-mid: #103d4c;
+  --ground-top: #105b45;
+  --ground: #082f27;
+  --ground-deep: #041c19;
+  --wall: #2b3766;
+  --wall-light: #3d4b80;
+  --wall-shade: #1e2850;
+  --wall-deep: #141c3c;
+  --wall-warm: #5c4d70;
+  --roof: #344b7d;
+  --roof-light: #4e6599;
+  --roof-deep: #22335f;
+  --dome: #1f6069;
+  --dome-hi: #8fe3e4;
+  --dome-deep: #17454f;
+  --door: #101a38;
+  --pillar: #34436f;
+  --window: #ffe9b8;
+  --window-frame: #c9a45c;
+  --window-glow: 1;
+  --metal: #9a804f;
+  --metal-light: #c7a96c;
   --gold: #ddbe7f;
   --gold-soft: #f6e8c6;
-  --trunk: #3b2a2a;
-  --foliage: #127a62;
-  --foliage-dark: #0b5a48;
-  --foliage-hi: #22b08c;
+  --trunk: #4a3330;
+  --trunk-light: #6d4a3b;
+  --foliage: #10765c;
+  --foliage-mid: #0d644e;
+  --foliage-dark: #084839;
+  --foliage-hi: #2bbd91;
   --flower-a: #e28d7e;
   --flower-b: #a88be0;
-  --water: #1e3a66;
-  --water-hi: #8fdde3;
-  --sand: #3b3b5e;
-  --sand-shade: #2d2f50;
+  --flower-c: #f0cd85;
+  --water: #174a6c;
+  --water-hi: #a5ecee;
+  --sand: #3b3d61;
+  --sand-shade: #2a2d4e;
   --awning-a: #8e4b3c;
   --awning-b: #0f6b55;
   --awning-c: #5e4d8e;
-  --path: #c9a45c;
-  --path-soft: rgb(221 190 127 / 0.18);
-  --path-lit: #f6e8c6;
-  --lamp: #f6e8c6;
-  --glow: rgb(243 226 186 / 0.35);
+  --fabric: #b35d4b;
+  --fabric-2: #14745f;
+  --wood: #5b3b33;
+  --wood-light: #8b5e45;
+  --stone: #242f56;
+  --stone-light: #3c4a75;
+  --paving: #263358;
+  --paving-light: #3d4b75;
+  --paving-deep: #1a2447;
+  --pot: #9b5b43;
+  --pot-light: #bd7a58;
+  --pot-dark: #6d3c2e;
+  --path: #d8b879;
+  --path-under: #6c5a35;
+  --path-soft: rgb(221 190 127 / 0.16);
+  --path-edge: #f7e6bb;
+  --path-stone: rgb(255 246 222 / 0.42);
+  --path-lit: #fff4d6;
+  --lamp: #ffe6ad;
+  --flame: #ffd27a;
+  --glow: rgb(255 224 160 / 0.3);
+  --shadow-color: #02050e;
+  --mist: rgb(154 175 215 / 0.16);
+  --far-silhouette: #17264b;
+  --mid-tree: #0c3d3a;
+  --loc-glow: rgb(255 226 168 / 0.18);
+  --vignette: rgb(0 0 0 / 0.5);
 
   position: relative;
   height: 100dvh;
   /* clip (not hidden): focusing a marker must never scroll the world container */
   overflow: clip;
-  background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 45%, var(--sky-low) 62%);
+  background:
+    radial-gradient(ellipse 68% 42% at 50% 64%, var(--sky-low) 0%, transparent 72%),
+    linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 43%, var(--sky-low) 62%);
   touch-action: pan-y;
   user-select: none;
   -webkit-user-select: none;
@@ -58,43 +96,84 @@
   cursor: grabbing;
 }
 .world[data-phase='fajr'] {
-  --sky-top: #0b1530;
-  --sky-mid: #2b3f73;
-  --sky-low: #c98f78;
-  --horizon: rgb(246 200 160 / 0.5);
-  --hill-far: #2a3a6a;
-  --hill-mid: #1c4a5a;
-  --ground-top: #135a48;
-  --ground: #0a3a30;
-  --wall: #3e4d7e;
-  --wall-shade: #2f3d69;
-  --roof: #4b5c90;
-  --window-glow: 0.8;
+  --sky-top: #0a1230;
+  --sky-mid: #334578;
+  --sky-low: #d09580;
+  --horizon: rgb(255 192 150 / 0.5);
+  --haze: #c8a0a4;
+  --cloud: #e5b3a7;
+  --hill-far: #33406f;
+  --hill-mid: #1c4c59;
+  --ground-top: #14644e;
+  --ground: #0b3d32;
+  --ground-deep: #062620;
+  --wall: #404b7b;
+  --wall-light: #556296;
+  --wall-shade: #2f3864;
+  --wall-deep: #242a50;
+  --wall-warm: #6d5676;
+  --roof: #4b5d90;
+  --roof-light: #6375a8;
+  --roof-deep: #354570;
+  --dome: #246d70;
+  --dome-hi: #a8e9e6;
+  --dome-deep: #1b5258;
+  --window: #ffe7b5;
+  --window-frame: #b88a58;
+  --window-glow: 0.85;
+  --metal: #8f7450;
+  --metal-light: #bf9f68;
+  --path: #dbbd82;
+  --path-edge: #f9e8c3;
+  --foliage: #137458;
+  --foliage-mid: #0f624a;
+  --foliage-dark: #0a483a;
+  --foliage-hi: #32b58e;
   --sand: #7a6a7e;
   --sand-shade: #625672;
+  --mist: rgb(230 180 170 / 0.18);
+  --far-silhouette: #2c3968;
+  --mid-tree: #154a46;
+  --loc-glow: rgb(255 214 170 / 0.16);
+  --vignette: rgb(5 12 30 / 0.42);
 }
 .world[data-phase='duha'] {
-  --sky-top: #1e3f75;
-  --sky-mid: #3f72a8;
-  --sky-low: #bcd6e2;
-  --horizon: rgb(255 244 214 / 0.55);
-  --hill-far: #6d8fb3;
-  --hill-mid: #3f8a88;
-  --ground-top: #2f9a74;
-  --ground: #16664f;
-  --wall: #e9dcc4;
-  --wall-shade: #d2c1a0;
+  --sky-top: #2b5d96;
+  --sky-mid: #5a8fbd;
+  --sky-low: #c9e2e6;
+  --horizon: rgb(255 246 214 / 0.6);
+  --haze: #dbe9e9;
+  --cloud: #f8f3e9;
+  --hill-far: #7fa4c1;
+  --hill-mid: #4e9a92;
+  --ground-top: #47ad80;
+  --ground: #247a5c;
+  --ground-deep: #155c47;
+  --wall: #f0e5cf;
+  --wall-light: #fcf6e8;
+  --wall-shade: #d8c8a7;
+  --wall-deep: #bfab87;
+  --wall-warm: #e6d2b5;
   --roof: #c9a45c;
+  --roof-light: #e2c284;
+  --roof-deep: #a9854a;
   --dome: #2aa3a0;
   --dome-hi: #e6fbfb;
+  --dome-deep: #1e7c7d;
   --door: #5a3e2a;
   --pillar: #f4ecdd;
   --window: #2b4a7a;
+  --window-frame: #8a6a42;
   --window-glow: 0;
   --trunk: #6b4a2e;
+  --trunk-light: #94673f;
   --foliage: #1f9a6f;
+  --foliage-mid: #17845f;
   --foliage-dark: #137a5a;
   --foliage-hi: #7fe0bc;
+  --flower-a: #d9705f;
+  --flower-b: #8f72d0;
+  --flower-c: #e8b85e;
   --water: #4fb8c6;
   --water-hi: #eafcff;
   --sand: #e3c48e;
@@ -102,41 +181,151 @@
   --awning-a: #c2604c;
   --awning-b: #1c8f73;
   --awning-c: #7a66b0;
-  --path: #e6c98f;
-  --path-soft: rgb(255 244 214 / 0.35);
+  --fabric: #c2604c;
+  --fabric-2: #1c8f73;
+  --stone: #cbb894;
+  --stone-light: #e3d2b2;
+  --paving: #d7c4a0;
+  --paving-light: #ece0c8;
+  --paving-deep: #b7a17c;
+  --pot: #b86b4e;
+  --pot-light: #d48b66;
+  --pot-dark: #844a37;
+  --path: #eed9a5;
+  --path-under: #b99a62;
+  --path-soft: rgb(255 244 214 / 0.32);
+  --path-edge: #fff8e8;
+  --path-stone: rgb(120 92 50 / 0.34);
   --path-lit: #fff6de;
+  --lamp: #ffe7b5;
+  --flame: #ffcf72;
   --glow: rgb(255 244 214 / 0);
+  --shadow-color: #234b40;
+  --mist: rgb(255 255 255 / 0.22);
+  --far-silhouette: #6d8fb3;
+  --mid-tree: #2e7a6a;
+  --loc-glow: rgb(255 244 214 / 0.1);
+  --vignette: rgb(10 40 44 / 0.22);
 }
 .world[data-phase='maghrib'] {
-  --sky-top: #13204a;
-  --sky-mid: #5a3f6c;
-  --sky-low: #e0955a;
-  --horizon: rgb(240 160 100 / 0.55);
-  --hill-far: #3a3563;
-  --hill-mid: #2b4a5e;
-  --ground-top: #1a5a4a;
-  --ground: #0b3a30;
-  --wall: #5a4b72;
-  --wall-shade: #463b60;
-  --roof: #6a5a8a;
-  --window-glow: 0.9;
+  --sky-top: #101a3e;
+  --sky-mid: #5b4071;
+  --sky-low: #e39a60;
+  --horizon: rgb(245 170 110 / 0.55);
+  --haze: #c08880;
+  --cloud: #dc9a82;
+  --hill-far: #3c3566;
+  --hill-mid: #2d4b60;
+  --ground-top: #1c6450;
+  --ground: #0d4034;
+  --ground-deep: #072821;
+  --wall: #5d4c76;
+  --wall-light: #75618e;
+  --wall-shade: #463a61;
+  --wall-deep: #332a4c;
+  --wall-warm: #82607a;
+  --roof: #6d5b8c;
+  --roof-light: #8873a8;
+  --roof-deep: #4c3f69;
+  --dome: #24676d;
+  --dome-hi: #b0eceb;
+  --dome-deep: #1b4d55;
+  --window: #ffe1a8;
+  --window-frame: #c08e5d;
+  --window-glow: 0.95;
+  --metal: #93754d;
+  --metal-light: #c29f67;
+  --path: #d7b47a;
+  --path-edge: #f7e1b7;
+  --foliage: #13725a;
+  --foliage-mid: #0f604b;
+  --foliage-dark: #0a473b;
+  --foliage-hi: #31b18c;
   --sand: #8a6a6a;
   --sand-shade: #72576a;
+  --mist: rgb(230 160 150 / 0.18);
+  --far-silhouette: #35305f;
+  --mid-tree: #1b4550;
+  --loc-glow: rgb(255 196 140 / 0.18);
+  --vignette: rgb(10 8 25 / 0.4);
 }
 
 .w-sky {
   position: absolute;
   inset: 0;
+  overflow: hidden;
   pointer-events: none;
+}
+/* A quiet star field: three painted layers, no DOM per star. */
+.w-sky::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.9;
+  background-image:
+    radial-gradient(1.4px 1.4px at 7% 12%, rgb(255 246 222 / 0.9), transparent 100%),
+    radial-gradient(1.2px 1.2px at 15% 32%, rgb(255 246 222 / 0.7), transparent 100%),
+    radial-gradient(1.6px 1.6px at 23% 8%, rgb(255 246 222 / 0.8), transparent 100%),
+    radial-gradient(1.1px 1.1px at 31% 25%, rgb(210 230 255 / 0.6), transparent 100%),
+    radial-gradient(1.7px 1.7px at 39% 15%, rgb(255 246 222 / 0.9), transparent 100%),
+    radial-gradient(1.2px 1.2px at 47% 35%, rgb(255 246 222 / 0.55), transparent 100%),
+    radial-gradient(1.4px 1.4px at 55% 6%, rgb(255 246 222 / 0.8), transparent 100%),
+    radial-gradient(1.1px 1.1px at 63% 27%, rgb(210 230 255 / 0.55), transparent 100%),
+    radial-gradient(1.6px 1.6px at 71% 13%, rgb(255 246 222 / 0.85), transparent 100%),
+    radial-gradient(1.2px 1.2px at 79% 31%, rgb(255 246 222 / 0.65), transparent 100%),
+    radial-gradient(1.5px 1.5px at 87% 9%, rgb(255 246 222 / 0.9), transparent 100%),
+    radial-gradient(1.1px 1.1px at 94% 27%, rgb(210 230 255 / 0.6), transparent 100%),
+    radial-gradient(1.3px 1.3px at 11% 48%, rgb(255 246 222 / 0.5), transparent 100%),
+    radial-gradient(1.2px 1.2px at 27% 46%, rgb(255 246 222 / 0.45), transparent 100%),
+    radial-gradient(1.5px 1.5px at 43% 50%, rgb(210 230 255 / 0.45), transparent 100%),
+    radial-gradient(1.1px 1.1px at 59% 45%, rgb(255 246 222 / 0.4), transparent 100%),
+    radial-gradient(1.3px 1.3px at 75% 48%, rgb(255 246 222 / 0.5), transparent 100%),
+    radial-gradient(1.2px 1.2px at 91% 44%, rgb(210 230 255 / 0.4), transparent 100%);
+  animation: sky-breathe 9s ease-in-out infinite;
+  transition: opacity var(--dur-4) var(--ease);
+}
+/* A faint galactic band, low contrast: atmosphere, not wallpaper. */
+.w-sky::after {
+  content: '';
+  position: absolute;
+  inset: -12% -8% auto -8%;
+  height: 78%;
+  background:
+    radial-gradient(ellipse 46% 16% at 34% 34%, rgb(168 186 228 / 0.12), transparent 72%),
+    radial-gradient(ellipse 30% 10% at 62% 24%, rgb(214 194 160 / 0.08), transparent 70%),
+    radial-gradient(ellipse 40% 12% at 78% 42%, rgb(150 176 220 / 0.08), transparent 74%);
+  transform: rotate(-7deg);
+  opacity: 0.9;
+  transition: opacity var(--dur-4) var(--ease);
+}
+@keyframes sky-breathe {
+  0%,
+  100% {
+    opacity: 0.62;
+  }
+  50% {
+    opacity: 0.95;
+  }
 }
 .w-horizon-glow {
   position: absolute;
   inset-inline: 0;
-  top: 30%;
-  height: 50%;
-  background: radial-gradient(ellipse 70% 60% at 50% 70%, var(--horizon), transparent 70%);
+  top: 26%;
+  height: 58%;
+  background:
+    radial-gradient(ellipse 72% 54% at 50% 74%, var(--horizon), transparent 70%),
+    linear-gradient(180deg, transparent 44%, rgb(255 226 168 / 0.03) 72%, transparent 100%);
   pointer-events: none;
   transition: background var(--dur-4) var(--ease);
+}
+.w-horizon-glow::after {
+  content: '';
+  position: absolute;
+  inset-inline: 14%;
+  top: 62%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--horizon), transparent);
+  opacity: 0.55;
 }
 .w-skystar {
   position: absolute;
@@ -151,6 +340,18 @@
   opacity: 0 !important;
   animation: none;
 }
+.world[data-phase='duha'] .w-sky::before,
+.world[data-phase='duha'] .w-sky::after {
+  opacity: 0;
+}
+.world[data-phase='fajr'] .w-sky::before,
+.world[data-phase='maghrib'] .w-sky::before {
+  opacity: 0.34;
+}
+.world[data-phase='fajr'] .w-sky::after,
+.world[data-phase='maghrib'] .w-sky::after {
+  opacity: 0.3;
+}
 @keyframes twinkle {
   0%,
   100% {
@@ -164,19 +365,32 @@
   position: absolute;
   top: 9%;
   inset-inline-end: 14%;
-  width: 54px;
-  height: 54px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
-  background: radial-gradient(circle at 40% 40%, #fbf7ef, #e9dcc4 60%, #d6c6a6);
-  box-shadow: 0 0 60px 16px rgb(243 226 186 / 0.25);
-  opacity: 0.9;
-  transition: opacity var(--dur-4) var(--ease);
+  background:
+    radial-gradient(circle at 34% 30%, rgb(255 252 244 / 0.9) 0 8%, transparent 9%),
+    radial-gradient(circle at 62% 42%, rgb(219 205 178 / 0.5) 0 6%, transparent 7%),
+    radial-gradient(circle at 44% 66%, rgb(219 205 178 / 0.4) 0 5%, transparent 6%),
+    radial-gradient(circle at 40% 38%, #fbf7ef, #e9dcc4 60%, #d6c6a6);
+  box-shadow:
+    0 0 44px 12px rgb(243 226 186 / 0.22),
+    0 0 120px 38px rgb(243 226 186 / 0.12);
+  opacity: 0.94;
+  transition:
+    opacity var(--dur-4) var(--ease),
+    background var(--dur-4) var(--ease),
+    box-shadow var(--dur-4) var(--ease),
+    width var(--dur-4) var(--ease),
+    height var(--dur-4) var(--ease);
 }
 .world[data-phase='duha'] .w-moon {
   background: radial-gradient(circle, #fffaf0, #ffe9b8 55%, rgb(255 233 184 / 0) 72%);
-  box-shadow: 0 0 120px 50px rgb(255 240 200 / 0.45);
-  width: 90px;
-  height: 90px;
+  box-shadow:
+    0 0 80px 26px rgb(255 240 200 / 0.35),
+    0 0 180px 80px rgb(255 236 190 / 0.2);
+  width: 92px;
+  height: 92px;
 }
 .world[data-phase='fajr'] .w-moon,
 .world[data-phase='maghrib'] .w-moon {
@@ -198,29 +412,6 @@
   width: 100%;
   height: 100%;
   overflow: visible;
-}
-
-/* Scenery details */
-.w-window {
-  fill: var(--window);
-  filter: drop-shadow(0 0 6px rgb(243 226 186 / calc(var(--window-glow) * 0.8)));
-  transition: fill var(--dur-4) var(--ease);
-}
-.w-window--off {
-  opacity: 0.35;
-}
-.w-arch {
-  fill: var(--door);
-  opacity: 0.85;
-}
-.w-lamp {
-  fill: var(--lamp);
-  stroke: var(--metal);
-  stroke-width: 1.5;
-}
-.w-glow {
-  fill: var(--glow);
-  animation: flicker 3.4s ease-in-out infinite;
 }
 
 /* Focused free-roam scene for the two first locations. Simulation state lives
@@ -431,32 +622,6 @@
   transition: opacity 1.6s var(--ease);
   pointer-events: none;
 }
-.w-loc--asleep .w-loc-art {
-  opacity: 0.5;
-}
-.w-loc--asleep .w-veil {
-  opacity: 1;
-}
-.w-loc--asleep .w-window {
-  fill: #3a4f86;
-  filter: none;
-}
-.w-loc--asleep .w-glow {
-  opacity: 0.15 !important;
-  animation: none;
-}
-.w-loc--asleep .w-lamp {
-  fill: #3a4f86;
-}
-.w-loc--asleep .w-sway,
-.w-loc--asleep .w-spout,
-.w-loc--asleep .w-pages path {
-  animation: none;
-}
-.w-path-lit {
-  filter: drop-shadow(0 0 6px rgb(246 232 198 / 0.8));
-  transition: stroke-dasharray 2.4s var(--ease);
-}
 
 /* HTML actors placed in world space */
 .w-actor {
@@ -469,17 +634,27 @@
   will-change: left, top;
 }
 .w-player svg {
-  filter: drop-shadow(0 10px 12px rgb(0 0 0 / 0.35));
+  filter: drop-shadow(0 12px 14px rgb(0 0 0 / 0.3));
 }
 .w-player-light {
   position: absolute;
   left: 50%;
   bottom: -10px;
-  width: 220%;
+  width: 240%;
   aspect-ratio: 2.2;
   translate: -50% 20%;
-  background: radial-gradient(ellipse, rgb(243 226 186 / 0.35), transparent 65%);
+  background: radial-gradient(ellipse, rgb(255 230 173 / 0.4), rgb(255 230 173 / 0.1) 45%, transparent 68%);
   z-index: -1;
+  animation: player-light 5.5s ease-in-out infinite;
+}
+@keyframes player-light {
+  0%,
+  100% {
+    opacity: 0.72;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 .w-npc {
   z-index: 2;
@@ -656,6 +831,17 @@
   pointer-events: none;
   z-index: var(--z-hud);
   padding: max(16px, env(safe-area-inset-top)) var(--gutter) 0;
+}
+/* Screen-space grade: a soft vignette keeps the eye on the path and the HUD
+   crisp without touching the scenery's own lighting. */
+.hud::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 92% 82% at 50% 44%, transparent 44%, var(--vignette) 100%),
+    linear-gradient(180deg, rgb(2 5 15 / 0.22), transparent 16%, transparent 80%, rgb(2 5 15 / 0.32));
 }
 .hud > * {
   pointer-events: auto;

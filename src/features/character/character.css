@@ -1,11 +1,13 @@
 /* Character animation — GPU-friendly transforms on SVG groups only. */
 .saja-char .char-flip,
 .saja-char .char-body,
+.saja-char .char-torso,
 .saja-char .leg,
 .saja-char .arm,
 .saja-char .eye-blink,
 .saja-char .char-head,
-.saja-char .char-lantern {
+.saja-char .char-lantern,
+.saja-char .char-shadow {
   transform-box: fill-box;
 }
 .saja-char .char-flip {
@@ -25,9 +27,16 @@
 .saja-char .char-body {
   transform-origin: 50% 100%;
 }
+.saja-char .char-torso {
+  transform-origin: 50% 100%;
+}
 .saja-char .char-head {
   transform-origin: 50% 90%;
   transition: transform var(--dur-3) var(--ease);
+}
+.saja-char .char-shadow {
+  transform-origin: center;
+  transition: opacity var(--dur-3) var(--ease);
 }
 
 /* Idle: slow breathing + blinking */
@@ -74,32 +83,64 @@
 
 /* Walking */
 .saja-char.is-walking .char-body {
-  animation: char-bob 0.52s ease-in-out infinite;
+  animation: char-bob 0.56s ease-in-out infinite;
+}
+.saja-char.is-walking .char-head {
+  animation: char-head-bob 0.56s ease-in-out infinite;
 }
 .saja-char.is-walking .leg-l,
 .saja-char.is-walking .arm-r {
-  animation: swing 0.52s ease-in-out infinite;
+  animation: swing 0.56s ease-in-out infinite;
 }
 .saja-char.is-walking .leg-r,
 .saja-char.is-walking .arm-l {
-  animation: swing 0.52s ease-in-out infinite reverse;
+  animation: swing 0.56s ease-in-out infinite reverse;
+}
+.saja-char.is-walking .char-shadow {
+  animation: char-shadow-step 0.56s ease-in-out infinite;
+}
+.saja-char.is-walking .leg,
+.saja-char.is-walking .arm,
+.saja-char.is-walking .char-body,
+.saja-char.is-walking .char-head {
+  will-change: transform;
 }
 @keyframes char-bob {
   0%,
   100% {
-    transform: translateY(0);
+    transform: translateY(0) rotate(0.25deg);
   }
   50% {
-    transform: translateY(-2.5px);
+    transform: translateY(-2.8px) rotate(-0.35deg);
+  }
+}
+@keyframes char-head-bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-0.6deg);
+  }
+  50% {
+    transform: translateY(0.8px) rotate(0.7deg);
   }
 }
 @keyframes swing {
   0%,
   100% {
-    transform: rotate(14deg);
+    transform: rotate(15deg);
   }
   50% {
-    transform: rotate(-14deg);
+    transform: rotate(-15deg);
+  }
+}
+@keyframes char-shadow-step {
+  0%,
+  100% {
+    opacity: 0.9;
+    transform: scaleX(1);
+  }
+  50% {
+    opacity: 0.68;
+    transform: scaleX(0.9);
   }
 }
 
