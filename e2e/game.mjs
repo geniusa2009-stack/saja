@@ -32,6 +32,18 @@ const clipSeen = (names, gameSeconds = 3) => page.waitForFunction(([sel, wanted]
  * player does. The release is done in the page (same frame as the prompt) because the test's
  * own round trips take several slow frames, during which a held stick walks the traveller past.
  */
+/** Frames per second right now → how much slower than real time the game runs (≥ 1). */
+async function measureSlowdown() {
+  const fps = await page.evaluate(() => new Promise((resolve) => {
+    let n = 0;
+    const t0 = performance.now();
+    const tick = () => { n++; if (performance.now() - t0 < 1000) requestAnimationFrame(tick); else resolve(n); };
+    requestAnimationFrame(tick);
+  }));
+  slowdown = Math.max(1, 1 / Math.min(1, Math.max(fps, 0.5) * MAX_FRAME_SECONDS));
+  return fps;
+}
+
 async function joystickUntilPrompt(toX, toY, promptPattern, gameSeconds) {
   await page.evaluate((pattern) => {
     const re = new RegExp(pattern);
@@ -43,10 +55,18 @@ async function joystickUntilPrompt(toX, toY, promptPattern, gameSeconds) {
     });
     observer.observe(document.body, { childList: true, subtree: true });
   }, promptPattern.source);
-  const box = await page.locator('.play-world__joystick').boundingBox();
+  const stick = page.locator('.play-world__joystick');
+  await stick.hover(); // waits until the stick is visible and its layout is stable (after a viewport change)
+  const box = await stick.boundingBox();
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
   await page.mouse.down();
   await page.mouse.move(box.x + box.width * toX, box.y + box.height * toY, { steps: 7 });
+  // The stick reports when it is held; a press that missed it is a test problem, not a game one.
+  const engaged = await page.waitForFunction(() => {
+    const el = document.querySelector('.play-world__joystick');
+    return el?.getAttribute('data-active') === 'true' || document.querySelector('.play-world__prompt');
+  }, null, { timeout: 5000 }).then(() => true, () => false);
+  if (!engaged) throw new Error(`The joystick press did not register (box ${JSON.stringify(box)})`);
   await page.getByRole('button', { name: promptPattern }).waitFor({ timeout: budget(gameSeconds) });
   await page.mouse.up();
 }
@@ -154,6 +174,9 @@ try {
   await page.locator('.w-marker').first().click();
   await page.getByRole('button', { name: /استكشف القرية/ }).click();
   const arabicGame = page.getByRole('application');
+  // Budget the walk from the moment the scene is ready, at the frame rate it is running now.
+  await page.waitForFunction(() => document.querySelector('[data-testid="three-player-state"]')?.getAttribute('data-x') === '220.0', null, { timeout: 30000 });
+  await measureSlowdown();
   await arabicGame.focus();
   const arabicAminaPrompt = page.getByRole('button', { name: /تحدّث مع أمينة/ });
   await page.keyboard.down('ArrowUp');
@@ -166,9 +189,29 @@ try {
   const arabicViolations = await page.evaluate(async () => (await window.axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa'] } })).violations);
   if (arabicViolations.length) throw new Error(`Arabic accessibility violations: ${arabicViolations.map((v) => `${v.id}: ${v.nodes.length}`).join(', ')}`);
 
-  step('Arabic: start the mission, then the mobile joystick');
-  await page.getByRole('button', { name: /ابدأ المهمة/ }).click();
+  step('Arabic: accept Amina’s quest, find the three clues, begin the mission');
+  const aminaDialog = page.getByRole('dialog', { name: 'أمينة' });
+  await aminaDialog.getByRole('button', { name: /وعليكم السلام/ }).click();
+  await aminaDialog.getByRole('button', { name: /التالي/ }).click();
+  await aminaDialog.getByRole('button', { name: /اقبل المهمة/ }).click();
+  await aminaDialog.waitFor({ state: 'detached' });
+  // Arabic UI numbers use Arabic-Indic digits.
+  const arDigit = (n) => String(n).replace(/\d/g, (d) => '٠١٢٣٤٥٦٧٨٩'[d]);
+  await page.locator('.quest-hud__count').getByText(`وُجد ${arDigit(0)} من ${arDigit(3)} من الأدلة`).waitFor();
+  for (let found = 1; found <= 3; found++) {
+    await page.getByRole('button', { name: 'ابحث هنا عن دليل' }).first().click();
+    // Each find opens a card with what the clue teaches; the player reads it and closes it.
+    const card = page.locator('.clue-popup');
+    await card.waitFor();
+    await card.getByRole('button', { name: 'إغلاق' }).click();
+    await card.waitFor({ state: 'detached' });
+    if (found < 3) await page.locator('.quest-hud__count').getByText(`وُجد ${arDigit(found)} من ${arDigit(3)} من الأدلة`).waitFor();
+  }
+  await page.getByRole('button', { name: /ابدأ: كلمات السلام/ }).click();
   await page.waitForURL(/\/mission\/m-words-of-peace/);
+  const questState = await page.evaluate(() => JSON.parse(localStorage.getItem('saja:quests:v1') ?? '{}')?.state?.quests?.['q-words-of-peace']);
+  if (questState?.status !== 'active' || questState.foundClues?.length !== 3) throw new Error(`Quest progress not saved: ${JSON.stringify(questState)}`);
+  step('Arabic: mobile joystick back to Amina');
   await page.goto(BASE);
   await page.locator('.w-marker').first().waitFor();
   await page.locator('.w-marker').first().click();
@@ -177,6 +220,7 @@ try {
   const mobileState = page.getByTestId('three-player-state');
   await mobileState.waitFor({ state: 'attached', timeout: 15000 });
   await page.waitForFunction(() => document.querySelector('[data-testid="three-player-state"]')?.getAttribute('data-x') === '220.0', null, { timeout: 15000 });
+  await measureSlowdown();
   const mobileStart = Number(await mobileState.getAttribute('data-x'));
   await joystickUntilPrompt(0.5, 0.05, /تحدّث مع أمينة/, 5);
   const mobileEnd = Number(await mobileState.getAttribute('data-x'));
@@ -184,6 +228,7 @@ try {
   await page.keyboard.press('e');
   await page.getByRole('dialog', { name: 'أمينة' }).waitFor();
   await page.screenshot({ path: 'docs/game/village-3d-mobile-ar.png' });
+  await page.getByRole('dialog', { name: 'أمينة' }).getByRole('button', { name: 'إغلاق' }).click();
   step('courtyard 2D fallback on mobile');
   await page.getByRole('button', { name: /العودة إلى العالم/ }).click();
   await page.setViewportSize({ width: 1280, height: 800 });
@@ -198,6 +243,7 @@ try {
   if (unexpectedErrors.length) throw new Error(unexpectedErrors.join('\n'));
   console.log('✓ Village 3D: shared spawn, Rapier tree blocking, camera-relative WASD, avatar facing, camera orbit, proximity and mission dialogue');
   console.log('✓ Village 3D: English/Arabic UI, mobile joystick, axe WCAG 2.1 A/AA scans');
+  console.log('✓ Quest “Words of Peace”: dialogue → accept → three clues read → mission; progress saved');
   console.log('✓ Courtyard 2D fallback: Arabic mobile joystick movement and NPC dialogue');
   console.log(`  Headless Chrome frame sample (desktop scene): ${frameStats.fps} fps, p50 ${frameStats.p50} ms, p95 ${frameStats.p95} ms, >50 ms ${frameStats.over50ms}`);
 } catch (error) {
@@ -207,7 +253,7 @@ try {
   const state = await page.evaluate((sel) => ({ ...document.querySelector(sel)?.dataset }), STATE).catch(() => null);
   const frame = await page.evaluate(() => new Promise((resolve) => { let n = 0; const t0 = performance.now(); const tick = () => { n++; if (performance.now() - t0 < 1000) requestAnimationFrame(tick); else resolve(n); }; requestAnimationFrame(tick); })).catch(() => null);
   console.error(`✗ Game e2e failed at step: ${stepName}`);
-  console.error(`  ${error.message.split('\n')[0]}`);
+  console.error(`  ${error.message.split('\n').filter((line) => line.trim()).slice(0, 12).join('\n  ')}`);
   console.error(`  url: ${page.url()}`);
   console.error(`  player: ${JSON.stringify(state)}`);
   console.error(`  frames in the last second: ${frame}`);

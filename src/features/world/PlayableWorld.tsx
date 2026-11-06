@@ -14,6 +14,8 @@ import { createPlayer, getGameScene } from './game/sceneManager';
 import { isPlayerMoving, renderedFacing } from './game/animation';
 import { startGameLoop } from './game/gameLoop';
 import type { GameSceneId, PlayerState, Point } from './game/types';
+import { questsForNpc } from '@/features/quests/definitions';
+import { QuestRunner } from '@/features/quests/QuestRunner';
 
 const Village3D = lazy(() => import('./Village3D').then((module) => ({ default: module.Village3D })));
 
@@ -24,6 +26,14 @@ interface Props {
   rtl: boolean;
   reducedMotion: boolean;
   onExit: () => void;
+}
+
+/** The knob follows the thumb, so the player sees the stick is held and in which direction. */
+function moveKnob(stick: HTMLElement, value: Point, radius: number) {
+  const knob = stick.querySelector('i');
+  const held = value.x !== 0 || value.y !== 0;
+  stick.dataset.active = String(held);
+  if (knob) knob.style.translate = held ? `${value.x * radius * 0.45}px ${value.y * radius * 0.45}px` : '';
 }
 
 export function PlayableWorld({ sceneId, look, playerName, rtl, reducedMotion, onExit }: Props) {
@@ -49,6 +59,7 @@ export function PlayableWorld({ sceneId, look, playerName, rtl, reducedMotion, o
   const [facing, setFacing] = useState<'left' | 'right'>(rtl ? 'left' : 'right');
   const npc = NPCS.find((entry) => entry.id === scene.npc.id)!;
   const name = l(npc.name);
+  const quest = questsForNpc(scene.npc.id)[0];
   const title = sceneId === 'village'
     ? { en: 'The Village', ar: 'القرية' }
     : { en: 'Masjid Courtyard', ar: 'ساحة المسجد' };
@@ -242,11 +253,13 @@ export function PlayableWorld({ sceneId, look, playerName, rtl, reducedMotion, o
     const radius = Math.min(rect.width, rect.height) / 2;
     const center = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
     joystickRef.current = joystickFromPointer({ x: 0, y: 0 }, { x: (event.clientX - center.x) / radius, y: (event.clientY - center.y) / radius });
+    moveKnob(event.currentTarget, joystickRef.current, radius);
   };
   const releaseJoystick = (event: React.PointerEvent<HTMLDivElement>) => {
     if (pointerRef.current !== event.pointerId) return;
     pointerRef.current = null;
     joystickRef.current = { x: 0, y: 0 };
+    moveKnob(event.currentTarget, joystickRef.current, 0);
   };
 
   return (
@@ -274,7 +287,9 @@ export function PlayableWorld({ sceneId, look, playerName, rtl, reducedMotion, o
         </header>
         <p className="play-world__help" aria-live="polite">{talking ? (isRTL ? 'الحركة متوقفة أثناء الحوار' : 'Movement pauses during conversation') : use3D ? (isRTL ? 'تحرّك بالأسهم أو WASD، واسحب لتغيير زاوية الرؤية. اضغط Shift للركض.' : 'Move with WASD or arrows. Drag to look; hold Shift to run.') : (isRTL ? 'تحرّك بالأسهم أو WASD، واقترب من الشخصية للتفاعل.' : 'Move with arrow keys or WASD. Approach the character to interact.')}</p>
         {nearby && !talking && <button className="play-world__prompt" onClick={activate}>{isRTL ? `تحدّث مع ${name}` : `Talk to ${name}`} <kbd>E</kbd></button>}
-        {talking && <div className="play-world__dialog" role="dialog" aria-modal="false" aria-label={name}>
+        {/* An NPC with a quest speaks through the quest (dialogue → clue hunt → mission); others use the short dialogue. */}
+        {quest && <QuestRunner quest={quest} open={talking} onDismiss={() => setTalking(false)} />}
+        {talking && !quest && <div className="play-world__dialog" role="dialog" aria-modal="false" aria-label={name}>
           <strong>{name}</strong><p>{l(npc.lines[line])}</p>
           <div className="play-world__dialog-actions">
             {line < npc.lines.length - 1 && <Button size="sm" onClick={() => setLine((value) => Math.min(npc.lines.length - 1, value + 1))}>{isRTL ? 'متابعة' : 'Continue'}</Button>}

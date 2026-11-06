@@ -77,6 +77,8 @@ export const useQuests = create<QuestsState>()(
       ...initialState,
 
       acceptQuest: (questId) => {
+        // Accepting again (or after completion) changes nothing and emits nothing.
+        if (get().quests[questId]?.status === 'active' || get().quests[questId]?.status === 'completed') return;
         set((s) => ({
           quests: {
             ...s.quests,
@@ -136,6 +138,8 @@ export const useQuests = create<QuestsState>()(
       completeQuest: (questId) => {
         const def = QUEST_BY_ID[questId];
         if (!def) return;
+        // A quest completes once: no second completion event, fanfare or timestamp.
+        if (get().quests[questId]?.status === 'completed') return;
         set((s) => {
           const cur = s.quests[questId] ?? defaultState(questId);
           // Satisfy all remaining objectives.

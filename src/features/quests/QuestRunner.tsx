@@ -28,6 +28,8 @@ import './quest-runner.css';
 
 interface Props {
   quest: QuestDef;
+  /** The learner is talking to the quest's NPC: open the dialogue. */
+  open?: boolean;
   /** Called when the dialogue panel should be closed (e.g. player walks away). */
   onDismiss?: () => void;
 }
@@ -40,7 +42,7 @@ type Phase =
   | 'journal'       // Journal panel open
   | 'complete';     // Quest done, fanfare
 
-export function QuestRunner({ quest, onDismiss }: Props) {
+export function QuestRunner({ quest, open = false, onDismiss }: Props) {
   const { l, t } = useI18n();
   const navigate = useNavigate();
   const acceptQuest = useQuests((s) => s.acceptQuest);
@@ -48,13 +50,18 @@ export function QuestRunner({ quest, onDismiss }: Props) {
   const completeObjective = useQuests((s) => s.completeObjective);
   const results = useProgress((s) => s.results);
 
-  const [phase, setPhase] = useState<Phase>('dialogue');
-
   const questState = useQuests((s) => s.quests[quest.id]);
   const status = questState?.status ?? 'available';
+  // Mounted with the world: an accepted quest resumes its clue hunt; otherwise nothing shows until the NPC is spoken to.
+  const [phase, setPhase] = useState<Phase>(() => (open ? 'dialogue' : status === 'active' ? 'clue-hunt' : 'idle'));
+  useEffect(() => {
+    if (open) setPhase('dialogue');
+  }, [open]);
   const foundClues = questState?.foundClues ?? [];
   const completedObjectives = useMemo(() => questState?.completedObjectives ?? [], [questState?.completedObjectives]);
   const allCluesFound = foundClues.length >= quest.clues.length;
+  // The last clue's card must stay readable: the hunt ends once that card is closed, not on the tap that found it.
+  const [lastCardRead, setLastCardRead] = useState(allCluesFound);
 
   // Watch for mission completion and auto-complete the quest objective + quest itself.
   useEffect(() => {
@@ -87,8 +94,8 @@ export function QuestRunner({ quest, onDismiss }: Props) {
     if (status === 'active' && allCluesFound && !results[quest.missionId]) {
       toast(
         l({
-          en: 'All clues found! Return to Amina to light the lanterns.',
-          ar: 'وجدت كل الأدلة! عُد إلى أمينة لإضاءة الفوانيس.',
+          en: 'All clues found! Light the lanterns when you’re ready.',
+          ar: 'وجدت كل الأدلة! أضئ الفوانيس حين تكون مستعدًا.',
         }),
       );
     }
@@ -128,7 +135,7 @@ export function QuestRunner({ quest, onDismiss }: Props) {
         )}
 
         {/* Step 2: Clue hunt overlay (shown when quest is active and clues remain) */}
-        {phase === 'clue-hunt' && !allCluesFound && (
+        {phase === 'clue-hunt' && (!allCluesFound || !lastCardRead) && (
           <motion.div
             key="clue-hunt"
             className="quest-runner__clue-layer"
@@ -136,7 +143,7 @@ export function QuestRunner({ quest, onDismiss }: Props) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <ClueDiscovery quest={quest} />
+            <ClueDiscovery quest={quest} onCardClosed={() => setLastCardRead(useQuests.getState().quests[quest.id]?.foundClues.length === quest.clues.length)} />
             {/* Minimal HUD: quest name + journal button */}
             <QuestHud
               quest={quest}
@@ -148,7 +155,7 @@ export function QuestRunner({ quest, onDismiss }: Props) {
         )}
 
         {/* Step 2b: All clues found — show "Go to mission" prompt */}
-        {phase === 'clue-hunt' && allCluesFound && !results[quest.missionId] && (
+        {phase === 'clue-hunt' && allCluesFound && lastCardRead && !results[quest.missionId] && (
           <motion.div
             key="ready"
             className="quest-runner__ready"

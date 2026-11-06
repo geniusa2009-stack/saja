@@ -529,7 +529,9 @@
   color: #f6e8c6;
 }
 .play-world__joystick span { position: absolute; inset: 25%; border: 1px solid rgb(255 255 255 / 17%); border-radius: 50%; }
-.play-world__joystick i { position: absolute; inset: 50% auto auto 50%; transform: translate(-50%, -50%); font-size: 34px; font-style: normal; text-shadow: 0 2px 7px rgb(0 0 0 / 35%); }
+.play-world__joystick i { position: absolute; inset: 50% auto auto 50%; transform: translate(-50%, -50%); font-size: 34px; font-style: normal; text-shadow: 0 2px 7px rgb(0 0 0 / 35%); transition: translate 120ms ease-out; }
+.play-world__joystick[data-active='true'] i { transition: none; }
+@media (prefers-reduced-motion: reduce) { .play-world__joystick i { transition: none; } }
 .play-world__run { display: none; }
 @media (pointer: coarse), (max-width: 700px) {
   .play-world__joystick { display: block; }

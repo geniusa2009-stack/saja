@@ -19,13 +19,18 @@ import { useQuests } from '@/store/quests';
 import type { QuestClue, QuestDef } from './types';
 import './clue-discovery.css';
 
+/** Stable empty list: a fresh [] in a selector is a new snapshot on every render. */
+const NONE: string[] = [];
+
 interface Props {
   quest: QuestDef;
+  /** A clue card was closed (the learner has read it). */
+  onCardClosed?: () => void;
 }
 
-export function ClueDiscovery({ quest }: Props) {
+export function ClueDiscovery({ quest, onCardClosed }: Props) {
   const { l, t } = useI18n();
-  const foundClues = useQuests((s) => s.quests[quest.id]?.foundClues ?? []);
+  const foundClues = useQuests((s) => s.quests[quest.id]?.foundClues ?? NONE);
   const discoverClue = useQuests((s) => s.discoverClue);
   const [activeClue, setActiveClue] = useState<string | null>(null);
 
@@ -85,19 +90,20 @@ export function ClueDiscovery({ quest }: Props) {
             <CluePopup
               clue={quest.clues.find((c) => c.id === activeClue)!}
               isNew={!foundClues.slice(0, foundClues.indexOf(activeClue)).length && foundClues.includes(activeClue) && foundClues[foundClues.length - 1] === activeClue}
-              onClose={() => setActiveClue(null)}
+              onClose={() => {
+                setActiveClue(null);
+                onCardClosed?.();
+              }}
             />
           </>
         )}
       </AnimatePresence>
 
-      {/* Progress counter in corner */}
+      {/* Progress is shown in the quest HUD; this announces each find to screen readers. */}
       {quest.clues.length > 0 && (
-        <div className="clue-counter" aria-live="polite" aria-atomic>
-          <span aria-label={t('quest.cluesFound', { n: foundClues.length, total: quest.clues.length })}>
-            ✦ {foundClues.length}/{quest.clues.length}
-          </span>
-        </div>
+        <p className="sr-only" aria-live="polite" aria-atomic>
+          {t('quest.cluesFound', { n: foundClues.length, total: quest.clues.length })}
+        </p>
       )}
     </div>
   );

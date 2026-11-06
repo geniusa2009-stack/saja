@@ -15,6 +15,7 @@ import { toast } from '@/design-system';
 import { useConnection } from '@/store/connection';
 import { useSettings } from '@/store/settings';
 import type { ServerNotification } from '@/api/types';
+import { QuestSync } from '@/features/quests/QuestSync';
 import { daySync } from '@/api/daySync';
 import { useDay } from '@/store/day';
 import { isOnline } from '@/store/connection';
@@ -162,6 +163,7 @@ export function App() {
           }}
         />
       )}
+      <QuestSync />
       <ErrorBoundary>
         <Suspense fallback={<RouteLoader />}>
           <Routes>
