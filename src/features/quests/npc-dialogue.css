@@ -1,0 +1,215 @@
+/* ──────────────────────────────────────────────────────────
+ * NPC Dialogue — full-screen immersive conversation panel
+ * Uses SAJA's existing CSS variables (--text, --gold, etc.)
+ * ────────────────────────────────────────────────────────── */
+
+.npc-dialogue {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  cursor: pointer;
+  /* stop accidental text selection during typewriter */
+  user-select: none;
+}
+
+/* Darkened ambient scene behind the characters */
+.npc-dialogue__backdrop {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(5, 10, 30, 0.55) 0%,
+    rgba(5, 10, 30, 0.82) 70%,
+    rgba(5, 10, 30, 0.96) 100%
+  );
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+/* Characters float above the dialogue box */
+.npc-dialogue__stage {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 clamp(24px, 8vw, 120px) 0;
+  pointer-events: none;
+}
+
+.npc-dialogue__character {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  transition: opacity 0.35s, transform 0.35s;
+  opacity: 0.55;
+  transform: scale(0.92);
+}
+
+.npc-dialogue__character.is-speaking {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.npc-dialogue__name {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gold, #f6e8c6);
+  opacity: 0.8;
+}
+
+/* The dialogue box itself */
+.npc-dialogue__box {
+  position: relative;
+  z-index: 2;
+  background: rgba(12, 18, 42, 0.94);
+  border-top: 1px solid rgba(246, 232, 198, 0.12);
+  border-radius: 20px 20px 0 0;
+  padding: 20px 24px max(24px, env(safe-area-inset-bottom));
+  max-height: 55dvh;
+  overflow-y: auto;
+  cursor: default;
+}
+
+@media (min-width: 640px) {
+  .npc-dialogue__box {
+    border-radius: 20px;
+    max-width: 560px;
+    width: 100%;
+    align-self: center;
+    margin: 0 auto 32px;
+  }
+  .npc-dialogue {
+    align-items: center;
+  }
+}
+
+.npc-dialogue__speaker {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gold, #f6e8c6);
+  margin-bottom: 10px;
+}
+
+.npc-dialogue__text {
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: var(--text, #f0ecff);
+  margin: 0 0 14px;
+  min-height: 3.3em; /* prevents layout shift during typewriter */
+}
+
+.npc-dialogue__cursor {
+  display: inline-block;
+  animation: npc-blink 0.75s step-start infinite;
+  color: var(--gold, #f6e8c6);
+  margin-inline-start: 1px;
+}
+
+@keyframes npc-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Quest offer panel */
+.npc-dialogue__offer {
+  border-top: 1px solid rgba(246, 232, 198, 0.14);
+  padding-top: 16px;
+  margin-top: 8px;
+}
+
+.npc-dialogue__offer-text {
+  font-size: 0.95rem;
+  color: var(--text-muted, rgba(240, 236, 255, 0.72));
+  margin: 0 0 14px;
+  line-height: 1.5;
+}
+
+.npc-dialogue__offer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Player choice buttons */
+.npc-dialogue__choices {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.npc-dialogue__choice {
+  all: unset;
+  cursor: pointer;
+  border: 1px solid rgba(246, 232, 198, 0.18);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: var(--text, #f0ecff);
+  background: rgba(255, 255, 255, 0.04);
+  transition: background 0.18s, border-color 0.18s, transform 0.14s;
+  text-align: start;
+}
+
+.npc-dialogue__choice:hover,
+.npc-dialogue__choice:focus-visible {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(246, 232, 198, 0.36);
+  transform: translateX(2px);
+}
+
+.npc-dialogue__choice--warm {
+  border-color: rgba(34, 176, 140, 0.35);
+}
+.npc-dialogue__choice--warm:hover,
+.npc-dialogue__choice--warm:focus-visible {
+  border-color: rgba(34, 176, 140, 0.6);
+  background: rgba(34, 176, 140, 0.08);
+}
+
+.npc-dialogue__choice--curious {
+  border-color: rgba(143, 221, 227, 0.3);
+}
+
+/* Linear continue button */
+.npc-dialogue__continue {
+  all: unset;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--gold, #f6e8c6);
+  opacity: 0.75;
+  margin-top: 4px;
+  transition: opacity 0.15s;
+}
+
+.npc-dialogue__continue:hover,
+.npc-dialogue__continue:focus-visible {
+  opacity: 1;
+}
+
+/* Close button */
+.npc-dialogue__close {
+  position: absolute;
+  top: max(14px, env(safe-area-inset-top));
+  inset-inline-end: 16px;
+  z-index: 130;
+}
+
+/* RTL: flip stage layout naturally via flexbox direction */
+[dir='rtl'] .npc-dialogue__stage {
+  flex-direction: row-reverse;
+}
