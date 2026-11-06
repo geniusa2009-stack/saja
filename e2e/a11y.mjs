@@ -8,7 +8,7 @@ import { createRequire } from 'node:module';
 import { BASE, SHOTS, check, launch } from './lib.mjs';
 
 const AXE = createRequire(import.meta.url).resolve('axe-core/axe.min.js');
-const PAGES = ['/welcome', '/', '/mission/m-water-path', '/journey', '/learn', '/explore', '/day', '/circles', '/circles/first-steps', '/messages', '/scholar', '/amanah', '/nour', '/profile', '/profile/memory', '/inbox', '/account', '/hadith', '/hadith/h-bukhari-1', '/hadith/discover', '/hadith/discover/scenario-new-neighbour', '/hadith/discover/match-mercy-words', '/hadith/discover/story-two-lamps', '/hadith/discover/sort-where-from', '/hadith/discover/reflection-mercy', '/hadith/discover/review-foundations'];
+const PAGES = ['/welcome', '/', '/mission/m-water-path', '/journey', '/learn', '/quran', '/explore', '/day', '/circles', '/circles/first-steps', '/messages', '/scholar', '/amanah', '/nour', '/profile', '/profile/memory', '/inbox', '/account', '/hadith', '/hadith/h-bukhari-1', '/hadith/discover', '/hadith/discover/scenario-new-neighbour', '/hadith/discover/match-mercy-words', '/hadith/discover/story-two-lamps', '/hadith/discover/sort-where-from', '/hadith/discover/reflection-mercy', '/hadith/discover/review-foundations'];
 const browser = await launch();
 const found = new Map(); // rule → { impact, help, where: Set }
 const all = [];

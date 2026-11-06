@@ -142,10 +142,10 @@ describe('Quran Odyssey · Surah Al-Fatiha Milestone', () => {
     );
 
     // Religious disclaimer
-    expect(screen.getByText(/Demo Content: Quranic Arabic text is displayed from an attributed Uthmani source/i)).toBeInTheDocument();
+    expect(screen.getByText(/The Arabic text matches the Tanzil Quran Text \(Uthmani 1\.1\) letter for letter/i)).toBeInTheDocument();
 
     // Sources footer
-    expect(screen.getByText(/Attributed source: Tanzil Quran Text/i)).toBeInTheDocument();
+    expect(screen.getByText(/Tanzil Quran Text, Uthmani 1\.1 \(Hafs\), CC BY 3\.0/i)).toBeInTheDocument();
     expect(screen.getByText(/Saheeh International/i)).toBeInTheDocument();
     expect(screen.getByText(/Tafsir al-Muyassar/i)).toBeInTheDocument();
   });

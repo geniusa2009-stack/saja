@@ -189,7 +189,8 @@ export default function QuranOdyssey() {
 
           <div className="quran-surah-title">
             <h1 className="quran-arabic-title">{surah.name.ar}</h1>
-            <p className="quran-english-title">{surah.titleMeaning.en}</p>
+            {/* The English rendering of the name; in Arabic the name itself is the title. */}
+            {locale === 'en' && <p className="quran-english-title">{surah.titleMeaning.en}</p>}
           </div>
 
           <p style={{ color: 'var(--slate-400)', fontSize: 'var(--fs-small)', marginTop: '8px' }}>

@@ -19,10 +19,10 @@ export const SURAH_AL_FATIHA: QuranSurah = {
     ar: 'أعظم سورة في كتاب الله، تُتلى في كل ركعة، وهي مناجاة بين العبد وربه تفيض بالحمد والعبودية وطلب الهداية إلى الصراط المستقيم.',
   },
   sources: {
-    mushaf: 'Attributed source: Tanzil Quran Text, Uthmani v1.1 (Hafs tradition); independent text-by-text comparison and license audit required before public release.',
+    mushaf: 'Tanzil Quran Text, Uthmani 1.1 (Hafs), CC BY 3.0 — compared letter for letter with the verbatim source file (automated test, 2026-11-06).',
     translation: 'Saheeh International — redistribution rights not yet confirmed; DO NOT publicly release translation text until permission is documented.',
     tafsir: 'Draft summaries referencing Tafsir al-Muyassar and Al-Mukhtasar; passage-level source mapping and verified scholarly review pending.',
-    verificationNotice: 'Draft for educational review. Arabic text and word segmentation require corpus comparison; translation reuse rights and explanatory material require clearance.',
+    verificationNotice: 'Draft for educational review. The Arabic text and its word segmentation match the source exactly (automated check). The translation’s reuse rights and the explanatory material still need clearance and review by a qualified scholar.',
   },
   reviewStatus: 'draft',
   ayahs: [

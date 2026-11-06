@@ -91,7 +91,7 @@ export const en = {
   'quran.learningReminder': 'Every attempt helps you learn. You can explore the words again whenever you like.',
   'quran.reviewAgain': 'Practice again',
   'quran.licenseTerms': 'Text license and attribution',
-  'quran.reviewDisclaimer': 'Demo Content: Quranic Arabic text is displayed from an attributed Uthmani source, but a final corpus comparison is pending. Vocabulary and Tafsir notes are drafts awaiting qualified review; translation reuse rights are not yet confirmed.',
+  'quran.reviewDisclaimer': 'Draft lesson. The Arabic text matches the Tanzil Quran Text (Uthmani 1.1) letter for letter, checked automatically. Vocabulary and tafsir notes are drafts awaiting review by a qualified scholar, and permission to reuse the English translation is not yet confirmed.',
 
   'intro.skip': 'Skip intro',
   'intro.label': 'SAJA opening',
@@ -669,6 +669,9 @@ export const en = {
   'jr.current': 'You are here',
 
   'learn.title': 'Learn',
+  'learn.paths': 'Study paths',
+  'learn.hadithPath': 'Hadith library',
+  'learn.hadithPathSub': 'Short hadith with their Arabic, exact reference and grading — and what they mean today.',
   'learn.sub': 'Knowledge with its sources — ask, read, and see the evidence.',
   'learn.search': 'Search knowledge…',
   'learn.topics': 'Topics',

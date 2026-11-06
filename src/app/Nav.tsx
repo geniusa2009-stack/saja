@@ -19,14 +19,16 @@ interface Item {
   desc?: TKey;
   /** Private messages exist only for adults with accounts (the server enforces it; this just hides the door). */
   adultsOnly?: boolean;
+  /** Sections that live under this item (highlighted with it). */
+  also?: string[];
 }
 
+// Qur'an Odyssey and the Hadith library are study paths inside Learn (linked from its top),
+// which keeps the rail to seven destinations.
 const PRIMARY: Item[] = [
   { to: '/', icon: 'home', label: 'nav.home' },
   { to: '/journey', icon: 'journey', label: 'nav.journey' },
-  { to: '/quran', icon: 'quran', label: 'nav.quran' },
-  { to: '/learn', icon: 'learn', label: 'nav.learn' },
-  { to: '/hadith', icon: 'quote', label: 'nav.hadith' },
+  { to: '/learn', icon: 'learn', label: 'nav.learn', also: ['/quran', '/hadith'] },
   { to: '/day', icon: 'day', label: 'nav.day' },
   { to: '/circles', icon: 'community', label: 'nav.community' },
   { to: '/scholar', icon: 'scholar', label: 'nav.scholar' },
@@ -36,10 +38,9 @@ const TOOLS: Item[] = [
   { to: '/amanah', icon: 'seal', label: 'nav.amanah', desc: 'am.sub' },
   { to: '/nour', icon: 'eye', label: 'nav.nour', desc: 'nour.sub' },
 ];
-const MOBILE: Item[] = [PRIMARY[0], PRIMARY[1], PRIMARY[4], PRIMARY[5]];
+const MOBILE: Item[] = [PRIMARY[0], PRIMARY[1], PRIMARY[2], PRIMARY[3]];
 const MORE: Item[] = [
   { to: '/quran', icon: 'quran', label: 'nav.quran', desc: 'quran.sub' },
-  { to: '/learn', icon: 'learn', label: 'nav.learn', desc: 'learn.sub' },
   { to: '/hadith', icon: 'quote', label: 'nav.hadith', desc: 'hadith.sub' },
   { to: '/scholar', icon: 'scholar', label: 'nav.scholar', desc: 'sch.sub' },
   { to: '/explore', icon: 'explore', label: 'nav.explore', desc: 'ex.sub' },
@@ -61,6 +62,7 @@ function UnreadDot() {
 }
 
 const isActive = (path: string, to: string) => (to === '/' ? path === '/' : path === to || path.startsWith(`${to}/`));
+const sectionActive = (path: string, it: Item) => isActive(path, it.to) || (it.also ?? []).some((to) => isActive(path, to));
 
 export function Nav() {
   const desktop = useIsDesktop();
@@ -82,7 +84,7 @@ function Rail() {
         {PRIMARY.map((it) => (
           <li key={it.to}>
             <NavLink to={it.to} end={it.to === '/'} className="rail__item" data-dim={focus && it.to === '/circles' ? '' : undefined}>
-              {isActive(pathname, it.to) && <motion.span layoutId="rail-active" className="rail__active" transition={{ type: 'spring', stiffness: 400, damping: 36 }} />}
+              {sectionActive(pathname, it) && <motion.span layoutId="rail-active" className="rail__active" transition={{ type: 'spring', stiffness: 400, damping: 36 }} />}
               <Icon name={it.icon} size={22} />
               <span className="rail__label">{t(it.label)}</span>
             </NavLink>
@@ -131,13 +133,13 @@ function BottomBar() {
   const navigate = useNavigate();
   const [more, setMore] = useState(false);
   const adultAccount = useConnection((s) => s.status === 'online' && !!s.me && !s.me.user.isGuest && s.me.user.ageBand === 'adult');
-  const moreActive = MORE.some((m) => isActive(pathname, m.to));
+  const moreActive = MORE.some((m) => isActive(pathname, m.to)) && !MOBILE.some((it) => sectionActive(pathname, it));
   return (
     <>
       <nav className="bottombar" aria-label={t('nav.primary')}>
         {MOBILE.map((it) => (
           <NavLink key={it.to} to={it.to} end={it.to === '/'} className="bottombar__item">
-            {isActive(pathname, it.to) && <motion.span layoutId="bb-active" className="bottombar__active" transition={{ type: 'spring', stiffness: 420, damping: 34 }} />}
+            {sectionActive(pathname, it) && <motion.span layoutId="bb-active" className="bottombar__active" transition={{ type: 'spring', stiffness: 420, damping: 34 }} />}
             <Icon name={it.icon} size={22} />
             <span>{t(it.label)}</span>
           </NavLink>

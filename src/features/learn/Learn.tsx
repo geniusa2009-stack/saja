@@ -3,7 +3,7 @@
  * answer, evidence, context, where scholars differ, and when to ask a scholar.
  */
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'motion/react';
 import type { TopicId } from '@/domain/types';
 import { KNOWLEDGE } from '@/content/knowledge';
@@ -71,31 +71,32 @@ export default function Learn() {
           ))}
         </div>
 
+        {/* Study paths: real links, so keyboard and screen-reader users can open them too. */}
         {(topic === 'all' || topic === 'quran') && (
-          <div
-            className="card card--interactive"
-            onClick={() => navigate('/quran')}
-            style={{
-              background: 'linear-gradient(135deg, rgba(19, 32, 74, 0.8) 0%, rgba(11, 21, 48, 0.95) 100%)',
-              border: '1px solid var(--gold-500)',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              padding: '18px 24px',
-              gap: '16px',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <div style={{ background: 'rgba(201, 164, 92, 0.15)', padding: '12px', borderRadius: '12px', color: 'var(--gold-300)' }}>
-                <Icon name="quran" size={28} />
-              </div>
-              <div>
-                <strong style={{ fontSize: '1.2rem', color: 'var(--gold-300)', display: 'block' }}>{t('nav.quran')}</strong>
-                <span style={{ fontSize: '0.9rem', color: 'var(--sand-100)', opacity: 0.85 }}>{t('quran.sub')}</span>
-              </div>
-            </div>
-            <Icon name="forward" size={20} className="gold" />
-          </div>
+          <nav className="learn-paths" aria-label={t('learn.paths')}>
+            <Link to="/quran" className="learn-path learn-path--quran">
+              <span className="learn-path__icon" aria-hidden>
+                <Icon name="quran" size={26} />
+              </span>
+              <span className="learn-path__text">
+                <strong>{t('nav.quran')}</strong>
+                <span>{t('quran.sub')}</span>
+              </span>
+              <Icon name="forward" size={18} className="learn-path__go" />
+            </Link>
+            {topic === 'all' && (
+              <Link to="/hadith" className="learn-path">
+                <span className="learn-path__icon" aria-hidden>
+                  <Icon name="quote" size={24} />
+                </span>
+                <span className="learn-path__text">
+                  <strong>{t('learn.hadithPath')}</strong>
+                  <span>{t('learn.hadithPathSub')}</span>
+                </span>
+                <Icon name="forward" size={18} className="learn-path__go" />
+              </Link>
+            )}
+          </nav>
         )}
 
         {topic !== 'all' && (

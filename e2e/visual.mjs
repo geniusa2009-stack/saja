@@ -41,7 +41,7 @@ if (phase === 'setup') {
   process.exit(0);
 }
 
-const PAGES = ['/', '/mission/m-water-path', '/journey', '/learn', '/explore', '/day', '/circles', '/circles/first-steps', '/messages', '/scholar', '/amanah', '/nour', '/profile', '/profile/memory', '/inbox', '/account', '/staff', '/hadith', '/hadith/h-bukhari-1', '/hadith/discover', '/hadith/discover/scenario-new-neighbour', '/hadith/discover/match-mercy-words', '/hadith/discover/story-two-lamps', '/hadith/discover/sort-where-from', '/hadith/discover/reflection-mercy', '/hadith/discover/review-foundations'];
+const PAGES = ['/', '/mission/m-water-path', '/journey', '/learn', '/quran', '/explore', '/day', '/circles', '/circles/first-steps', '/messages', '/scholar', '/amanah', '/nour', '/profile', '/profile/memory', '/inbox', '/account', '/staff', '/hadith', '/hadith/h-bukhari-1', '/hadith/discover', '/hadith/discover/scenario-new-neighbour', '/hadith/discover/match-mercy-words', '/hadith/discover/story-two-lamps', '/hadith/discover/sort-where-from', '/hadith/discover/reflection-mercy', '/hadith/discover/review-foundations'];
 const SIZES = [
   [375, 812, true],
   [768, 1024, true],
