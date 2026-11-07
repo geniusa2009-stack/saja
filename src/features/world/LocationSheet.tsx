@@ -86,6 +86,19 @@ export function LocationSheet({ id, onClose, completed, unlocked, onExplore }: {
             })}
           </div>
 
+          {/* saja-world-tales-expansion-v1: independent fictional stories, no mission rewards */}
+          {!asleep && (
+            <Button
+              variant="secondary"
+              icon="star"
+              onClick={() => {
+                onClose();
+                navigate(`/stories/${loc.id}`);
+              }}
+            >
+              {l({ ar: 'استكشف 12 حكاية جديدة في هذه المنطقة', en: 'Explore 12 new stories in this place' })}
+            </Button>
+          )}
           {asleep ? (
             <Button variant="secondary" icon="map" onClick={onClose}>
               {t('a.continueJourney')}

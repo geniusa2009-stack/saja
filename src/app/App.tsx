@@ -28,6 +28,7 @@ import { Nav } from './Nav';
 const WorldHome = lazyWithPreload(() => import('@/features/world/WorldHome'));
 const Onboarding = lazy(() => import('@/features/onboarding/Onboarding'));
 const MissionRunner = lazyWithPreload(() => import('@/features/missions/MissionRunner'));
+const StoriesPage = lazy(() => import('@/features/stories/StoriesPage'));
 const Journey = lazy(() => import('@/features/journey/Journey'));
 const Learn = lazy(() => import('@/features/learn/Learn'));
 const HadithLibrary = lazy(() => import('@/features/hadith/HadithLibrary'));
@@ -174,6 +175,8 @@ export function App() {
               <Route path="/mission/:id" element={<MissionRunner />} />
               <Route element={<Shell />}>
                 <Route index element={<WorldHome />} />
+                <Route path="stories" element={<StoriesPage />} />
+                <Route path="stories/:region" element={<StoriesPage />} />
                 <Route path="journey" element={<Journey />} />
                 <Route path="learn" element={<Learn />} />
                 <Route path="quran" element={<QuranOdyssey />} />
