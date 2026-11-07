@@ -1,57 +1,38 @@
-# Release checklist
+# SAJA — Public Release Gate Checklist
 
-Status key: ✅ done with evidence · ⏳ in progress · ❌ not met (blocks launch) · ⚠️ met with a documented limitation
+**Current recommendation: NO-GO for public release (2026-11-07).** Historical test passes are not the same as content, legal, security and deployment authorization.
 
-## Product
+## Engineering — historical pass; re-run on candidate SHA
 
-| Gate | Status | Evidence / blocker |
-| --- | --- | --- |
-| Main user journeys work | ⏳ | adult/child/staff e2e to be re-run on the integrated branch |
-| No critical dead ends | ⏳ | quests not yet reachable from the world |
-| No false feature promises | ⏳ | |
-| Arabic and English complete for enabled features | ⏳ | translation-key audit pending |
-| Mobile UX usable | ⏳ | |
+- [ ] Record exact `release/integration` SHA and clean/understood Git status.
+- [ ] Fresh `npm run check` passes with zero unexpected skips.
+- [ ] Fresh game E2E, adult/guardian/staff journeys all pass against candidate build.
+- [ ] Fresh Arabic/English layout and keyboard/accessibility sweeps, plus real assistive technology.
+- [ ] Real GPU/mobile performance captures and fallback validation.
 
-## Game
+## Religious content and rights — blocking
 
-| Gate | Status | Evidence / blocker |
-| --- | --- | --- |
-| 3D world loads reliably | ✅ | `npm run e2e:game` passes (headless, software WebGL, 2–5 fps) |
-| Animations bound and functional | ✅ | 8 clips present; Idle → WalkStart → Walk → Run → WalkStop → Turn* → Interact observed in the clip history |
-| Movement | ✅ | frame-rate independent since `a18a483` |
-| Collision | ✅ | tree collider stops the traveller; wall contacts counted separately from the ground |
-| Camera | ✅ | follow, orbit drag and collision ray; real-device feel not tested |
-| NPC interactions | ✅ | Amina (EN/AR, keyboard, joystick), Grandpa Yusuf (2D, AR) |
-| Quest progression | ❌ | quest system not wired in |
-| Lightweight fallback | ✅ | 2D mode and the 2D courtyard pass |
+- [ ] Expert review and sign-off on Quran explanation, morphology and tafsir.
+- [ ] Authorized source license and attribution for Quran corpus recorded.
+- [ ] Full-verse English translation rights secured or all restricted material absent from every public bundle and data route.
+- [ ] Hadith matns and grading validated against the cited editions by a qualified reviewer.
+- [ ] Scholar-approved content revision manifest exists; drafts are not labeled approved.
 
-## Engineering
+## Security and privacy — blocking
 
-| Gate | Status | Evidence / blocker |
-| --- | --- | --- |
-| TypeScript | ✅ | `npm run typecheck` exit 0 |
-| ESLint | ✅ | exit 0 |
-| Automated tests | ✅ | latest full run: 480 passed, 16 skipped (live AI tests, no keys) |
-| Production build | ✅ | |
-| Critical e2e journeys | ⏳ | |
-| No blocking browser errors | ⏳ | Google Fonts CSP error to fix |
-| No critical security defects | ⏳ | review pending |
+- [ ] Child-appropriate privacy, consent, retention, deletion, guardian and moderation review complete.
+- [ ] Independent security assessment of public/staff/auth flows complete and severe findings closed.
+- [ ] Current dependency audit complete and exemptions documented.
+- [ ] Secrets, TLS, trusted proxy, secure cookies, backups and logging verified.
 
-## Content
+## Operations and launch — blocking
 
-| Gate | Status | Evidence / blocker |
-| --- | --- | --- |
-| Quranic text source-verified | ✅ | Al-Fatihah byte-identical to Tanzil Uthmani 1.1, enforced by a test |
-| Hadith citations / gradings validated | ⚠️ | 11/11 matns corroborated against an independent dataset; Sunnah.com (the cited source) refuses automated access, so a person must confirm |
-| Religious explanations reviewed | ❌ | no verified scholar has reviewed any explanation, tafsir summary, Hadith meaning or knowledge entry |
-| Translation and media rights documented | ❌ | Saheeh International permission not on file (gated out of production builds); word glosses' provenance unconfirmed |
-| Unverified content not presented as approved | ✅ | demo/draft labels throughout; honesty tests |
+- [ ] HTTPS staging URL exists and is independently reachable.
+- [ ] Staging user journeys and 3D/static asset smoke checks pass.
+- [ ] DB/upload persistence and restore drill pass.
+- [ ] Operator runbook, monitoring alerts, ownership and rollback tested.
+- [ ] Public release approval recorded with accountable named reviewers.
 
-## Deployment
+## Decision
 
-| Gate | Status | Evidence / blocker |
-| --- | --- | --- |
-| Staging verified | ❌ | to be attempted |
-| Environment configuration documented | ✅ | `.env.example`, docs/DEPLOYMENT.md |
-| Health checks | ✅ | `/api/system/health` |
-| Deployment and rollback procedures | ⏳ | DEPLOYMENT_GUIDE.md |
+**NO-GO.** Missing approvals and infrastructure are product/release blockers, not software compilation failures. A limited internal test may continue without waiving public release criteria.

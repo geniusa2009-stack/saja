@@ -1,33 +1,31 @@
-# Integration plan and progress
+# SAJA — Integration Plan and Current State
 
-Branch: **`release/integration`** in worktree `~/Documents/saja-release`, based on `main` (96a7d7b). Work is merged with `--no-ff` so every source stays identifiable; nothing is squashed, force-pushed or reset.
+**State:** Integration implementation reported complete, release approval **blocked**. This plan updates the earlier work-in-progress drafts without pretending that a remote integration branch exists.
 
-## Merge order (done)
+## Completed according to previous implementation report
 
-| # | Source | Commit | Conflicts | Result |
-| --- | --- | --- | --- | --- |
-| 1 | `feat/threejs-locomotion` (+ `feat/game-core`) + the local Rapier-compat hotfix | `1b9fa90` | none | the `.before-hotfix` copy removed (`05cf52c`) |
-| 2 | `feat/quran-studio` a21a2d8 | `b72b808` | none | |
-| 3 | world-visuals snapshot | `ba9e010` | `world.css` | kept the 3D `.play-world` rules; dropped the old scenery-detail rules that the visuals work moved into `scenery.css` |
-| 4 | quest-system snapshot | `4fcfd04` | none | did not compile, fixed in `ec86eef` |
-| 5 | hadith-learning snapshot | `3055f96` | `App.tsx` routes | kept both the Quran and the Hadith routes |
+- Phase A: repaired 3D runtime and timing, stabilized the animation/game test, preserved original worktrees.
+- Phase B: combined Quran Studio, Hadith, quest, world-visuals, and 3D in `release/integration`.
+- Phase C: connected Words of Peace into NPC dialogue and mission completion; repaired idempotent quest reward logic and last-clue presentation.
+- Phase D: self-hosted fonts; revised Learn navigation; RTL and 2D fallback corrections.
+- Phase E: production Docker check, static assets/SPA/headers, basic persistence and adult/child/game flows.
 
-## Phases
+Each statement above is based on the user's supplied Claude execution report; it must be checked on the actual integration branch before a final release.
 
-| Phase | Status | Evidence |
-| --- | --- | --- |
-| A — Stabilisation | **Done** for the 3D runtime and the game e2e | `a18a483`; GAMEPLAY_QA.md |
-| B — Feature integration | Merged and compiling; **quests still to be wired into the world** | 480 tests passing after the merges |
-| C — Visual excellence | In progress | DESIGN_AUDIT.md |
-| D — Functional completion | Pending | |
-| E — Security and content | Quran text verified, translation gated, Hadith corroborated | `2b90031`, `53e4d17`; CONTENT_VERIFICATION.md |
-| F — Performance | Pending | PERFORMANCE_REPORT.md |
-| G — Release validation | Pending | TEST_RESULTS.md |
-| H — Staging | Pending (infrastructure check) | DEPLOYMENT_GUIDE.md |
+## Remaining work in the correct order
 
-## Rules followed
+1. **Evidence capture:** run `npm run check` and game, journey, a11y and layout suites on the exact candidate commit. Preserve exit codes and summary logs.
+2. **Content approvals:** scholar-reviewed Quran explanations and Hadith meanings; direct source checks for 11 Hadith entries; translation and content reuse rights. Keep unlicensed full-verse translation absent from public builds.
+3. **Security and privacy:** review age/consent flows, retention, deletion, report/block, moderation, authz and real deployment configuration; independent penetration assessment for major risks.
+4. **Performance:** physical-device GPU, memory and frame-time measurements; GLB size/mesh reduction without breaking rig or clip names.
+5. **Staging:** secure HTTPS domain, persistent storage, backups, deploy, smoke tests and rollback drill.
+6. **Release review:** content, privacy and security approvals recorded by accountable people, then a GO/NO-GO decision.
 
-- Uncommitted work was snapshotted before anything else; the original worktrees were not modified.
-- Conflicts were resolved by reading both sides, not by taking one side wholesale.
-- No assertion was removed from any test; changed waits are documented in the commit messages.
-- Nothing is pushed to the public GitHub repository without the owner's decision (it would publish draft religious content).
+## Git integration process
+
+Use a separate release-candidate branch from the locally integrated worktree **after** verifying its history and cleanliness. Keep existing backups. Never force-push or fast-forward the public `main` without a diff review and permissions. If a remote preview is needed before approvals, use a verified private destination or remove gated/restricted content first.
+
+## Definitions of done
+
+- Implemented ≠ tested; tested locally ≠ deployed; deployed to staging ≠ approved for public launch.
+- Every blocker is assigned an owner and a verifiable closure artifact (rights document, reviewed content manifest, security findings, staging URL, device test report).
