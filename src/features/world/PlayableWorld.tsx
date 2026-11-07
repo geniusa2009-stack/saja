@@ -80,7 +80,6 @@ export function PlayableWorld({ sceneId, look, playerName, rtl, reducedMotion, o
 
   const onThreeProximity = useCallback((isNearby: boolean) => {
     setNearby(isNearby);
-    if (!isNearby) setTalking(false);
   }, []);
 
   useEffect(() => {

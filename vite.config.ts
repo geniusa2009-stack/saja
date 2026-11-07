@@ -6,7 +6,7 @@ import { fileURLToPath, URL } from 'node:url';
 export default defineConfig({
   plugins: [react()],
   resolve: {
-    alias: { '@': fileURLToPath(new URL('./src', import.meta.url)), '@dimforge/rapier3d-compat': '@dimforge/rapier3d' },
+    alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },
   server: {
     port: 5173,

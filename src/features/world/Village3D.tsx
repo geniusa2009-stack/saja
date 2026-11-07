@@ -72,6 +72,7 @@ interface TravellerAnimationState {
   turnDirection: number;
   interaction: number;
   activeClip: string;
+  history: string[];
 }
 
 const REQUIRED_CLIPS = ['Idle', 'Walk', 'Run', 'WalkStart', 'WalkStop', 'TurnLeft', 'TurnRight', 'Interact'];
@@ -125,6 +126,7 @@ function RiggedTraveller({ look, animation, reducedMotion }: { look: CharacterLo
     state.lastMoving = false;
     state.lastInteraction = animation.current.interaction;
     state.lastTurn = animation.current.turnRequest;
+    if (!animation.current.history.length) animation.current.history.push('Idle');
     const idle = actions.get('Idle');
     if (idle) {
       idle.setLoop(THREE.LoopRepeat, Infinity);
@@ -135,7 +137,12 @@ function RiggedTraveller({ look, animation, reducedMotion }: { look: CharacterLo
     } else {
       animation.current.activeClip = 'Missing clips';
     }
+    const finishOneShot = (event: { action: THREE.AnimationAction }) => {
+      if (event.action === state.action && state.oneShot) state.oneShot = false;
+    };
+    mixer.addEventListener('finished', finishOneShot);
     return () => {
+      mixer.removeEventListener('finished', finishOneShot);
       mixer.stopAllAction();
       mixer.uncacheRoot(rig);
       actions.clear();
@@ -163,6 +170,10 @@ function RiggedTraveller({ look, animation, reducedMotion }: { look: CharacterLo
         return;
       }
       if (current.name === name && next.isRunning()) return;
+      if (state.history[state.history.length - 1] !== name) {
+        state.history.push(name);
+        if (state.history.length > 32) state.history.splice(0, state.history.length - 32);
+      }
       next.reset();
       next.enabled = true;
       next.setEffectiveWeight(1);
@@ -177,7 +188,8 @@ function RiggedTraveller({ look, animation, reducedMotion }: { look: CharacterLo
       state.activeClip = name;
     };
 
-    if (current.oneShot && current.action && !current.action.isRunning()) current.oneShot = false;
+    // A clamped LoopOnce action remains enabled at its last pose, so isRunning() can
+    // stay true after completion. The mixer's `finished` event releases oneShot.
     if (state.interaction !== current.lastInteraction) {
       current.lastInteraction = state.interaction;
       play('Interact', false);
@@ -215,8 +227,8 @@ function Player(props: Props) {
   const { scene, look, playerName, keys, joystick, talking, reducedMotion, sprint, stageRef, onNearby, onMoving } = props;
   const gltf = useGLTF(VILLAGE_ASSET_URL);
   const availableClips = gltf.animations.map((clip) => clip.name).join('|');
-  const playerAnimation = useRef<TravellerAnimationState>({ moving: false, running: false, speed: 0, turnRequest: 0, turnDirection: 1, interaction: 0, activeClip: 'Idle' });
-  const npcAnimation = useRef<TravellerAnimationState>({ moving: false, running: false, speed: 0, turnRequest: 0, turnDirection: 1, interaction: 0, activeClip: 'Idle' });
+  const playerAnimation = useRef<TravellerAnimationState>({ moving: false, running: false, speed: 0, turnRequest: 0, turnDirection: 1, interaction: 0, activeClip: 'Idle', history: ['Idle'] });
+  const npcAnimation = useRef<TravellerAnimationState>({ moving: false, running: false, speed: 0, turnRequest: 0, turnDirection: 1, interaction: 0, activeClip: 'Idle', history: ['Idle'] });
   const previousTalking = useRef(talking);
   useEffect(() => {
     if (talking && !previousTalking.current) {
@@ -237,12 +249,13 @@ function Player(props: Props) {
   const pitch = useRef(0.24);
   const cameraDistance = useRef(6.6);
   const nearby = useRef(false);
+  const nearbyGrace = useRef(0);
   const moving = useRef(false);
   const running = useRef(false);
   const lastTelemetry = useRef(0);
   const lastDesiredHeading = useRef(heading.current);
-  const lastTurnRequestAt = useRef(0);
   const collisionCount = useRef(0);
+  const npcDistance = useRef(Number.POSITIVE_INFINITY);
   const [telemetry, setTelemetry] = useState({ x: 0, z: 0, hits: 0, cameraYaw: yaw.current, facingYaw: heading.current, animation: 'Idle' });
   const direction = useMemo(() => new THREE.Vector3(), []);
   const right = useMemo(() => new THREE.Vector3(), []);
@@ -335,11 +348,9 @@ function Player(props: Props) {
     if (isMoving) {
       heading.current = Math.atan2(direction.x, direction.z);
       const turn = Math.atan2(Math.sin(heading.current - lastDesiredHeading.current), Math.cos(heading.current - lastDesiredHeading.current));
-      const now = performance.now();
-      if (Math.abs(turn) > 1.05 && now - lastTurnRequestAt.current > 650) {
+      if (Math.abs(turn) > 1.05) {
         playerAnimation.current.turnRequest += 1;
         playerAnimation.current.turnDirection = Math.sign(turn);
-        lastTurnRequestAt.current = now;
       }
       lastDesiredHeading.current = heading.current;
     }
@@ -366,7 +377,18 @@ function Player(props: Props) {
       visual.current.rotation.y += Math.atan2(Math.sin(heading.current - visual.current.rotation.y), Math.cos(heading.current - visual.current.rotation.y)) * (reducedMotion ? 1 : 1 - Math.exp(-10 * Math.min(dt, 0.05)));
     }
     const dNpc = Math.hypot(next.x - npcX, next.z - npcZ);
-    const isNear = dNpc <= 2.25;
+    npcDistance.current = dNpc;
+    const pathLengthSq = allowed.x * allowed.x + allowed.z * allowed.z;
+    const nearestT = pathLengthSq > 1e-8
+      ? clamp(((npcX - state.x) * allowed.x + (npcZ - state.z) * allowed.z) / pathLengthSq, 0, 1)
+      : 0;
+    const closestX = state.x + allowed.x * nearestT;
+    const closestZ = state.z + allowed.z * nearestT;
+    const crossedPromptRange = Math.hypot(closestX - npcX, closestZ - npcZ) <= 3;
+    const enteredPromptRange = dNpc <= 3 || crossedPromptRange;
+    if (enteredPromptRange) nearbyGrace.current = 1.25;
+    else nearbyGrace.current = Math.max(0, nearbyGrace.current - Math.min(dt, 1));
+    const isNear = enteredPromptRange || nearbyGrace.current > 0;
     if (isNear !== nearby.current) {
       nearby.current = isNear;
       onNearby(isNear);
@@ -405,10 +427,10 @@ function Player(props: Props) {
       <RiggedTraveller look={{ skin: 2, hair: 'wrap', hairColor: 1, outfit: 'abaya', outfitColor: 3, accessory: 'none' }} animation={npcAnimation} reducedMotion={reducedMotion} />
     </RigidBody>
     <mesh position={[npcX, 2.35, npcZ]} rotation={[-Math.PI / 2, 0, 0]}>
-      <ringGeometry args={[2.15, 2.22, 40]} /><meshBasicMaterial color={nearby.current ? '#f4d991' : '#4f8574'} transparent opacity={0.8} />
+      <ringGeometry args={[2.88, 2.96, 40]} /><meshBasicMaterial color={nearby.current ? '#f4d991' : '#4f8574'} transparent opacity={0.8} />
     </mesh>
     <Html style={{ display: 'none' }}>
-      <span data-testid="three-player-state" data-x={telemetry.x.toFixed(1)} data-z={telemetry.z.toFixed(1)} data-collisions={telemetry.hits} data-camera-yaw={telemetry.cameraYaw.toFixed(3)} data-facing-yaw={telemetry.facingYaw.toFixed(3)} data-animation={telemetry.animation} data-animations={availableClips} data-required-animations={REQUIRED_CLIPS.join('|')} />
+      <span data-testid="three-player-state" data-x={telemetry.x.toFixed(1)} data-z={telemetry.z.toFixed(1)} data-collisions={telemetry.hits} data-camera-yaw={telemetry.cameraYaw.toFixed(3)} data-facing-yaw={telemetry.facingYaw.toFixed(3)} data-animation={telemetry.animation} data-clip-history={playerAnimation.current.history.join('|')} data-npc-distance={npcDistance.current.toFixed(2)} data-npc-nearby={String(nearby.current)} data-animations={availableClips} data-required-animations={REQUIRED_CLIPS.join('|')} />
     </Html>
   </>;
 }
