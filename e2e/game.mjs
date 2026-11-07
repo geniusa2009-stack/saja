@@ -146,7 +146,11 @@ try {
   step('talk to Amina (E)');
   await page.keyboard.press('e');
   await clipSeen(['Interact']);
-  await page.getByRole('dialog', { name: 'Amina' }).getByText(/As-salamu alaykum/i).waitFor();
+  const aminaEnglishDialog = page.getByRole('dialog', { name: 'Amina' });
+  await aminaEnglishDialog.getByText(/As-salamu alaykum/i).waitFor();
+  // A briefly changing proximity state must never dismiss an opened NPC conversation.
+  await page.waitForTimeout(350);
+  if (!(await aminaEnglishDialog.isVisible())) throw new Error('Amina dialogue closed unexpectedly after interaction');
   await page.screenshot({ path: 'docs/game/village-3d-en.png' });
   await page.evaluate(axe.source);
   const violations = await page.evaluate(async () => (await window.axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa'] } })).violations);
@@ -206,6 +210,10 @@ try {
     await card.getByRole('button', { name: 'إغلاق' }).click();
     await card.waitFor({ state: 'detached' });
     if (found < 3) await page.locator('.quest-hud__count').getByText(`وُجد ${arDigit(found)} من ${arDigit(3)} من الأدلة`).waitFor();
+  }
+  // The in-world ready card is the sole hint; a second floating toast obscures mobile dialogue.
+  if (await page.locator('.toasts .toast').filter({ hasText: /وجدت كل الأدلة/ }).count()) {
+    throw new Error('Redundant clue-completion toast is obscuring the mission prompt');
   }
   await page.getByRole('button', { name: /ابدأ: كلمات السلام/ }).click();
   await page.waitForURL(/\/mission\/m-words-of-peace/);

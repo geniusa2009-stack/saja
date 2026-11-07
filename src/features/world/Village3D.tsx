@@ -136,6 +136,10 @@ function RiggedTraveller({ look, animation, reducedMotion }: { look: CharacterLo
     state.lastMoving = false;
     state.lastInteraction = animation.current.interaction;
     state.lastTurn = animation.current.turnRequest;
+    const onFinished = (event: { action: THREE.AnimationAction }) => {
+      if (event.action === state.action && state.oneShot) state.oneShot = false;
+    };
+    mixer.addEventListener('finished', onFinished);
     const idle = actions.get('Idle');
     if (idle) {
       idle.setLoop(THREE.LoopRepeat, Infinity);
@@ -147,6 +151,7 @@ function RiggedTraveller({ look, animation, reducedMotion }: { look: CharacterLo
       animation.current.activeClip = 'Missing clips';
     }
     return () => {
+      mixer.removeEventListener('finished', onFinished);
       mixer.stopAllAction();
       mixer.uncacheRoot(rig);
       actions.clear();
@@ -188,7 +193,7 @@ function RiggedTraveller({ look, animation, reducedMotion }: { look: CharacterLo
       state.activeClip = name;
     };
 
-    if (current.oneShot && current.action && !current.action.isRunning()) current.oneShot = false;
+    // The mixer's finished event releases clamped one-shot animations reliably.
     if (state.interaction !== current.lastInteraction) {
       current.lastInteraction = state.interaction;
       play('Interact', false);
@@ -249,6 +254,8 @@ function Player(props: Props) {
   const pitch = useRef(0.24);
   const cameraDistance = useRef(6.6);
   const nearby = useRef(false);
+  const nearbyGrace = useRef(0);
+  const npcDistance = useRef(Number.POSITIVE_INFINITY);
   const moving = useRef(false);
   const running = useRef(false);
   const lastTelemetry = useRef(0);
@@ -384,7 +391,19 @@ function Player(props: Props) {
       visual.current.rotation.y += Math.atan2(Math.sin(heading.current - visual.current.rotation.y), Math.cos(heading.current - visual.current.rotation.y)) * (reducedMotion ? 1 : 1 - Math.exp(-10 * dt));
     }
     const dNpc = Math.hypot(next.x - npcX, next.z - npcZ);
-    const isNear = dNpc <= 2.25;
+    npcDistance.current = dNpc;
+    // Test the swept movement segment too: at low frame rates a step can cross
+    // the interaction radius without stopping inside it.
+    const pathLengthSq = allowed.x * allowed.x + allowed.z * allowed.z;
+    const nearestT = pathLengthSq > 1e-8
+      ? clamp(((npcX - state.x) * allowed.x + (npcZ - state.z) * allowed.z) / pathLengthSq, 0, 1)
+      : 0;
+    const nearestX = state.x + allowed.x * nearestT;
+    const nearestZ = state.z + allowed.z * nearestT;
+    const enteredRange = dNpc <= 3 || Math.hypot(nearestX - npcX, nearestZ - npcZ) <= 3;
+    if (enteredRange) nearbyGrace.current = 1.25;
+    else nearbyGrace.current = Math.max(0, nearbyGrace.current - dt);
+    const isNear = enteredRange || nearbyGrace.current > 0;
     if (isNear !== nearby.current) {
       nearby.current = isNear;
       onNearby(isNear);
@@ -427,10 +446,10 @@ function Player(props: Props) {
       <RiggedTraveller look={{ skin: 2, hair: 'wrap', hairColor: 1, outfit: 'abaya', outfitColor: 3, accessory: 'none' }} animation={npcAnimation} reducedMotion={reducedMotion} />
     </RigidBody>
     <mesh position={[npcX, 2.35, npcZ]} rotation={[-Math.PI / 2, 0, 0]}>
-      <ringGeometry args={[2.15, 2.22, 40]} /><meshBasicMaterial color={nearby.current ? '#f4d991' : '#4f8574'} transparent opacity={0.8} />
+      <ringGeometry args={[2.88, 2.96, 40]} /><meshBasicMaterial color={nearby.current ? '#f4d991' : '#4f8574'} transparent opacity={0.8} />
     </mesh>
     <Html style={{ display: 'none' }}>
-      <span data-testid="three-player-state" data-x={telemetry.x.toFixed(1)} data-z={telemetry.z.toFixed(1)} data-collisions={telemetry.hits} data-camera-yaw={telemetry.cameraYaw.toFixed(3)} data-facing-yaw={telemetry.facingYaw.toFixed(3)} data-animation={telemetry.animation} data-animation-history={telemetry.history} data-animations={availableClips} data-required-animations={REQUIRED_CLIPS.join('|')} />
+      <span data-testid="three-player-state" data-x={telemetry.x.toFixed(1)} data-z={telemetry.z.toFixed(1)} data-collisions={telemetry.hits} data-camera-yaw={telemetry.cameraYaw.toFixed(3)} data-facing-yaw={telemetry.facingYaw.toFixed(3)} data-animation={telemetry.animation} data-animation-history={telemetry.history} data-npc-distance={npcDistance.current.toFixed(2)} data-npc-nearby={String(nearby.current)} data-animations={availableClips} data-required-animations={REQUIRED_CLIPS.join('|')} />
     </Html>
   </>;
 }

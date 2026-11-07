@@ -827,3 +827,9 @@ button.chip[aria-pressed='true'] {
 
 /* Icons keep their size in flex rows when the text beside them wraps. */
 svg.icon { flex-shrink: 0; }
+
+/* SAJA scene toast safety */
+@media (max-width: 699px) {
+  .toasts .toast { max-width: 100%; overflow-wrap: anywhere; }
+  body:has(.play-world__dialog) .toasts .toast:not(.toast--error) { display: none; }
+}

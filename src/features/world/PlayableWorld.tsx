@@ -1,3 +1,4 @@
+import { useToasts } from '@/design-system';
 import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Character } from '@/features/character/Character';
@@ -86,6 +87,10 @@ export function PlayableWorld({ sceneId, look, playerName, rtl, reducedMotion, o
     };
   }, []);
 
+  useEffect(() => {
+    useToasts.getState().clearNonCritical();
+  }, [sceneId]);
+
   const activate = useCallback(() => {
     if (talking) return;
     keysRef.current.clear();
@@ -94,7 +99,8 @@ export function PlayableWorld({ sceneId, look, playerName, rtl, reducedMotion, o
 
   const onThreeProximity = useCallback((isNearby: boolean) => {
     setNearby(isNearby);
-    if (!isNearby) setTalking(false);
+    // Proximity controls the talk prompt, but a conversation already in progress
+    // should only close when its own dialogue is dismissed.
   }, []);
 
   useEffect(() => {

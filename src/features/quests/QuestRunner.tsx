@@ -89,17 +89,8 @@ export function QuestRunner({ quest, open = false, onDismiss }: Props) {
     }
   }, [results, quest, status, completedObjectives, completeObjective, completeQuest]);
 
-  // When all clues are found, toast a hint to go play the mission.
-  useEffect(() => {
-    if (status === 'active' && allCluesFound && !results[quest.missionId]) {
-      toast(
-        l({
-          en: 'All clues found! Light the lanterns when you’re ready.',
-          ar: 'وجدت كل الأدلة! أضئ الفوانيس حين تكون مستعدًا.',
-        }),
-      );
-    }
-  }, [allCluesFound, status, results, quest.missionId, l]);
+  // The ready panel below already explains the next mission step.
+  // Avoid a duplicate transient toast that can obscure NPC dialogue on mobile.
 
   const handleAccept = useCallback(() => {
     acceptQuest(quest.id);
