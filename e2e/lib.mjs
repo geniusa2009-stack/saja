@@ -7,7 +7,7 @@ export const SHOTS = process.env.SAJA_SHOTS ?? 'e2e/screenshots';
 mkdirSync(SHOTS, { recursive: true });
 
 export async function launch() {
-  return chromium.launch({ executablePath: process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', headless: true });
+  return chromium.launch({ executablePath: process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', headless: true, args: ['--enable-webgl', '--ignore-gpu-blocklist', '--use-gl=angle', '--use-angle=swiftshader-webgl', '--enable-unsafe-swiftshader'] });
 }
 
 export function watch(page, errors) {

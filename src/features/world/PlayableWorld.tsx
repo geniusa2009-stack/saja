@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Character } from '@/features/character/Character';
 import { useI18n } from '@/i18n';
@@ -14,6 +14,8 @@ import { createPlayer, getGameScene } from './game/sceneManager';
 import { isPlayerMoving, renderedFacing } from './game/animation';
 import { startGameLoop } from './game/gameLoop';
 import type { GameSceneId, PlayerState, Point } from './game/types';
+
+const Village3D = lazy(() => import('./Village3D').then((module) => ({ default: module.Village3D })));
 
 interface Props {
   sceneId: GameSceneId;
@@ -42,6 +44,8 @@ export function PlayableWorld({ sceneId, look, playerName, rtl, reducedMotion, o
   const [talking, setTalking] = useState(false);
   const [line, setLine] = useState(0);
   const [moving, setMoving] = useState(false);
+  const [use3D, setUse3D] = useState(sceneId === 'village');
+  const sprintRef = useRef(false);
   const [facing, setFacing] = useState<'left' | 'right'>(rtl ? 'left' : 'right');
   const npc = NPCS.find((entry) => entry.id === scene.npc.id)!;
   const name = l(npc.name);
@@ -73,6 +77,10 @@ export function PlayableWorld({ sceneId, look, playerName, rtl, reducedMotion, o
     keysRef.current.clear();
     setTalking(true);
   }, [talking]);
+
+  const onThreeProximity = useCallback((isNearby: boolean) => {
+    setNearby(isNearby);
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -209,6 +217,8 @@ export function PlayableWorld({ sceneId, look, playerName, rtl, reducedMotion, o
   }, [scene, sceneId, rtl, reducedMotion, talking, viewport]);
 
   const keyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    const target = event.target;
+    if (target instanceof HTMLElement && target !== event.currentTarget && (target.isContentEditable || ['BUTTON', 'INPUT', 'TEXTAREA', 'SELECT', 'A'].includes(target.tagName))) return;
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(event.code)) event.preventDefault();
     if (event.code === 'KeyE' || event.code === 'Enter') {
       if (nearby) { event.preventDefault(); activate(); }
@@ -243,14 +253,25 @@ export function PlayableWorld({ sceneId, look, playerName, rtl, reducedMotion, o
       <div className="play-world__stage" ref={stageRef} tabIndex={0} role="application"
         aria-label={isRTL ? 'استخدم الأسهم أو WASD للتحرك. اقترب من الشخصية للتحدث.' : 'Use arrow keys or WASD to move. Approach the character to interact.'}
         onKeyDown={keyDown} onKeyUp={keyUp} onPointerDown={() => keysRef.current.clear()}>
-        <canvas className="play-world__canvas" ref={canvasRef} aria-hidden="true" />
-        <div className="play-world__actor" ref={npcRef} aria-hidden="true"><Character look={npc.look} size={68} facing={rtl ? 'left' : 'right'} pose={talking ? 'wave' : 'idle'} /></div>
-        <div className="play-world__actor play-world__player" ref={playerRef} data-moving={moving}><Character look={look} size={70} facing={facing} walking={moving} expression="happy" title={playerName} /></div>
+        {use3D ? (
+          <Suspense fallback={<div className="play-world__loading" role="status">{isRTL ? 'جارٍ تحميل القرية ثلاثية الأبعاد…' : 'Loading the 3D village…'}</div>}>
+            <Village3D scene={scene} look={look} playerName={playerName} keys={keysRef} joystick={joystickRef} talking={talking} reducedMotion={reducedMotion} sprint={sprintRef} stageRef={stageRef} onNearby={onThreeProximity} onMoving={setMoving} />
+          </Suspense>
+        ) : (
+          <>
+            <canvas className="play-world__canvas" ref={canvasRef} aria-hidden="true" />
+            <div className="play-world__actor" ref={npcRef} aria-hidden="true"><Character look={npc.look} size={68} facing={rtl ? 'left' : 'right'} pose={talking ? 'wave' : 'idle'} /></div>
+            <div className="play-world__actor play-world__player" ref={playerRef} data-moving={moving}><Character look={look} size={70} facing={facing} walking={moving} expression="happy" title={playerName} /></div>
+          </>
+        )}
         <header className="play-world__header">
           <div><span className="play-world__eyebrow">SAJA · {isRTL ? 'استكشاف' : 'EXPLORATION'}</span><h1>{isRTL ? title.ar : title.en}</h1></div>
-          <Button variant="secondary" size="sm" icon="back" onClick={onExit}>{isRTL ? 'العودة إلى العالم' : 'Back to world'}</Button>
+          <div className="play-world__header-actions">
+            {sceneId === 'village' && <Button variant="ghost" size="sm" onClick={() => { setUse3D((current) => !current); setTalking(false); keysRef.current.clear(); }}>{use3D ? (isRTL ? 'الوضع ثنائي الأبعاد' : '2D mode') : (isRTL ? 'الوضع ثلاثي الأبعاد' : '3D mode')}</Button>}
+            <Button variant="secondary" size="sm" icon="back" onClick={onExit}>{isRTL ? 'العودة إلى العالم' : 'Back to world'}</Button>
+          </div>
         </header>
-        <p className="play-world__help" aria-live="polite">{talking ? (isRTL ? 'الحركة متوقفة أثناء الحوار' : 'Movement pauses during conversation') : (isRTL ? 'تحرّك بالأسهم أو WASD، واقترب من الشخصية للتفاعل.' : 'Move with arrows or WASD. Approach the character to interact.')}</p>
+        <p className="play-world__help" aria-live="polite">{talking ? (isRTL ? 'الحركة متوقفة أثناء الحوار' : 'Movement pauses during conversation') : use3D ? (isRTL ? 'تحرّك بالأسهم أو WASD، واسحب لتغيير زاوية الرؤية. اضغط Shift للركض.' : 'Move with WASD or arrows. Drag to look; hold Shift to run.') : (isRTL ? 'تحرّك بالأسهم أو WASD، واقترب من الشخصية للتفاعل.' : 'Move with arrow keys or WASD. Approach the character to interact.')}</p>
         {nearby && !talking && <button className="play-world__prompt" onClick={activate}>{isRTL ? `تحدّث مع ${name}` : `Talk to ${name}`} <kbd>E</kbd></button>}
         {talking && <div className="play-world__dialog" role="dialog" aria-modal="false" aria-label={name}>
           <strong>{name}</strong><p>{l(npc.lines[line])}</p>
@@ -264,6 +285,7 @@ export function PlayableWorld({ sceneId, look, playerName, rtl, reducedMotion, o
           onPointerDown={joystickDown} onPointerMove={updateJoystick} onPointerUp={releaseJoystick} onPointerCancel={releaseJoystick} onLostPointerCapture={releaseJoystick}>
           <span /><i aria-hidden="true">●</i>
         </div>
+        {use3D && <button className="play-world__run" type="button" aria-label={isRTL ? 'الركض' : 'Run'} onPointerDown={(event) => { event.stopPropagation(); event.preventDefault(); sprintRef.current = true; event.currentTarget.setPointerCapture(event.pointerId); }} onPointerUp={(event) => { event.stopPropagation(); sprintRef.current = false; }} onPointerCancel={() => { sprintRef.current = false; }} onLostPointerCapture={() => { sprintRef.current = false; }}>{isRTL ? 'ركض' : 'Run'}</button>}
       </div>
     </section>
   );
