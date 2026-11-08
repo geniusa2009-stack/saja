@@ -17,7 +17,7 @@ import { log } from '../../lib/log.ts';
 
 export type ReviewStatus = 'draft' | 'internal_review' | 'scholar_review' | 'approved' | 'published' | 'archived';
 export const REVIEW_STATUSES: ReviewStatus[] = ['draft', 'internal_review', 'scholar_review', 'approved', 'published', 'archived'];
-export type BlockKind = 'claim_rule' | 'concept_story' | 'quiz';
+export type BlockKind = 'claim_rule' | 'concept_story' | 'quiz' | 'hadith';
 export type Subject = { type: 'knowledge'; id: string } | { type: 'mission'; id: string } | { type: 'block'; kind: BlockKind; id: string };
 
 type Needs = 'staff' | 'admin' | 'verified_scholar';

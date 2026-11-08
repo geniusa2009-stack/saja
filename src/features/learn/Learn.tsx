@@ -3,7 +3,7 @@
  * answer, evidence, context, where scholars differ, and when to ask a scholar.
  */
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'motion/react';
 import type { TopicId } from '@/domain/types';
 import { KNOWLEDGE } from '@/content/knowledge';
@@ -19,6 +19,7 @@ import { useJourney } from '@/app/hooks';
 import { useLearner } from '@/store/learner';
 import { useProgress } from '@/store/progress';
 import { useTutor } from '@/store/tutor';
+import { NextSteps } from '@/features/personalization/NextSteps';
 import './learn.css';
 
 export default function Learn() {
@@ -53,6 +54,7 @@ export default function Learn() {
   return (
     <Page eyebrow={t('nav.learn')} title={t('learn.title')} sub={t('learn.sub')}>
       <div className="stack" style={{ '--stack-gap': '24px' } as React.CSSProperties}>
+        <NextSteps excludeHref="/learn" />
         <div className="learn-search">
           <Icon name="search" size={18} />
           <label htmlFor="learn-q" className="sr-only">
@@ -70,6 +72,34 @@ export default function Learn() {
             </Chip>
           ))}
         </div>
+
+        {/* Study paths: real links, so keyboard and screen-reader users can open them too. */}
+        {(topic === 'all' || topic === 'quran') && (
+          <nav className="learn-paths" aria-label={t('learn.paths')}>
+            <Link to="/quran" className="learn-path learn-path--quran">
+              <span className="learn-path__icon" aria-hidden>
+                <Icon name="quran" size={26} />
+              </span>
+              <span className="learn-path__text">
+                <strong>{t('nav.quran')}</strong>
+                <span>{t('quran.sub')}</span>
+              </span>
+              <Icon name="forward" size={18} className="learn-path__go" />
+            </Link>
+            {topic === 'all' && (
+              <Link to="/hadith" className="learn-path">
+                <span className="learn-path__icon" aria-hidden>
+                  <Icon name="quote" size={24} />
+                </span>
+                <span className="learn-path__text">
+                  <strong>{t('learn.hadithPath')}</strong>
+                  <span>{t('learn.hadithPathSub')}</span>
+                </span>
+                <Icon name="forward" size={18} className="learn-path__go" />
+              </Link>
+            )}
+          </nav>
+        )}
 
         {topic !== 'all' && (
           <div className="card card--flat learn-topic">

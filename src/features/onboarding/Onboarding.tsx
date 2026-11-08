@@ -9,7 +9,7 @@ import { useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useConnection } from '@/store/connection';
 import { AnimatePresence, motion } from 'motion/react';
-import type { AgeBand, CharacterLook, GoalId, Level, Modality, Purpose, TopicId } from '@/domain/types';
+import type { AgeBand, CharacterLook, GoalId, Level, Modality, Purpose, TopicId, Profile } from '@/domain/types';
 import { Button, Segmented, Tile, TextInput, DUR, EASE, useReducedMotion } from '@/design-system';
 import { Icon, type IconName } from '@/brand/Icon';
 import { SajaMark, Star } from '@/brand/SajaMark';
@@ -20,9 +20,12 @@ import { useProfile } from '@/store/profile';
 import { useLearner } from '@/store/learner';
 import { CharacterCreator, CharacterPreview } from '@/features/character/CharacterCreator';
 import { DEFAULT_LOOK } from '@/features/character/palette';
+import { PATHS, pathFor, personalizeRecommendations } from '@/domain/journeyEngine';
+import { recommend, createLearnerModel } from '@/domain/adaptive';
+import { MISSIONS } from '@/content/missions';
 import './onboarding.css';
 
-type Step = 'welcome' | 'purpose' | 'age' | 'guardian' | 'level' | 'goals' | 'style' | 'character';
+type Step = 'welcome' | 'purpose' | 'age' | 'guardian' | 'level' | 'goals' | 'style' | 'preview' | 'character';
 
 const GOALS: { id: GoalId; icon: IconName; topics: TopicId[] }[] = [
   { id: 'prayer', icon: 'day', topics: ['prayer', 'purification'] },
@@ -46,7 +49,7 @@ const STYLES: { id: Modality; icon: IconName }[] = [
 ];
 
 export default function Onboarding() {
-  const { t, locale, isRTL } = useI18n();
+  const { t, l, locale, isRTL } = useI18n();
   const navigate = useNavigate();
   const reduced = useReducedMotion();
   const setLocale = useSettings((s) => s.setLocale);
@@ -66,7 +69,7 @@ export default function Onboarding() {
 
   if (existing) return <Navigate to="/" replace />;
 
-  const flow: Step[] = ['welcome', 'purpose', 'age', ...(age === 'child' ? (['guardian'] as Step[]) : []), 'level', 'goals', 'style', 'character'];
+  const flow: Step[] = ['welcome', 'purpose', 'age', ...(age === 'child' ? (['guardian'] as Step[]) : []), 'level', 'goals', 'style', 'preview', 'character'];
   const idx = flow.indexOf(step);
   const go = (to: Step, sign = 1) => {
     setDirSign(sign);
@@ -92,6 +95,12 @@ export default function Onboarding() {
     navigate('/', { replace: true, state: { arrival: true } });
   };
 
+  // The preview uses the same recommendation algorithm over the initially open places.
+  const previewInterests = [...new Set(GOALS.filter((g) => goals.includes(g.id)).flatMap((g) => g.topics))];
+  const previewProfile: Profile = { name: name.trim() || 'Traveller', look, purpose: purpose ?? 'learn-more', ageBand: age ?? 'adult', level: level ?? 'beginner', goals, interests: previewInterests, modality: style ?? 'hands-on', createdAt: 0 };
+  const previewModel = createLearnerModel(previewProfile.modality);
+  const previewMission = personalizeRecommendations(previewProfile, previewModel, recommend({ model: previewModel, missions: MISSIONS, completed: [], unlocked: new Set(['village', 'mosque']), ageBand: previewProfile.ageBand, interests: previewInterests }))[0]?.mission;
+
   const canNext: Record<Step, boolean> = {
     welcome: true,
     purpose: !!purpose,
@@ -100,6 +109,7 @@ export default function Onboarding() {
     level: !!level,
     goals: true,
     style: !!style,
+    preview: true,
     character: name.trim().length > 0 && !isReservedName(name),
   };
 
@@ -219,6 +229,24 @@ export default function Onboarding() {
                   {STYLES.map((s) => (
                     <Tile key={s.id} role="radio" icon={s.icon} selected={style === s.id} title={t(`ob.style.${s.id}`)} sub={t(`ob.style.${s.id}Sub`)} onClick={() => setStyle(s.id)} />
                   ))}
+                </div>
+              </Question>
+            )}
+
+            {step === 'preview' && (
+              <Question title={l({ ar: 'دي بداية رحلتك، وممكن تغيّرها بعدين', en: 'Here is your path — you can change it later' })}>
+                <div className="ob-journey-preview">
+                  <span className="t-caption gold">SAJA · {l({ ar: 'رحلة شخصية', en: 'Your learning path' })}</span>
+                  <h2>{l(PATHS[pathFor(purpose ?? 'learn-more')].title)}</h2>
+                  <p>{l(PATHS[pathFor(purpose ?? 'learn-more')].intro)}</p>
+                  <p>{l(PATHS[pathFor(purpose ?? 'learn-more')].invitation)}</p>
+                  <strong>{l({ ar: 'أول خطوة مقترحة من اختياراتك', en: 'Your suggested first mission' })}</strong>
+                  <p>{previewMission ? l(previewMission.title) : l({ ar: 'استكشف المكتبة واختر ما يناسبك.', en: 'Explore the library at your own pace.' })}</p>
+                  <strong>{l({ ar: 'أهدافك', en: 'Your goals' })}</strong>
+                  <p>{goals.length ? goals.map((goal) => t(`ob.goal.${goal}`)).join(' · ') : l({ ar: 'هنقترح بداية هادئة، وتقدر تختار أي موضوع.', en: 'We will suggest a gentle start; you can explore any topic.' })}</p>
+                  <strong>{l({ ar: 'مستواك وطريقة التعلم', en: 'Your level and learning style' })}</strong>
+                  <p>{level ? t(`ob.level.${level}`) : '—'} · {style ? t(`ob.style.${style}`) : '—'}</p>
+                  <p className="t-small muted">{l({ ar: 'هنحدّث الاقتراحات من تقدمك الفعلي. الاختيارات لا تقيّم إيمانك، ومش هتمسح تقدمك لو غيّرتها.', en: 'Suggestions will adapt as you learn. These choices do not judge your beliefs, and changing them will not erase progress.' })}</p>
                 </div>
               </Question>
             )}

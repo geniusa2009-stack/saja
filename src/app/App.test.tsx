@@ -57,6 +57,9 @@ describe('SAJA app', () => {
     await user.click(screen.getByRole('button', { name: /continue/i }));
     await user.click(await screen.findByRole('radio', { name: /by doing/i }));
     await user.click(screen.getByRole('button', { name: /continue/i }));
+    expect(await screen.findByText('Here is your path — you can change it later')).toBeInTheDocument();
+    expect(await screen.findByText('The Water Path')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /continue/i }));
     await user.type(await screen.findByLabelText(/your name/i), 'Maryam');
     await user.click(screen.getByRole('button', { name: /enter the world/i }));
     expect(await screen.findByText('Maryam', {}, { timeout: 4000 })).toBeInTheDocument();
@@ -67,6 +70,10 @@ describe('SAJA app', () => {
     ['/', /The Village/],
     ['/journey', /Your path so far/],
     ['/learn', /Knowledge with its sources/],
+    ['/hadith', /Words that stayed/],
+    ['/hadith/h-bukhari-1', /Actions and intentions/],
+    ['/hadith/discover', /Learning by exploring/],
+    ['/hadith/discover/scenario-new-neighbour', /The new neighbour/],
     ['/day', /Prayer times/],
     ['/circles', /Learning Circles/],
     ['/circles/first-steps', /First Steps Circle/],
@@ -114,6 +121,8 @@ describe('SAJA app', () => {
   }, 15000);
 
   const AR_ROUTES: [string, string][] = [
+    ['/hadith', 'كلمات باقية'],
+    ['/hadith/h-bukhari-1', 'الأعمال والنيات'],
     ['/circles', 'حلقات التعلم'],
     ['/scholar', 'اسأل عالمًا'],
     ['/nour', 'تحقّق من شيء رأيته أو سمعته.'],

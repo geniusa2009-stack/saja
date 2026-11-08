@@ -2,12 +2,12 @@
 import { chromium } from 'playwright-core';
 import { mkdirSync } from 'node:fs';
 
-export const BASE = process.env.SAJA_URL ?? 'http://localhost:8899';
+export const BASE = process.env.SAJA_URL ?? `http://localhost:${process.env.E2E_PORT ?? 8899}`;
 export const SHOTS = process.env.SAJA_SHOTS ?? 'e2e/screenshots';
 mkdirSync(SHOTS, { recursive: true });
 
 export async function launch() {
-  return chromium.launch({ executablePath: process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', headless: true });
+  return chromium.launch({ executablePath: process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', headless: true, args: ['--enable-webgl', '--ignore-gpu-blocklist', '--use-gl=angle', '--use-angle=swiftshader-webgl', '--enable-unsafe-swiftshader'] });
 }
 
 export function watch(page, errors) {
@@ -29,7 +29,7 @@ export async function check(name, fn) {
   }
 }
 
-export async function onboard(page, { band = /18 or older/i, name = 'Maryam', locale = 'en' } = {}) {
+export async function onboard(page, { band = /18 or older/i, name = 'Maryam', locale = 'en', purposeIndex = 0 } = {}) {
   await page.goto(`${BASE}/welcome`);
   await page.getByRole('button', { name: locale === 'ar' ? 'ابدأ' : /begin/i }).click({ timeout: 15000 });
   // The footer holds the single forward action of each step (Continue / I'm the guardian / Enter the world).
@@ -37,7 +37,7 @@ export async function onboard(page, { band = /18 or older/i, name = 'Maryam', lo
     await page.locator('.ob-foot button').last().click();
     await page.waitForTimeout(800); // let the step transition finish before touching the next step
   };
-  await page.getByRole('radio').first().click();
+  await page.getByRole('radio').nth(purposeIndex).click();
   await next();
   await page.getByRole('radio', { name: band }).click();
   await next();
@@ -48,6 +48,8 @@ export async function onboard(page, { band = /18 or older/i, name = 'Maryam', lo
   await page.getByRole('checkbox').first().click();
   await next();
   await page.getByRole('radio').first().click();
+  await next();
+  // Purpose-aware preview: allow reviewing the selected path before character creation.
   await next();
   await page.getByLabel(locale === 'ar' ? /اسمك/ : /your name/i).fill(name);
   await page.getByRole('button', { name: locale === 'ar' ? /ادخل العالم/ : /enter the world/i }).click();

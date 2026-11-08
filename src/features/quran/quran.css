@@ -1,0 +1,724 @@
+/* ── Quran Odyssey · Visual & Interactive Styles ───────────────── */
+
+.quran-page {
+  padding-bottom: clamp(100px, 15vh, 160px);
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+/* ── Top Bar & Review Guard ──────────────────────────────────── */
+
+.quran-header-card {
+  background: linear-gradient(180deg, rgba(19, 32, 74, 0.75) 0%, rgba(11, 21, 48, 0.95) 100%);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-lg, 16px);
+  padding: clamp(16px, 3vw, 28px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  position: relative;
+  overflow: hidden;
+}
+
+.quran-header-card::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 140%;
+  height: 100%;
+  background: radial-gradient(ellipse at center, rgba(201, 164, 92, 0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.quran-surah-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(201, 164, 92, 0.15);
+  border: 1px solid var(--gold-500);
+  color: var(--gold-300);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.quran-surah-title {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 12px 0 8px;
+}
+
+.quran-arabic-title {
+  font-family: var(--font-display-ar, 'Reem Kufi', sans-serif);
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  color: var(--gold-300);
+  text-shadow: 0 0 20px rgba(221, 190, 127, 0.25);
+  line-height: 1.25;
+}
+
+.quran-english-title {
+  font-family: var(--font-display, serif);
+  font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+  color: var(--sand-100);
+  font-style: italic;
+  opacity: 0.9;
+}
+
+/* ── Mode Navigation Bar ─────────────────────────────────────── */
+
+.quran-nav-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 6px;
+  background: rgba(11, 21, 48, 0.85);
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  margin: 20px 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.quran-nav-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.quran-tab-btn {
+  flex: 1;
+  min-width: 110px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 16px;
+  font-size: var(--fs-small);
+  font-weight: 600;
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.quran-tab-btn:hover {
+  color: var(--sand-100);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.quran-tab-btn.active {
+  color: var(--midnight-950);
+  background: linear-gradient(135deg, var(--gold-300) 0%, var(--gold-500) 100%);
+  border-color: var(--gold-300);
+  box-shadow: 0 4px 14px rgba(201, 164, 92, 0.3);
+  font-weight: 700;
+}
+
+/* ── Mushaf Frame Presentation ───────────────────────────────── */
+
+.mushaf-card {
+  background: linear-gradient(180deg, #09122a 0%, #0d1938 100%);
+  border: 2px solid rgba(201, 164, 92, 0.35);
+  border-radius: var(--radius-lg, 16px);
+  padding: clamp(18px, 4vw, 36px);
+  position: relative;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), inset 0 0 40px rgba(0, 0, 0, 0.3);
+}
+
+.mushaf-card::after {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border: 1px solid rgba(201, 164, 92, 0.18);
+  border-radius: calc(var(--radius-lg, 16px) - 6px);
+  pointer-events: none;
+}
+
+/* Bismillah Gilded Cartouche */
+.bismillah-cartouche {
+  position: relative;
+  margin: 8px auto 28px;
+  max-width: 540px;
+  padding: 14px 28px;
+  background: linear-gradient(135deg, rgba(201, 164, 92, 0.08) 0%, rgba(19, 32, 74, 0.5) 50%, rgba(201, 164, 92, 0.08) 100%);
+  border: 1px solid rgba(201, 164, 92, 0.35);
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.bismillah-cartouche::before,
+.bismillah-cartouche::after {
+  content: '❖';
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--gold-300);
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+.bismillah-cartouche::before {
+  left: 12px;
+}
+
+.bismillah-cartouche::after {
+  right: 12px;
+}
+
+.mushaf-bismillah-arabic {
+  font-family: 'Amiri', 'Traditional Arabic', serif;
+  font-size: clamp(2rem, 5vw, 2.8rem);
+  color: var(--gold-300);
+  line-height: 2.1;
+  text-shadow: 0 0 16px rgba(221, 190, 127, 0.25);
+  direction: rtl;
+}
+
+/* ── Ayah List & Word Exploration ────────────────────────────── */
+
+.ayah-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ayah-card {
+  padding: clamp(16px, 2.5vw, 24px);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(19, 32, 74, 0.35);
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+.ayah-card:hover {
+  background: rgba(19, 32, 74, 0.6);
+  border-color: rgba(201, 164, 92, 0.28);
+}
+
+.ayah-card.active-ayah {
+  background: rgba(19, 32, 74, 0.75);
+  border-color: var(--gold-500);
+  box-shadow: 0 0 24px rgba(201, 164, 92, 0.16);
+}
+
+.ayah-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.ayah-number-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(201, 164, 92, 0.12);
+  border: 1px solid var(--gold-500);
+  color: var(--gold-300);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.ayah-audio-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--hairline);
+  color: var(--text-muted);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: var(--fs-caption);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ayah-audio-btn:hover {
+  background: rgba(201, 164, 92, 0.15);
+  color: var(--gold-300);
+  border-color: var(--gold-500);
+}
+
+.ayah-audio-btn.playing {
+  background: var(--gold-500);
+  color: var(--midnight-950);
+  font-weight: 700;
+  box-shadow: 0 0 12px rgba(201, 164, 92, 0.4);
+}
+
+/* ── Arabic Typography & Ayah Medallion ──────────────────────── */
+
+.ayah-arabic-flow {
+  direction: rtl;
+  text-align: right;
+  font-family: 'Amiri', 'Traditional Arabic', serif;
+  font-size: clamp(1.8rem, 4.2vw, 2.5rem);
+  line-height: 2.3;
+  color: var(--ivory-50);
+  word-spacing: 0.18em;
+  margin-bottom: 16px;
+}
+
+.quran-word-interactive {
+  display: inline-block;
+  padding: 0 5px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  user-select: none;
+}
+
+.quran-word-interactive:hover {
+  color: var(--gold-300);
+  background: rgba(201, 164, 92, 0.18);
+  transform: translateY(-2px);
+}
+
+.quran-word-interactive.selected-word {
+  color: var(--gold-100);
+  background: rgba(201, 164, 92, 0.32);
+  outline: 1px solid var(--gold-300);
+  border-radius: 6px;
+  text-shadow: 0 0 10px rgba(221, 190, 127, 0.4);
+}
+
+/* Authentic Quranic Ayah End Medallion */
+.ayah-medallion {
+  display: inline-inline;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6em;
+  height: 1.6em;
+  margin: 0 0.2em;
+  vertical-align: middle;
+  background: radial-gradient(circle, rgba(201, 164, 92, 0.22) 0%, rgba(19, 32, 74, 0.6) 70%);
+  border: 1.5px solid var(--gold-500);
+  border-radius: 50%;
+  color: var(--gold-300);
+  font-family: 'Amiri', 'IBM Plex Sans Arabic', sans-serif;
+  font-size: 0.72em;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 0 8px rgba(201, 164, 92, 0.3);
+  user-select: none;
+}
+
+.ayah-translation-en {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--sand-100);
+  margin-bottom: 6px;
+  font-weight: 400;
+}
+
+.ayah-transliteration {
+  font-size: 0.88rem;
+  color: var(--slate-400);
+  font-style: italic;
+  font-family: var(--font-display, serif);
+  letter-spacing: 0.02em;
+}
+
+/* ── Word Detail Popover / Inspector ─────────────────────────── */
+
+.word-inspector-card {
+  margin-top: 14px;
+  padding: 18px;
+  background: rgba(11, 21, 48, 0.95);
+  border: 1px solid var(--gold-500);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  animation: quranFadeIn 0.2s ease-out;
+}
+
+.word-inspector-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--hairline);
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+}
+
+.word-inspector-arabic {
+  font-family: 'Amiri', 'Traditional Arabic', serif;
+  font-size: 1.9rem;
+  color: var(--gold-300);
+  line-height: 1.4;
+  direction: rtl;
+}
+
+.word-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+  font-size: var(--fs-small);
+}
+
+.word-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.word-meta-label {
+  font-size: var(--fs-caption);
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.word-meta-value {
+  color: var(--sand-100);
+  font-weight: 500;
+}
+
+/* ── Educational Activity: Vocabulary Match ──────────────────── */
+
+.vocab-studio-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.vocab-quiz-card {
+  background: rgba(19, 32, 74, 0.55);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-lg, 16px);
+  padding: clamp(20px, 4vw, 32px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+.vocab-prompt-arabic {
+  font-family: 'Amiri', 'Traditional Arabic', serif;
+  font-size: clamp(2.4rem, 6vw, 3.8rem);
+  color: var(--gold-300);
+  line-height: 2;
+  margin: 12px 0 6px;
+  direction: rtl;
+  text-shadow: 0 0 20px rgba(221, 190, 127, 0.3);
+}
+
+.vocab-prompt-root {
+  display: inline-block;
+  background: rgba(34, 179, 191, 0.12);
+  border: 1px solid var(--turquoise-500);
+  color: var(--turquoise-300);
+  padding: 3px 14px;
+  border-radius: 9999px;
+  font-size: var(--fs-caption);
+  margin-bottom: 24px;
+}
+
+.vocab-options-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+@media (min-width: 600px) {
+  .vocab-options-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.vocab-option-btn {
+  padding: 16px;
+  background: rgba(11, 21, 48, 0.8);
+  border: 1px solid var(--hairline-strong);
+  border-radius: 12px;
+  color: var(--sand-100);
+  font-size: var(--fs-body);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-height: 68px;
+  justify-content: center;
+}
+
+.vocab-option-btn:hover:not(:disabled) {
+  border-color: var(--gold-500);
+  background: rgba(30, 58, 102, 0.6);
+  transform: translateY(-2px);
+}
+
+.vocab-option-btn.correct {
+  background: rgba(34, 176, 140, 0.25);
+  border-color: var(--emerald-500);
+  color: var(--ivory-50);
+  box-shadow: 0 0 18px rgba(34, 176, 140, 0.4);
+}
+
+.vocab-option-btn.wrong {
+  background: rgba(194, 70, 60, 0.25);
+  border-color: var(--error);
+  color: var(--sand-100);
+}
+
+/* ── Educational Activity: Ayah Builder ──────────────────────── */
+
+.builder-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.builder-drop-zone {
+  min-height: 84px;
+  background: rgba(7, 13, 31, 0.7);
+  border: 2px dashed rgba(201, 164, 92, 0.4);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  direction: rtl;
+  transition: all 0.25s ease;
+}
+
+.builder-drop-zone.completed {
+  border-color: var(--emerald-500);
+  border-style: solid;
+  background: rgba(11, 90, 72, 0.2);
+  box-shadow: 0 0 24px rgba(34, 176, 140, 0.25);
+}
+
+.builder-word-slot {
+  background: linear-gradient(135deg, rgba(201, 164, 92, 0.2) 0%, rgba(19, 32, 74, 0.8) 100%);
+  border: 1px solid var(--gold-300);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-family: 'Amiri', 'Traditional Arabic', serif;
+  font-size: 1.8rem;
+  color: var(--ivory-50);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  animation: quranPopIn 0.2s ease-out;
+  min-height: 48px;
+}
+
+.builder-word-slot:hover {
+  background: rgba(194, 70, 60, 0.3);
+  border-color: var(--error);
+}
+
+.builder-bank {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  direction: rtl;
+  padding: 16px;
+  background: rgba(19, 32, 74, 0.4);
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+}
+
+.builder-chip-btn {
+  background: rgba(11, 21, 48, 0.9);
+  border: 1px solid var(--hairline-strong);
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-family: 'Amiri', 'Traditional Arabic', serif;
+  font-size: 1.7rem;
+  color: var(--sand-100);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  min-height: 48px;
+}
+
+.builder-chip-btn:hover {
+  border-color: var(--gold-300);
+  color: var(--gold-300);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* ── Reflection & Tafsir View ────────────────────────────────── */
+
+.reflection-card {
+  background: rgba(19, 32, 74, 0.5);
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  padding: 22px;
+  margin-bottom: 16px;
+  border-left: 4px solid var(--gold-500);
+}
+
+[dir='rtl'] .reflection-card {
+  border-left: 1px solid var(--hairline);
+  border-right: 4px solid var(--gold-500);
+}
+
+.reflection-theme-badge {
+  font-size: var(--fs-small);
+  font-weight: 700;
+  color: var(--gold-300);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reflection-tafsir-text {
+  font-size: var(--fs-body);
+  line-height: 1.7;
+  color: var(--sand-100);
+}
+
+/* ── Sources and Trust Footer ────────────────────────────────── */
+
+.quran-trust-footer {
+  margin-top: 36px;
+  padding: 20px;
+  background: rgba(7, 13, 31, 0.8);
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  font-size: var(--fs-small);
+  color: var(--slate-400);
+}
+
+.quran-trust-footer strong {
+  color: var(--sand-100);
+}
+
+/* ── Keyframe Animations ─────────────────────────────────────── */
+
+@keyframes quranFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes quranPopIn {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* SAJA Quran Odyssey · editorial reading refinement (v2) */
+.quran-learning-guide {
+  margin: 0 0 18px;
+  padding: 12px 16px;
+  border-inline-start: 3px solid var(--gold-500);
+  background: rgba(201, 164, 92, 0.075);
+  color: var(--sand-100);
+  font-size: var(--fs-small);
+  line-height: 1.8;
+  border-radius: 8px;
+}
+
+/* A calm, warm-ivory reading surface inside SAJA's midnight-blue identity. */
+.mushaf-card {
+  background: linear-gradient(155deg, #fbf7ea 0%, #f0e8d7 65%, #e9dfcc 100%);
+  border: 1px solid #ad9773;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.22), inset 0 0 0 6px rgba(255, 255, 255, 0.3);
+}
+.mushaf-card::after { border-color: rgba(116, 88, 51, 0.19); }
+.ayah-card {
+  background: rgba(255, 255, 255, 0.42);
+  border-color: rgba(68, 65, 53, 0.12);
+  border-radius: 14px;
+}
+.ayah-card:hover { background: rgba(255, 255, 255, 0.66); border-color: rgba(145, 107, 52, 0.3); }
+.ayah-card.active-ayah { background: #fffaf0; border-color: #987341; box-shadow: 0 8px 22px rgba(68, 48, 16, 0.12); }
+.ayah-card:first-child {
+  border-color: #b89963;
+  background: linear-gradient(160deg, #fffaf0, #f4e9d2);
+  text-align: center;
+}
+.ayah-card:first-child .ayah-arabic-flow { text-align: center; }
+.ayah-arabic-flow { color: #172a38; }
+.ayah-number-badge, .ayah-medallion {
+  color: #694820;
+  background: rgba(181, 134, 69, 0.15);
+  border-color: #9a784b;
+  box-shadow: none;
+}
+.ayah-translation-en { color: #374956; line-height: 1.85; }
+.ayah-transliteration { color: #51626c; }
+.ayah-audio-unavailable { color: #54636d; background: rgba(93, 109, 122, 0.08); cursor: default; }
+.quran-word-interactive {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  vertical-align: baseline;
+  text-align: inherit;
+  white-space: normal;
+  min-height: 44px;
+}
+.quran-word-interactive:hover { color: #77531e; background: rgba(173, 121, 51, 0.13); }
+.quran-word-interactive.selected-word { color: #54350d; background: rgba(218, 176, 98, 0.32); text-shadow: none; }
+.quran-word-interactive:focus-visible,
+.quran-tab-btn:focus-visible,
+.vocab-option-btn:focus-visible,
+.builder-chip-btn:focus-visible,
+.builder-word-slot:focus-visible {
+  outline: 3px solid #15a0b1;
+  outline-offset: 3px;
+}
+.quran-lesson-complete { display: grid; justify-items: center; gap: 14px; }
+.quran-lesson-complete h2 { color: var(--gold-300); font-size: clamp(1.4rem, 3vw, 2rem); }
+.quran-lesson-complete p { color: var(--sand-100); line-height: 1.8; }
+.quran-completion-emblem { color: var(--gold-300); font-size: 3rem; line-height: 1; }
+.quran-license-note { border-top: 1px solid var(--hairline); margin-top: 20px; padding-top: 14px; line-height: 1.8; }
+.quran-license-note a { color: var(--gold-300); text-underline-offset: 3px; }
+.quran-license-note a:hover { color: var(--ivory-50); }
+@media (max-width: 640px) {
+  .mushaf-card { padding: 15px 12px; }
+  .ayah-container { gap: 13px; }
+  .ayah-card { padding: 14px 10px; }
+  .ayah-arabic-flow { font-size: clamp(1.85rem, 7vw, 2.35rem); line-height: 2.45; }
+  .quran-word-interactive { padding: 0 4px; }
+  .ayah-translation-en { font-size: 0.99rem; }
+  .quran-nav-tabs { scroll-padding-inline: 16px; }
+  .quran-tab-btn { min-height: 48px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .quran-page *, .quran-page *::before, .quran-page *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+:root[data-motion='reduced'] .quran-page * {
+  animation-duration: 0.01ms !important;
+  transition-duration: 0.01ms !important;
+}

@@ -1,0 +1,182 @@
+/* ──────────────────────────────────────────────────────────
+ * Quest runner: clue-hunt HUD, "ready" prompt, journal button,
+ * completion card. Sits above the play world (which is z-index 40).
+ * Uses logical properties so it mirrors correctly in Arabic.
+ * ────────────────────────────────────────────────────────── */
+
+.quest-runner__clue-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 45;
+  pointer-events: none; /* clue spots and the HUD opt in */
+}
+
+/* Compact HUD: quest name, clue count, journal */
+.quest-hud {
+  position: absolute;
+  inset-block-start: 112px;
+  inset-inline-start: 24px;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3, 12px);
+  padding-block: 10px;
+  padding-inline: 16px 10px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: 999px;
+  background: var(--surface-strong);
+  color: var(--text);
+  backdrop-filter: blur(8px);
+  pointer-events: auto;
+}
+.quest-hud__info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+.quest-hud__title {
+  font-weight: 700;
+  font-size: var(--fs-small);
+}
+.quest-hud__count {
+  color: var(--gold-100);
+  font-size: var(--fs-caption);
+}
+
+.quest-hud__journal-btn,
+.quest-runner__journal-fab {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: 50%;
+  background: var(--midnight-800);
+  color: var(--text);
+  font-size: 1.15rem;
+  cursor: pointer;
+}
+.quest-hud__journal-btn:focus-visible,
+.quest-runner__journal-fab:focus-visible,
+.quest-runner__mission-btn:focus-visible,
+.quest-runner__journal-link:focus-visible,
+.quest-complete__cta:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.quest-runner__journal-fab {
+  position: absolute;
+  z-index: 45;
+  inset-block-start: 112px;
+  inset-inline-start: 24px;
+  pointer-events: auto;
+}
+
+/* All clues found: the way into the mission */
+.quest-runner__ready {
+  position: absolute;
+  z-index: 46;
+  inset-inline: 50%;
+  inset-block-end: 96px;
+  width: min(440px, calc(100% - 32px));
+  translate: -50% 0;
+  padding: var(--sp-4, 16px) var(--sp-5, 20px);
+  border: 1px solid rgb(221 190 127 / 0.45);
+  border-radius: 20px;
+  background: var(--surface-strong);
+  color: var(--text);
+  text-align: center;
+  backdrop-filter: blur(10px);
+}
+[dir='rtl'] .quest-runner__ready {
+  translate: 50% 0;
+}
+.quest-runner__ready-text {
+  margin: 0 0 var(--sp-3, 12px);
+  font-size: var(--fs-small);
+}
+.quest-runner__ready-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--sp-2, 8px);
+}
+.quest-runner__mission-btn {
+  min-height: 44px;
+  padding: 0 var(--sp-5, 20px);
+  border: 0;
+  border-radius: 999px;
+  background: var(--gold-300);
+  color: var(--midnight-950);
+  font-weight: 700;
+  cursor: pointer;
+}
+.quest-runner__journal-link {
+  min-height: 44px;
+  padding: 0 var(--sp-4, 16px);
+  border: 1px solid var(--hairline-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+/* Completion */
+.quest-complete {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+}
+.quest-complete__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgb(5 10 24 / 0.72);
+}
+.quest-complete__card {
+  position: relative;
+  width: min(420px, 100%);
+  padding: 28px 24px;
+  border: 1px solid rgb(221 190 127 / 0.4);
+  border-radius: 24px;
+  background: var(--bg-raised);
+  color: var(--text);
+  text-align: center;
+}
+.quest-complete__stars {
+  color: var(--gold-300);
+  font-size: 1.4rem;
+  letter-spacing: 0.4em;
+}
+.quest-complete__title {
+  margin: 12px 0 8px;
+  font-family: var(--font-display);
+  font-size: var(--fs-h2);
+}
+[dir='rtl'] .quest-complete__title {
+  font-family: var(--font-display-ar);
+}
+.quest-complete__fanfare {
+  margin: 0 0 20px;
+  color: var(--text-muted);
+}
+.quest-complete__cta {
+  min-height: 48px;
+  padding: 0 var(--sp-6, 24px);
+  border: 0;
+  border-radius: 999px;
+  background: var(--gold-300);
+  color: var(--midnight-950);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@media (max-width: 600px) {
+  .quest-hud,
+  .quest-runner__journal-fab {
+    inset-block-start: 96px;
+    inset-inline-start: 12px;
+  }
+}

@@ -16,6 +16,8 @@ export default defineConfig({
   },
   build: {
     target: 'es2022',
+    // Fonts are always separate files: the CSP allows fonts only from 'self' (no data: URIs).
+    assetsInlineLimit: (file: string) => (/\.(woff2?|ttf|otf)$/.test(file) ? false : undefined),
     rollupOptions: {
       output: {
         // Keep the framework + motion runtime in stable, long-cacheable chunks.
@@ -36,3 +38,5 @@ export default defineConfig({
     testTimeout: 20_000,
   },
 });
+
+

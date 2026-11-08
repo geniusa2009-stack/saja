@@ -1,0 +1,398 @@
+/* ════════════════════════════════════════════════════════════
+ * Scenery craft — light, shadow, planting and ambient motion.
+ * Only opacity and transforms animate; glows and contact shadows are
+ * gradients, so the world stays smooth on low-memory devices.
+ * ════════════════════════════════════════════════════════════ */
+
+.w-art {
+  overflow: visible;
+}
+
+/* ── Windows & doors ─────────────────────────────────────── */
+.w-window {
+  fill: var(--window);
+  transition: fill var(--dur-4) var(--ease);
+}
+.w-window-halo,
+.w-door-glow {
+  opacity: calc(var(--window-glow, 1) * 0.9);
+  transition: opacity var(--dur-4) var(--ease);
+}
+.w-window-frame.is-lit .w-window {
+  filter: none;
+}
+
+/* ── Lanterns ────────────────────────────────────────────── */
+.w-lantern__halo {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: w-lantern-breathe 4.2s ease-in-out infinite;
+  animation-delay: var(--lantern-delay, 0s);
+}
+.w-lantern__flame {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: w-flame 2.8s ease-in-out infinite;
+  animation-delay: var(--lantern-delay, 0s);
+}
+.w-lantern--clay .w-lamp {
+  fill: var(--flame);
+}
+@keyframes w-lantern-breathe {
+  0%,
+  100% {
+    opacity: 0.72;
+    transform: scale(0.94);
+  }
+  45% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  62% {
+    opacity: 0.82;
+    transform: scale(0.99);
+  }
+}
+@keyframes w-flame {
+  0%,
+  100% {
+    opacity: 0.72;
+    transform: scaleY(0.9);
+  }
+  40% {
+    opacity: 1;
+    transform: scaleY(1.12);
+  }
+  66% {
+    opacity: 0.8;
+    transform: scaleY(0.96);
+  }
+}
+
+/* ── Planting ────────────────────────────────────────────── */
+.w-sway {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: w-sway var(--sway-duration, 8s) ease-in-out infinite;
+  animation-delay: var(--sway-delay, 0s);
+}
+@keyframes w-sway {
+  0%,
+  100% {
+    transform: rotate(-0.65deg);
+  }
+  50% {
+    transform: rotate(0.7deg);
+  }
+}
+.w-grass-sway {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: w-grass-sway var(--sway-duration, 5.6s) ease-in-out infinite;
+  animation-delay: var(--sway-delay, 0s);
+}
+@keyframes w-grass-sway {
+  0%,
+  100% {
+    transform: rotate(-2.4deg) skewX(1deg);
+  }
+  50% {
+    transform: rotate(2.6deg) skewX(-1deg);
+  }
+}
+.w-flower {
+  animation: w-flower-glow 6s ease-in-out infinite;
+  animation-delay: var(--flower-delay, 0s);
+}
+@keyframes w-flower-glow {
+  0%,
+  100% {
+    opacity: 0.78;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ── Sky & weather ───────────────────────────────────────── */
+.w-cloud {
+  animation: w-cloud-drift 120s ease-in-out infinite alternate;
+  animation-delay: var(--cloud-delay, 0s);
+}
+.w-cloud--1 {
+  animation-duration: 150s;
+}
+.w-cloud--2 {
+  animation-duration: 95s;
+}
+@keyframes w-cloud-drift {
+  from {
+    transform: translateX(-54px);
+  }
+  to {
+    transform: translateX(82px);
+  }
+}
+.w-mist {
+  animation: w-mist-breathe 16s ease-in-out infinite;
+}
+@keyframes w-mist-breathe {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.w-mid-light {
+  animation: w-window-pulse 5.5s ease-in-out infinite;
+  animation-delay: var(--light-delay, 0s);
+}
+@keyframes w-window-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.w-bird {
+  animation: w-bird-glide 12s ease-in-out infinite;
+  animation-delay: var(--bird-delay, 0s);
+}
+@keyframes w-bird-glide {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 26px -7px;
+  }
+}
+
+/* ── Water ───────────────────────────────────────────────── */
+.w-water {
+  fill: var(--water);
+  transition: fill var(--dur-4) var(--ease);
+}
+.w-spout {
+  stroke-dasharray: 6 8;
+  animation: w-flow 1.6s linear infinite;
+}
+.w-spout-soft {
+  animation: w-flow 2.8s linear infinite;
+}
+@keyframes w-flow {
+  to {
+    stroke-dashoffset: -28;
+  }
+}
+.w-shimmer {
+  transform-box: fill-box;
+  animation: w-shimmer 7s ease-in-out infinite;
+}
+@keyframes w-shimmer {
+  0%,
+  100% {
+    translate: 0 0;
+    opacity: 0.18;
+  }
+  50% {
+    translate: 22px 0;
+    opacity: 0.42;
+  }
+}
+.w-loc--asleep .w-spout,
+.w-loc--asleep .w-spout-soft,
+.w-loc--asleep .w-shimmer {
+  animation: none;
+}
+
+/* ── Flying pages (Library) ──────────────────────────────── */
+.w-pages > g {
+  animation: w-page-float 7s ease-in-out infinite;
+}
+@keyframes w-page-float {
+  0%,
+  100% {
+    translate: 0 0;
+    rotate: -4deg;
+    opacity: 0.42;
+  }
+  50% {
+    translate: 0 -22px;
+    rotate: 5deg;
+    opacity: 1;
+  }
+}
+
+/* ── Place states ────────────────────────────────────────── */
+.w-loc-art {
+  transition:
+    opacity 1.6s var(--ease),
+    filter 1.6s var(--ease);
+}
+.w-loc-halo {
+  opacity: calc(var(--window-glow, 1) * 0.9);
+  transition: opacity 1.6s var(--ease);
+  animation: w-loc-breathe 9s ease-in-out infinite;
+}
+.w-loc-shadow {
+  transition: opacity 1.6s var(--ease);
+}
+.w-veil {
+  opacity: 0;
+  transition: opacity 1.6s var(--ease);
+  pointer-events: none;
+}
+.w-loc--asleep .w-loc-art {
+  opacity: 0.44;
+}
+.w-loc--asleep .w-loc-halo {
+  opacity: 0.12 !important;
+  animation: none;
+}
+.w-loc--asleep .w-loc-shadow {
+  opacity: 0.65;
+}
+.w-loc--asleep .w-veil {
+  opacity: 1;
+}
+.w-loc--asleep .w-window {
+  fill: #3a4f86;
+}
+.w-loc--asleep .w-window-halo,
+.w-loc--asleep .w-door-glow {
+  opacity: 0 !important;
+}
+.w-loc--asleep .w-lantern__halo,
+.w-loc--asleep .w-lantern__flame {
+  animation: none;
+  opacity: 0.12;
+}
+.w-loc--asleep .w-lamp {
+  fill: #3a4f86;
+}
+.w-loc--asleep .w-sway,
+.w-loc--asleep .w-grass-sway,
+.w-loc--asleep .w-flower,
+.w-loc--asleep .w-pages > g,
+.w-loc--asleep .w-cloud,
+.w-loc--asleep .w-bird {
+  animation: none;
+}
+.w-loc--waking .w-loc-halo {
+  animation: w-loc-wake 1.8s var(--ease-out) both;
+}
+.w-loc--waking .w-loc-art {
+  animation: w-art-wake 1.8s var(--ease-out) both;
+}
+@keyframes w-loc-breathe {
+  0%,
+  100% {
+    opacity: calc(var(--window-glow, 1) * 0.72);
+  }
+  50% {
+    opacity: calc(var(--window-glow, 1) * 1);
+  }
+}
+@keyframes w-loc-wake {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes w-art-wake {
+  0% {
+    opacity: 0.35;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* ── Road ────────────────────────────────────────────────── */
+.w-path-lit {
+  filter: drop-shadow(0 0 7px rgb(249 239 210 / 0.75));
+  transition: stroke-dasharray 2.4s var(--ease);
+}
+
+/* ── Ambient motes ───────────────────────────────────────── */
+.w-mote {
+  animation: w-mote-float 9s ease-in-out infinite;
+  animation-delay: var(--mote-delay, 0s);
+  opacity: 0.35;
+}
+@keyframes w-mote-float {
+  0%,
+  100% {
+    translate: 0 0;
+    opacity: 0.08;
+  }
+  35% {
+    opacity: 0.6;
+  }
+  65% {
+    translate: 14px -20px;
+    opacity: 0.3;
+  }
+}
+
+/* ── Day-specific art states ─────────────────────────────── */
+.world[data-phase='duha'] .w-window-halo,
+.world[data-phase='duha'] .w-door-glow,
+.world[data-phase='duha'] .w-mid-lights,
+.world[data-phase='duha'] .w-loc-halo {
+  opacity: 0;
+}
+.world[data-phase='duha'] .w-lantern__flame {
+  opacity: 0.2;
+}
+.world[data-phase='duha'] .w-mote {
+  opacity: 0.2;
+}
+.world[data-phase='fajr'] .w-mid-lights,
+.world[data-phase='maghrib'] .w-mid-lights {
+  opacity: 0.85;
+}
+
+/* ── Lower-memory / mobile: quieter, still alive ─────────── */
+@media (max-width: 699px) {
+  .w-cloud,
+  .w-mist,
+  .w-mote,
+  .w-flower,
+  .w-bird {
+    animation: none;
+  }
+  .w-mote {
+    display: none;
+  }
+  .w-loc-halo {
+    animation: none;
+  }
+  .w-sway {
+    animation-duration: 10s;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .w-art *,
+  .w-layer * {
+    animation: none !important;
+  }
+}
+:root[data-motion='reduced'] .w-art *,
+:root[data-motion='reduced'] .w-layer * {
+  animation: none !important;
+}

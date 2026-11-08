@@ -43,17 +43,17 @@ describe('migrations', () => {
       }
       // …holding real-looking data: a demo document with a staff draft (v2), a real verified scholar, a sample scholar, a mission, a review record.
       const [admin] = await db.query<{ id: string }>("insert into users (email, is_guest) values ('admin@example.test', false) returning id");
-      await db.query("insert into knowledge_documents (id, topics, confidence, review_status, is_demo, current_version) values ('k-old', '{prayer}', 'consensus', 'draft', true, 2)");
+      await db.query("insert into knowledge_documents (id, topics, confidence, review_status, is_demo, current_version, demo_version) values ('k-old', '{prayer}', 'consensus', 'draft', true, 2, 1)");
       for (const v of [1, 2]) {
         await db.query("insert into knowledge_document_versions (document_id, version, content, evidence, change_note) values ('k-old', $1, $2, '[]', $3)", [v, JSON.stringify({ simple: { en: `v${v}`, ar: `v${v}` } }), v === 1 ? 'seed' : 'staff draft']);
       }
       await db.query("insert into content_reviews (document_id, version, from_status, to_status, reviewer_id, reviewer_role, scope) values ('k-old', 2, '-', 'draft', $1, 'admin', 'new version')", [admin.id]);
       await db.query(
-        `insert into missions (id, number, location, chapter, topic, concept, interaction_type, modality, difficulty, minutes, definition, is_demo)
-         values ('m-old', 99, 'village', 1, 'prayer', 'x', 'reflection', 'hands-on', 1, 3, '{}', true)`,
+        `insert into missions (id, number, location, chapter, topic, concept, interaction_type, modality, difficulty, minutes, definition, is_demo, demo_version)
+         values ('m-old', 99, 'village', 1, 'prayer', 'x', 'reflection', 'hands-on', 1, 3, '{}', true, 1)`,
       );
       await db.query("insert into mission_versions (mission_id, version, definition) values ('m-old', 1, '{}')");
-      await db.query("insert into scholar_profiles (display_name, title, specialization, verification_status, is_demo) values ('Sample (old)', '{}', '{}', 'unverified', true)");
+      await db.query("insert into scholar_profiles (display_name, title, specialization, verification_status, is_demo) values ('Sample (old)', '{}', '{}', 'sample', true)");
       await db.query("insert into scholar_profiles (user_id, display_name, title, specialization, verification_status, is_demo, verification_scope, verified_by) values ($1, 'Real Scholar', '{}', '{}', 'verified', false, 'fiqh', $1)", [admin.id]);
 
       // The upgrade applies only what is missing.

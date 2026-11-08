@@ -15,12 +15,14 @@ import { useConnection, isOnline } from '@/store/connection';
 import { useProfile } from '@/store/profile';
 import { useProgress, type Achievement } from '@/store/progress';
 import { useLearner } from '@/store/learner';
+import { useHadith } from '@/store/hadith';
 import { useSettings } from '@/store/settings';
 import { todayKey, useDay } from '@/store/day';
 import type { LearnerModel } from '@/domain/adaptive';
 import { api, ApiError, onOffline, onRefusal } from './client';
 import { flushOutbox, clearOutbox } from './outbox';
 import { resetContentSession } from './content';
+import { resetHadithSession } from './hadith';
 import type { UsageStatus } from './types';
 import type { Me, ServerProgress, SystemStatus } from './types';
 
@@ -326,10 +328,13 @@ export async function signOut() {
 /** Clears everything personal from this device (used on sign-out / account switch). */
 export function resetLocal() {
   resetContentSession();
+  resetHadithSession();
   clearOutbox();
   fromServer(() => useProfile.getState().reset());
   useProgress.getState().reset();
   useLearner.getState().reset();
+  // Saved hadith and private reflections are personal to this device session.
+  useHadith.getState().reset();
 }
 
 export async function refreshMe() {

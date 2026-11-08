@@ -1,7 +1,7 @@
 // @vitest-environment node
 /**
  * The content review system end to end: missions (text-only edits), new knowledge
- * drafts, texts that live in code (claim rules, stories, quizzes), and the staff
+ * drafts, texts that live in code (claim rules, stories, quizzes, hadith), and the staff
  * status dashboard — every state counted from the database, nothing assumed.
  */
 import { createTestServer, account, grantRole, makeScholar, traveller, type Client } from './harness.ts';
@@ -153,13 +153,13 @@ describe('knowledge editor', () => {
   });
 });
 
-describe('texts that live in code (claim rules, explainer stories, quizzes)', () => {
+describe('texts that live in code (claim rules, explainer stories, quizzes, hadith)', () => {
   it('registers every block, and a code change sends a published block back to draft', async () => {
     const blocks = codeBlocks();
     const s = await team();
     const list = (await s.moderator.get('/content/blocks')).data.blocks;
     expect(list.length).toBe(blocks.length);
-    expect(new Set(list.map((b: { kind: string }) => b.kind))).toEqual(new Set(['claim_rule', 'concept_story', 'quiz']));
+    expect(new Set(list.map((b: { kind: string }) => b.kind))).toEqual(new Set(['claim_rule', 'concept_story', 'quiz', 'hadith']));
 
     const path = '/content/blocks/claim_rule/five-prayers';
     for (const [who, to] of [
@@ -204,6 +204,8 @@ describe('staff content status', () => {
     expect(st.dailyDeen.published).toBe(0);
     expect(st.claimRules.usedBy).toEqual(['amanah', 'nour']);
     expect(st.claimRules.total).toBe(codeBlocks().filter((b) => b.kind === 'claim_rule').length);
+    expect(st.hadith.total).toBe(codeBlocks().filter((b) => b.kind === 'hadith').length);
+    expect(st.hadith.served).toEqual({ published: 0, demo: st.hadith.total, hidden: 0 });
     expect(st.scholars.sample).toBe(2);
     expect(st.scholars.verified).toBeGreaterThan(0);
     expect(st.scholarAnswers.sample).toBe(2);

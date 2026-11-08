@@ -24,6 +24,7 @@ import { timeLimitMiddleware, usageRoutes } from './modules/usage.ts';
 import { adminRoutes } from './modules/admin.ts';
 import { knowledgeRoutes, dailyRoutes, searchRoutes } from './modules/knowledge/routes.ts';
 import { contentRoutes } from './modules/content/routes.ts';
+import { hadithRoutes } from './modules/content/hadith.ts';
 
 export function createApp(services: Services) {
   const app = new Hono<AppEnv>().basePath('/api');
@@ -75,6 +76,7 @@ export function createApp(services: Services) {
   app.route('/usage', usageRoutes);
   app.route('/admin', adminRoutes);
   app.route('/content', contentRoutes);
+  app.route('/hadith', hadithRoutes);
 
   app.notFound((c) => c.json({ error: { code: 'not_found', message: 'No such endpoint.' } }, 404));
   app.onError((err, c) => {

@@ -41,3 +41,42 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* Study paths (Qur’an Odyssey, Hadith library) */
+.learn-paths {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: var(--sp-3, 12px);
+}
+.learn-path {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4, 16px);
+  min-height: 72px;
+  padding: 16px 20px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: 18px;
+  background: var(--surface);
+  color: var(--text);
+  text-decoration: none;
+  transition: border-color var(--dur-2, 160ms) ease, background var(--dur-2, 160ms) ease;
+}
+.learn-path:hover { background: var(--surface-hover); border-color: rgb(221 190 127 / 0.5); }
+.learn-path:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+.learn-path--quran { border-color: rgb(201 164 92 / 0.55); }
+.learn-path__icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: rgb(201 164 92 / 0.14);
+  color: var(--gold-300);
+}
+.learn-path__text { display: grid; gap: 2px; flex: 1; min-width: 0; }
+.learn-path__text strong { color: var(--gold-100); font-size: 1.05rem; }
+.learn-path__text span { color: var(--text-muted); font-size: var(--fs-small); }
+.learn-path__go { flex: none; color: var(--gold-300); }
+[dir='rtl'] .learn-path__go { transform: scaleX(-1); }
+@media (prefers-reduced-motion: reduce) { .learn-path { transition: none; } }

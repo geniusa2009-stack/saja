@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { webglAvailable } from './game/webgl';
 import type { LocationId } from '@/domain/types';
 import { LOCATION_BY_ID } from '@/content/world';
 import { missionsAt } from '@/content/missions';
@@ -10,7 +12,7 @@ import { useI18n } from '@/i18n';
 import { useTutor } from '@/store/tutor';
 import { Avatar } from '@/features/character/Character';
 
-export function LocationSheet({ id, onClose, completed, unlocked }: { id: LocationId | null; onClose: () => void; completed: Set<string>; unlocked: Set<LocationId> }) {
+export function LocationSheet({ id, onClose, completed, unlocked, onExplore }: { id: LocationId | null; onClose: () => void; completed: Set<string>; unlocked: Set<LocationId>; onExplore?: (id: 'village' | 'mosque') => void }) {
   const { t, l } = useI18n();
   const navigate = useNavigate();
   const openTutor = useTutor((s) => s.openTutor);
@@ -20,6 +22,15 @@ export function LocationSheet({ id, onClose, completed, unlocked }: { id: Locati
   const npc = loc ? NPCS.find((n) => n.at === loc.id) : undefined;
   const remaining = loc ? missionsUntilUnlock(loc, { completed: [...completed] }) : 0;
   const allDone = missions.length > 0 && missions.every((m) => completed.has(m.id));
+  const explorationId = loc?.id === 'village' || loc?.id === 'mosque' ? loc.id : null;
+  // While the learner reads about the village, fetch its 3D code and model (≈1.8 MB) so
+  // "Explore" opens faster. Only where 3D will actually be used, and only when unlocked.
+  const prefetch3D = explorationId === 'village' && !asleep && !!onExplore;
+  useEffect(() => {
+    if (!prefetch3D || !webglAvailable()) return;
+    // The 3D component's code, then the model.
+    void import('./Village3D').then(() => import('./villageAssets')).then((m) => m.preloadVillageAssets()).catch(() => undefined);
+  }, [prefetch3D]);
 
   return (
     <Sheet open={!!loc} onClose={onClose} title={loc ? l(loc.name) : ''} icon={<span className="tile__icon"><Icon name={asleep ? 'moon' : 'lantern'} size={20} /></span>}>
@@ -32,6 +43,12 @@ export function LocationSheet({ id, onClose, completed, unlocked }: { id: Locati
               {asleep ? (remaining === 1 ? t('world.asleepOne') : t('world.asleepMany', { n: remaining })) : l(loc.arrival)}
             </p>
           </div>
+
+          {!asleep && explorationId && onExplore && (
+            <Button icon="forward" onClick={() => onExplore(explorationId)}>
+              {explorationId === 'village' ? l({ en: 'Explore the village', ar: 'استكشف القرية' }) : l({ en: 'Explore the courtyard', ar: 'استكشف الساحة' })}
+            </Button>
+          )}
 
           {!asleep && npc && (
             <div className="card card--flat row" style={{ alignItems: 'flex-start' }}>
@@ -69,6 +86,19 @@ export function LocationSheet({ id, onClose, completed, unlocked }: { id: Locati
             })}
           </div>
 
+          {/* saja-world-tales-expansion-v1: independent fictional stories, no mission rewards */}
+          {!asleep && (
+            <Button
+              variant="secondary"
+              icon="star"
+              onClick={() => {
+                onClose();
+                navigate(`/stories/${loc.id}`);
+              }}
+            >
+              {l({ ar: 'استكشف 12 حكاية جديدة في هذه المنطقة', en: 'Explore 12 new stories in this place' })}
+            </Button>
+          )}
           {asleep ? (
             <Button variant="secondary" icon="map" onClick={onClose}>
               {t('a.continueJourney')}

@@ -10,8 +10,17 @@ const ctx: JourneyContext = { name: 'Yusuf', ageBand: 'adult', locale: 'en', wea
 describe('Siraj (offline guide)', () => {
   const g = new OfflineGuide();
 
-  it('greets from context, not "how can I help"', () => {
-    expect(g.greet(ctx).text).toMatch(/water path/i);
+  it('greets according to purpose, without assuming the visitor is Muslim', () => {
+    expect(g.greet(ctx).text).toMatch(/learn together at your own pace/i);
+    expect(g.greet({ ...ctx, purpose: 'exploring' }).text).toMatch(/discover about Islam/i);
+    expect(g.greet({ ...ctx, purpose: 'new-muslim' }).text).toMatch(/small steps/i);
+    const explorerNearPrayer = g.greet({
+      ...ctx,
+      purpose: 'exploring',
+      nextPrayer: { name: { en: 'Fajr', ar: 'الفجر' }, inMinutes: 5 },
+      nextMission: { id: 'm-words-of-peace', title: { en: 'Words of Peace', ar: 'كلمات السلام' }, minutes: 3 },
+    });
+    expect(explorerNearPrayer.text).toMatch(/discover about Islam/i);
     const after = g.greet({ ...ctx, completedCount: 1, lastMission: { id: 'm-five-pauses', title: { en: 'Five Calm Pauses', ar: '' }, knowledge: ['k-salah-steps'], struggled: false } });
     expect(after.text).toMatch(/Five Calm Pauses/);
     expect(after.text).toMatch(/why each step matters/i);

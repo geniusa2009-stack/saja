@@ -25,6 +25,7 @@ import { useCommunity } from '@/store/community';
 import { useJoinedCircleIds } from '@/features/community/live';
 import { useTutor } from '@/store/tutor';
 import { useDay } from '@/store/day';
+import { PATHS, pathFor, type LearningPath } from '@/domain/journeyEngine';
 import { useScholar } from '@/store/scholar';
 import { Character } from '@/features/character/Character';
 import { CharacterCreator, CharacterPreview } from '@/features/character/CharacterCreator';
@@ -185,6 +186,16 @@ export default function Profile() {
 
           <Section title={t('prof.prefs')} id="prefs">
             <div className="card stack">
+              <div className="pref-row">
+                <span>{l({ ar: 'رحلتك التعليمية', en: 'Your learning path' })}</span>
+                <Segmented
+                  label={l({ ar: 'اختر الرحلة', en: 'Choose a path' })}
+                  value={pathFor(profile.purpose)}
+                  onChange={(next: LearningPath) => updateProfile({ purpose: next })}
+                  options={(Object.keys(PATHS) as LearningPath[]).map((id) => ({ value: id, label: l(PATHS[id].title) }))}
+                />
+              </div>
+              <p className="t-small muted">{l(PATHS[pathFor(profile.purpose)].intro)} {l({ ar: 'تغيير المسار لا يمسح المهمات المكتملة.', en: 'Changing paths keeps completed missions.' })}</p>
               <div className="pref-row">
                 <span>{t('prof.bestStyle')}</span>
                 <Chip tone="turquoise" icon="sparkle">

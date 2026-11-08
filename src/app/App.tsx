@@ -15,6 +15,7 @@ import { toast } from '@/design-system';
 import { useConnection } from '@/store/connection';
 import { useSettings } from '@/store/settings';
 import type { ServerNotification } from '@/api/types';
+import { QuestSync } from '@/features/quests/QuestSync';
 import { daySync } from '@/api/daySync';
 import { useDay } from '@/store/day';
 import { isOnline } from '@/store/connection';
@@ -27,8 +28,13 @@ import { Nav } from './Nav';
 const WorldHome = lazyWithPreload(() => import('@/features/world/WorldHome'));
 const Onboarding = lazy(() => import('@/features/onboarding/Onboarding'));
 const MissionRunner = lazyWithPreload(() => import('@/features/missions/MissionRunner'));
+const StoriesPage = lazy(() => import('@/features/stories/StoriesPage'));
 const Journey = lazy(() => import('@/features/journey/Journey'));
 const Learn = lazy(() => import('@/features/learn/Learn'));
+const HadithLibrary = lazy(() => import('@/features/hadith/HadithLibrary'));
+const HadithDetail = lazy(() => import('@/features/hadith/HadithDetail'));
+const HadithDiscover = lazy(() => import('@/features/hadith/Discover'));
+const HadithActivityPlayer = lazy(() => import('@/features/hadith/ActivityPlayer'));
 const MyDay = lazy(() => import('@/features/day/MyDay'));
 const Circles = lazy(() => import('@/features/community/Circles'));
 const CircleRoom = lazy(() => import('@/features/community/CircleRoom'));
@@ -44,6 +50,9 @@ const ResetPassword = lazy(() => import('@/features/account/Account').then((m) =
 const Inbox = lazy(() => import('@/features/account/Inbox'));
 const Staff = lazy(() => import('@/features/staff/Staff'));
 const Messages = lazy(() => import('@/features/community/Messages'));
+const QuranOdyssey = lazy(() => import('@/features/quran/QuranOdyssey'));
+const QuranAtlas = lazy(() => import('@/features/library/QuranAtlas'));
+const HadithDuaAtlas = lazy(() => import('@/features/library/HadithDuaAtlas'));
 const SirajLayer = lazy(() => import('@/features/tutor/SirajLayer'));
 const CelebrationLayer = lazy(() => import('@/features/world/CelebrationLayer'));
 
@@ -157,6 +166,7 @@ export function App() {
           }}
         />
       )}
+      <QuestSync />
       <ErrorBoundary>
         <Suspense fallback={<RouteLoader />}>
           <Routes>
@@ -167,8 +177,20 @@ export function App() {
               <Route path="/mission/:id" element={<MissionRunner />} />
               <Route element={<Shell />}>
                 <Route index element={<WorldHome />} />
+                <Route path="stories" element={<StoriesPage />} />
+                <Route path="stories/:region" element={<StoriesPage />} />
                 <Route path="journey" element={<Journey />} />
                 <Route path="learn" element={<Learn />} />
+                <Route path="quran" element={<QuranOdyssey />} />
+                <Route path="mushaf" element={<QuranAtlas />} />
+                <Route path="mushaf/:surahId" element={<QuranAtlas />} />
+                <Route path="hadith-library" element={<HadithDuaAtlas />} />
+                <Route path="quran/:surahId" element={<QuranOdyssey />} />
+                <Route path="quran-studio" element={<QuranOdyssey />} />
+                <Route path="hadith" element={<HadithLibrary />} />
+                <Route path="hadith/discover" element={<HadithDiscover />} />
+                <Route path="hadith/discover/:activityId" element={<HadithActivityPlayer />} />
+                <Route path="hadith/:id" element={<HadithDetail />} />
                 <Route path="day" element={<MyDay />} />
                 <Route path="circles" element={<Circles />} />
                 <Route path="circles/:id" element={<CircleRoom />} />
