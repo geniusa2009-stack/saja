@@ -192,7 +192,15 @@ describe('password-reset email over real SMTP (local sink)', () => {
       expect(mails[0].to[0]).toContain('smtp-user@example.com');
       expect(mails[0].data).toMatch(/Subject: Reset your SAJA password/);
       expect(mails[0].data).toMatch(/account\/reset\?token=/);
-      const [row] = await services.db.query<{ body: string; provider: string }>("select body, provider from email_outbox where to_email = 'smtp-user@example.com'");
+      let row: { body: string; provider: string } | undefined;
+      for (let attempt = 0; attempt < 150; attempt++) {
+        [row] = await services.db.query<{ body: string; provider: string }>(
+          "select body, provider from email_outbox where to_email = $1",
+          ['smtp-user@example.com'],
+        );
+        if (row) break;
+        await new Promise((resolve) => setTimeout(resolve, 20));
+      }
       expect(row).toEqual({ body: '[sent via smtp]', provider: 'smtp' }); // the link itself is not stored
 
       // The mail server refuses: the response is identical to an unknown address.
