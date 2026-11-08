@@ -57,6 +57,9 @@ describe('SAJA app', () => {
     await user.click(screen.getByRole('button', { name: /continue/i }));
     await user.click(await screen.findByRole('radio', { name: /by doing/i }));
     await user.click(screen.getByRole('button', { name: /continue/i }));
+    expect(await screen.findByText('Here is your path — you can change it later')).toBeInTheDocument();
+    expect(await screen.findByText('The Water Path')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /continue/i }));
     await user.type(await screen.findByLabelText(/your name/i), 'Maryam');
     await user.click(screen.getByRole('button', { name: /enter the world/i }));
     expect(await screen.findByText('Maryam', {}, { timeout: 4000 })).toBeInTheDocument();
