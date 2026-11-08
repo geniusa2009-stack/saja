@@ -16,6 +16,8 @@ import { useJourney } from '@/app/hooks';
 import { useProgress } from '@/store/progress';
 import { useProfile } from '@/store/profile';
 import { Avatar } from '@/features/character/Character';
+import { NextSteps } from '@/features/personalization/NextSteps';
+import { PathRoadmap } from '@/features/personalization/PathRoadmap';
 import './journey.css';
 
 export default function Journey() {
@@ -30,6 +32,8 @@ export default function Journey() {
 
   return (
     <Page eyebrow={t('world.lanterns', { n: journey.lanterns, total: journey.total })} title={t('jr.title')} sub={t('jr.sub')}>
+      <PathRoadmap />
+      <NextSteps />
       <div className="jr">
         {CHAPTERS.map((ch) => {
           const locs = LOCATIONS.filter((x) => x.chapter === ch.n);

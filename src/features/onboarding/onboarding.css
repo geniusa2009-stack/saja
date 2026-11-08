@@ -155,3 +155,9 @@
   height: 18px;
   overflow: visible;
 }
+
+/* Purpose-aware onboarding summary, displayed before entering the world. */
+.ob-journey-preview { border: 1px solid var(--hairline); background: rgb(14 47 51 / .58); border-radius: var(--r-lg); padding: clamp(16px, 3vw, 24px); display: grid; gap: 10px; }
+.ob-journey-preview h2 { font-size: clamp(1.25rem, 3vw, 1.7rem); }
+.ob-journey-preview p { line-height: 1.8; color: var(--text); }
+.ob-journey-preview strong { color: var(--gold-300); }

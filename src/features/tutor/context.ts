@@ -19,6 +19,8 @@ export function useJourneyContext(focusKnowledgeId?: string): JourneyContext | n
     const last = lastId ? MISSION_BY_ID[lastId] : undefined;
     return {
       name: profile.name,
+      purpose: profile.purpose,
+      level: profile.level,
       ageBand: profile.ageBand,
       locale,
       lastMission: last ? { id: last.id, title: last.title, knowledge: last.knowledge, struggled } : undefined,

@@ -19,6 +19,7 @@ import { useJourney } from '@/app/hooks';
 import { useLearner } from '@/store/learner';
 import { useProgress } from '@/store/progress';
 import { useTutor } from '@/store/tutor';
+import { NextSteps } from '@/features/personalization/NextSteps';
 import './learn.css';
 
 export default function Learn() {
@@ -53,6 +54,7 @@ export default function Learn() {
   return (
     <Page eyebrow={t('nav.learn')} title={t('learn.title')} sub={t('learn.sub')}>
       <div className="stack" style={{ '--stack-gap': '24px' } as React.CSSProperties}>
+        <NextSteps excludeHref="/learn" />
         <div className="learn-search">
           <Icon name="search" size={18} />
           <label htmlFor="learn-q" className="sr-only">

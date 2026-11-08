@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useI18n } from '@/i18n';
+import { NextSteps } from '@/features/personalization/NextSteps';
 import { copyText, normalizeArabic, safeReadStrings, saveJSON, validDuaPack, validHadithPack, type DuaPack, type HadithPack, type HadithItem } from './quality';
 import './library.css';
 
@@ -82,5 +83,6 @@ export default function HadithDuaAtlas() {
       <div className="saja-library__pagination"><button type="button" disabled={currentPage === 0} onClick={() => setPage(p => Math.max(0, p - 1))}>{label('السابق', 'Previous')}</button><span>{currentPage + 1} / {pages}</span><button type="button" disabled={currentPage + 1 >= pages} onClick={() => setPage(p => Math.min(pages - 1, p + 1))}>{label('التالي', 'Next')}</button></div>
       <p className="saja-library__hint">{label('المحتوى ليس ترتيبًا لأفضلية الأحاديث ولا بديلًا عن الاستفتاء. جميع بيانات الحفظ تُخزّن محليًا في متصفحك.', 'This is not a ranking of hadith importance or a source for personal rulings. Bookmarks stay in your browser.')}</p>
     </>}
+    <NextSteps excludeHref="/hadith-library" compact />
   </div>;
 }
