@@ -51,6 +51,8 @@ const Inbox = lazy(() => import('@/features/account/Inbox'));
 const Staff = lazy(() => import('@/features/staff/Staff'));
 const Messages = lazy(() => import('@/features/community/Messages'));
 const QuranOdyssey = lazy(() => import('@/features/quran/QuranOdyssey'));
+const QuranAtlas = lazy(() => import('@/features/library/QuranAtlas'));
+const HadithDuaAtlas = lazy(() => import('@/features/library/HadithDuaAtlas'));
 const SirajLayer = lazy(() => import('@/features/tutor/SirajLayer'));
 const CelebrationLayer = lazy(() => import('@/features/world/CelebrationLayer'));
 
@@ -180,6 +182,9 @@ export function App() {
                 <Route path="journey" element={<Journey />} />
                 <Route path="learn" element={<Learn />} />
                 <Route path="quran" element={<QuranOdyssey />} />
+                <Route path="mushaf" element={<QuranAtlas />} />
+                <Route path="mushaf/:surahId" element={<QuranAtlas />} />
+                <Route path="hadith-library" element={<HadithDuaAtlas />} />
                 <Route path="quran/:surahId" element={<QuranOdyssey />} />
                 <Route path="quran-studio" element={<QuranOdyssey />} />
                 <Route path="hadith" element={<HadithLibrary />} />

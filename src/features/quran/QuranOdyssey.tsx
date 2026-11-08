@@ -167,6 +167,7 @@ export default function QuranOdyssey() {
   return (
     <Page eyebrow={t('nav.quran')} title={l(surah.name)} sub={l(surah.titleMeaning)}>
       <div className="quran-page">
+          <div className="quran-learning-guide" style={{ marginBottom: 14 }}><a href="/mushaf">📖 المصحف الكامل — 114 سورة · Complete Quran</a> · <a href="/hadith-library">مكتبة الأحاديث والأدعية · Hadith & Duas</a></div>
         {/* Religious Content Review Safeguard */}
         <div style={{ marginBottom: '20px' }}>
           <DemoNote>{t('quran.reviewDisclaimer')}</DemoNote>
