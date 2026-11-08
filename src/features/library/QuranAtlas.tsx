@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useI18n } from '@/i18n';
+import { NextSteps } from '@/features/personalization/NextSteps';
+import { useLearningTrail } from '@/store/learningTrail';
 import { fetchVerified, getChapterName, QURAN_VERSE_COUNTS, validChapter, type QuranChapter, type QuranChapterName } from './catalogue';
 import { copyText, findInQuran, makeMemorizationOptions, normalizeArabic, safeReadObject, safeReadStrings, saveJSON, validSearchPack, type QuranSearchPack } from './quality';
 import './library.css';
@@ -25,6 +27,7 @@ export default function QuranAtlas() {
   const { surahId } = useParams();
   const [params, setParams] = useSearchParams();
   const { isRTL } = useI18n();
+  const recordLearning = useLearningTrail((s) => s.record);
   const n = Number(surahId);
   const chosen = surahId !== undefined && Number.isInteger(n) && n >= 1 && n <= 114;
   const invalid = surahId !== undefined && !chosen;
@@ -100,6 +103,7 @@ export default function QuranAtlas() {
   const toggleMark = (key: string) => setMarks(old => { const updated = old.includes(key) ? old.filter(x => x !== key) : [...old, key]; saveJSON(MARKS, updated); return updated; });
   const markReading = (ayah: number) => {
     setLastRead(prev => { const updated = { ...prev, [String(n)]: ayah }; saveJSON(LAST, updated); return updated; });
+    recordLearning('quran', 'quran');
   };
   const jump = (ayah: number) => { setVerseQuery(''); setPage(Math.floor((ayah - 1) / PAGE_SIZE)); setParams({ ayah: String(ayah) }, { replace: true }); };
   const label = (ar: string, en: string) => isRTL ? ar : en;
@@ -162,5 +166,6 @@ export default function QuranAtlas() {
         <p className="saja-library__hint">{label('تحليل الكلمات والتفسير المُراجع متاحان حاليًا لسورة الفاتحة فقط. وضع حفظ التسلسل لا يقدّم تفسيرًا أو فتوى.', 'Curated word analysis and detailed tafsir are currently available only in Al-Fatihah Studio. Memorization practice is not tafsir.')}</p>
       </>}
     </>}
+    <NextSteps focus="quran" excludeHref="/mushaf" compact />
   </div>;
 }

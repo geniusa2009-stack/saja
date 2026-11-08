@@ -2,6 +2,9 @@ import { useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useI18n } from '@/i18n';
 import { SIDE_STORIES, STORY_KEEPSAKES, STORY_REGIONS, type SideStory } from '@/content/sideStories';
+import { topicForRegion } from '@/content/learningGraph';
+import { NextSteps } from '@/features/personalization/NextSteps';
+import { useLearningTrail } from '@/store/learningTrail';
 import './stories.css';
 
 const STORAGE_KEY = 'saja:fictional-stories:completed:v1';
@@ -21,6 +24,7 @@ export default function StoriesPage() {
   const { region: regionParam } = useParams<{ region?: string }>();
   const region = STORY_REGIONS.find((entry) => entry.id === regionParam) ?? null;
   const [completed, setCompleted] = useState<Set<string>>(readLocalProgress);
+  const recordLearning = useLearningTrail((s) => s.record);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [chosenId, setChosenId] = useState<string | null>(null);
   const stories = useMemo(() => region ? SIDE_STORIES.filter((entry) => entry.region === region.id) : SIDE_STORIES, [region]);
@@ -39,6 +43,7 @@ export default function StoriesPage() {
     const next = new Set(completed);
     next.add(selected.id);
     setCompleted(next);
+    recordLearning(topicForRegion(selected.region), 'story');
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify([...next]));
     } catch {
@@ -144,6 +149,7 @@ export default function StoriesPage() {
           </section>
         </>
       )}
+      <NextSteps focus={topicForRegion(region?.id)} excludeHref={region ? `/stories/${region.id}` : '/stories'} compact />
     </div>
   );
 }

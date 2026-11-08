@@ -30,6 +30,7 @@ import { Character, Avatar } from '@/features/character/Character';
 import { useJourney, usePrayerInfo, PRAYER_NAMES, formatDuration } from '@/app/hooks';
 import { tutor } from '@/services/tutor';
 import { useJourneyContext } from '@/features/tutor/context';
+import { PATHS, pathFor } from '@/domain/journeyEngine';
 import { FarLayer, GroundLayer, MidLayer, type PlacedLocation } from './scenery';
 import { WORLD_H, WORLD_W, mirrorX, pointAtT, tToX } from './geometry';
 import { LocationSheet } from './LocationSheet';
@@ -337,10 +338,10 @@ export default function WorldHome() {
           <div className="hud-greet">
             <span className="hud-greet__hello">{t('world.greeting')}</span>
             <span className="hud-greet__name">{profile.name}</span>
-            <button type="button" className="hud-pill" onClick={() => navigate('/day')}>
+            {profile.purpose !== 'exploring' && <button type="button" className="hud-pill" onClick={() => navigate('/day')}>
               <Icon name="day" size={15} />
               {prayerLabel}
-            </button>
+            </button>}
           </div>
           <div className="hud-actions">
             <span className="hud-lanterns" title={t('world.lanterns', { n: journey.lanterns, total: journey.total })}>
@@ -381,6 +382,7 @@ export default function WorldHome() {
               <span className="t-caption gold">{t('world.chapter', { n: chapter.n })}</span>
               <span className="hud-card__title">{l(here.name)}</span>
             </div>
+            <p className="t-caption gold">{l(PATHS[pathFor(profile.purpose)].title)}</p>
             {greeting && (
               <div className="hud-siraj">
                 <span className="hud-siraj__light" aria-hidden>

@@ -10,7 +10,7 @@
  *
  * Siraj never issues fatwa and never claims to be a scholar.
  */
-import type { AgeBand, Confidence, L10n, Locale, TopicId } from '@/domain/types';
+import type { AgeBand, Confidence, L10n, Locale, TopicId, Purpose, Level } from '@/domain/types';
 import { KNOWLEDGE_BY_ID } from '@/content/knowledge';
 import { QUIZZES } from '@/content/quizzes';
 import { searchKnowledge } from './knowledge';
@@ -21,6 +21,8 @@ export type TutorIntent = 'simple' | 'deep' | 'example' | 'quiz' | 'source' | 'w
 export interface JourneyContext {
   name: string;
   ageBand: AgeBand;
+  purpose?: Purpose;
+  level?: Level;
   locale: Locale;
   lastMission?: { id: string; title: L10n; knowledge: string[]; struggled: boolean };
   nextMission?: { id: string; title: L10n; minutes: number };
@@ -76,7 +78,9 @@ const pick = (l: L10n, locale: Locale) => l[locale];
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 const T = {
-  greetFirst: { en: 'As-salamu alaykum, {name}. I’m Siraj — a small light for your journey. The water path at the masjid is a gentle place to begin.', ar: 'السلام عليكم يا {name}. أنا سراج، نور صغير يرافق رحلتك. درب الماء عند المسجد بداية لطيفة.' },
+  greetFirst: { en: 'Welcome, {name}. I’m Siraj. We can learn together at your own pace, beginning wherever you feel comfortable.', ar: 'أهلًا يا {name}. أنا سراج، ونقدر نستكشف المعرفة معًا براحتك، من المكان اللي تختاره.' },
+  greetExplore: { en: 'Welcome, {name}. What would you like to discover about Islam? You can ask questions freely.', ar: 'أهلًا يا {name}. تحب تكتشف إيه عن الإسلام؟ اسأل بحرية ومن غير افتراضات.' },
+  greetNew: { en: 'Welcome, {name}. Small steps are enough; we can explore prayer, Al-Fatihah or any question you have.', ar: 'أهلًا يا {name}. نمشي خطوة بخطوة، ونقدر نبدأ بالصلاة أو الفاتحة أو أي سؤال عندك.' },
   greetAfter: { en: 'You just finished “{mission}”. Want to understand why each step matters?', ar: 'أنهيت للتو «{mission}». هل تحب أن تفهم لماذا تهمّ كل خطوة؟' },
   greetStruggled: { en: '“{mission}” had some tricky moments — that’s how learning works. Want me to show it another way?', ar: 'كانت في «{mission}» لحظات صعبة، وهكذا يكون التعلّم. هل أعرضها لك بطريقة أخرى؟' },
   greetPrayer: { en: '{prayer} is in {minutes} minutes. Want a short mission before then?', ar: 'بقي على {prayer} {minutes} دقيقة. هل تريد مهمة قصيرة قبلها؟' },
@@ -121,10 +125,13 @@ export class OfflineGuide implements TutorService {
         followUps: ctx.lastMission.struggled ? ['example', 'simple', 'quiz'] : ['why', 'source', 'next'],
       };
     }
-    if (ctx.nextPrayer && ctx.nextPrayer.inMinutes <= 30 && ctx.nextMission) {
+    if (ctx.purpose !== 'exploring' && ctx.nextPrayer && ctx.nextPrayer.inMinutes <= 30 && ctx.nextMission) {
       return { id: nid(), state: 'guide', text: fill(pick(T.greetPrayer, l), { prayer: pick(ctx.nextPrayer.name, l), minutes: ctx.nextPrayer.inMinutes }), followUps: ['next', 'plan'] };
     }
-    if (ctx.completedCount === 0) return { id: nid(), state: 'guide', text: fill(pick(T.greetFirst, l), vars), followUps: ['next', 'simple', 'plan'] };
+    if (ctx.completedCount === 0) {
+      const greeting = ctx.purpose === 'exploring' ? T.greetExplore : ctx.purpose === 'new-muslim' ? T.greetNew : T.greetFirst;
+      return { id: nid(), state: 'guide', text: fill(pick(greeting, l), vars), followUps: ['next', 'simple', 'plan'] };
+    }
     if (ctx.nextMission)
       return { id: nid(), state: 'guide', text: fill(pick(T.greetNext, l), { ...vars, mission: pick(ctx.nextMission.title, l), minutes: ctx.nextMission.minutes }), followUps: ['next', 'plan', 'quiz'] };
     return { id: nid(), state: 'guide', text: pick(T.noFocus, l), followUps: ['plan', 'next'] };

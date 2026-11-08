@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { CITIES, computePrayerTimes, currentPrayer, localNow, nextPrayer, skyPhase, type MethodId, type PrayerLocation } from '@/domain/prayerTimes';
 import { recommend, topicsToRevisit } from '@/domain/adaptive';
+import { personalizeRecommendations } from '@/domain/journeyEngine';
 import { unlockedLocations } from '@/domain/world';
 import { LOCATIONS } from '@/content/world';
 import { MISSIONS } from '@/content/missions';
@@ -60,7 +61,8 @@ export function useJourney() {
   return useMemo(() => {
     const completed = Object.keys(results);
     const unlocked = unlockedLocations(LOCATIONS, { completed }, MISSIONS);
-    const recs = recommend({ model, missions: MISSIONS, completed, unlocked, ageBand: profile?.ageBand ?? 'adult', interests: profile?.interests ?? [] });
+    const candidates = recommend({ model, missions: MISSIONS, completed, unlocked, ageBand: profile?.ageBand ?? 'adult', interests: profile?.interests ?? [] });
+    const recs = profile ? personalizeRecommendations(profile, model, candidates) : candidates;
     const openChapters = LOCATIONS.filter((l) => unlocked.has(l.id)).map((l) => l.chapter);
     return {
       completed,
