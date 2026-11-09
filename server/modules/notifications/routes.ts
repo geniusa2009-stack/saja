@@ -6,6 +6,7 @@ import { body, Id, L10n } from '../../lib/http.ts';
 import { requireAccess } from '../../auth/middleware.ts';
 import { CATEGORIES, getPrefs, notify } from './service.ts';
 import { track } from '../analytics.ts';
+import { getDevotionalRoutines, saveDevotionalRoutine } from './routines.ts';
 
 export const notificationRoutes = new Hono<AppEnv>();
 
@@ -38,6 +39,25 @@ notificationRoutes.post('/schedule', async (c) => {
   const id = await notify(s, a.userId, { category: b.category, title: b.title, body: b.body, url: b.url, dedupeKey: b.dedupeKey, scheduledFor: at });
   if (id) await track(s.db, a.userId, 'reminder_scheduled', { category: b.category });
   return c.json({ id, scheduled: !!id, reason: id ? null : 'disabled-or-duplicate' }, id ? 201 : 200);
+});
+
+/** Opt-in recurring morning/evening reminders. User-chosen local time and IANA timezone only. */
+notificationRoutes.get('/routines', async (c) => {
+  const a = requireAccess(c);
+  return c.json({ routines: await getDevotionalRoutines(c.get('services').db, a.userId) });
+});
+
+notificationRoutes.put('/routines/:kind', async (c) => {
+  const a = requireAccess(c);
+  const kind = z.enum(['morning', 'evening']).parse(c.req.param('kind'));
+  const input = await body(c, z.object({
+    enabled: z.boolean(),
+    time: z.string().regex(/^([01]\\d|2[0-3]):[0-5]\\d$/),
+    timeZone: z.string().min(2).max(64),
+  }));
+  try { new Intl.DateTimeFormat('en-US', { timeZone: input.timeZone }); }
+  catch { throw new AppError('bad_request', 'Use a valid timezone name.'); }
+  return c.json({ routine: await saveDevotionalRoutine(c.get('services').db, a.userId, kind, input) });
 });
 
 notificationRoutes.delete('/:id', async (c) => {

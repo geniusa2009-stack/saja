@@ -9,7 +9,7 @@ import { one } from '../../db/index.ts';
 import { userChannel } from '../../lib/bus.ts';
 import { log } from '../../lib/log.ts';
 
-export const CATEGORIES = ['prayer', 'mission', 'circle', 'scholar', 'moderation', 'unlock', 'reflection'] as const;
+export const CATEGORIES = ['prayer', 'mission', 'circle', 'scholar', 'moderation', 'unlock', 'reflection', 'adhkar'] as const;
 export type Category = (typeof CATEGORIES)[number];
 export type CategoryPrefs = Record<Category, { inApp: boolean; push: boolean }>;
 type L = { en: string; ar: string };
