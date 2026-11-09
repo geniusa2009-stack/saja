@@ -22,7 +22,8 @@ export function DevotionalCompanion({ timeZone, placeLabel }: { timeZone: string
   const { l } = useI18n();
   const profile = useProfile((s) => s.profile);
   const online = useConnection((s) => s.status === 'online' && !!s.me);
-  const doneToday = useDay((s) => s.done[todayKey()] ?? []);
+  // Snapshot selectors must return stable values; an inline [] causes a React render loop.
+  const doneToday = useDay((s) => s.done[todayKey()]);
   const toggleDone = useDay((s) => s.toggleDone);
   const [routines, setRoutines] = useState<Routine[]>(() => defaults(timeZone));
   const [serverReady, setServerReady] = useState(false);
@@ -115,7 +116,7 @@ export function DevotionalCompanion({ timeZone, placeLabel }: { timeZone: string
     <div className="day-remembrance__grid">
       {KINDS.map((kind) => {
         const routine = routines.find((r) => r.kind === kind)!;
-        const isDone = doneToday.includes(`adhkar:${kind}`);
+        const isDone = Boolean(doneToday?.includes(`adhkar:${kind}`));
         const title = kind === 'morning' ? { ar: 'أذكار الصباح', en: 'Morning remembrance' } : { ar: 'أذكار المساء', en: 'Evening remembrance' };
         return <article key={kind} className="day-remembrance__panel">
           <div className="day-remembrance__row">
