@@ -23,7 +23,8 @@
     "e2e:visual": "sh e2e/serve.sh && node e2e/visual.mjs setup && node e2e/visual.mjs shots",
     "e2e:a11y": "sh e2e/serve.sh && node e2e/visual.mjs setup && node e2e/a11y.mjs",
     "e2e:game": "npm run build && sh e2e/serve.sh && node e2e/game.mjs",
-    "e2e:experience": "npm run build && sh e2e/serve.sh && node e2e/experience.mjs"
+    "e2e:experience": "npm run build && sh e2e/serve.sh && node e2e/experience.mjs",
+    "e2e:audiences": "npm run build && sh e2e/serve.sh && node e2e/audiences.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.129.0",

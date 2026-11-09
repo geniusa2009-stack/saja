@@ -24,6 +24,12 @@ export default defineConfig({
         manualChunks(id: string) {
           if (id.includes('node_modules/motion') || id.includes('node_modules/framer-motion')) return 'motion';
           if (id.includes('node_modules/react') || id.includes('node_modules/scheduler')) return 'react';
+          // Keep 3D-only dependencies lazy; cache the expensive renderer separately
+          // from the evolving Village3D gameplay code (total cold bytes still matter).
+          if (id.includes('node_modules/three/') || id.includes('node_modules/three-stdlib/')
+              || id.includes('node_modules/@react-three/') || id.includes('node_modules/@dimforge/')) {
+            return 'village-renderer';
+          }
           return undefined;
         },
       },
