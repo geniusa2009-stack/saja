@@ -29,7 +29,7 @@ try {
   const childContext = await browser.newContext({ locale: 'ar-EG', viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
   const child = await childContext.newPage();
   watch(child, errors);
-  await onboard(child, { locale: 'ar', band: 'أقل من ١٣', name: 'مراجعة سجى', landing: 'native' });
+  await onboard(child, { locale: 'ar', band: 'أقل من ١٣', name: 'سارة', landing: 'native' });
   if (new URL(child.url()).pathname !== '/') throw new Error('Child onboarding should start in the age-appropriate world');
   await child.goto(`${BASE}/catalog`);
   await child.locator('.expc-count').waitFor();
