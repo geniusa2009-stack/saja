@@ -67,7 +67,7 @@ export default function Onboarding() {
   const [look, setLook] = useState<CharacterLook>(DEFAULT_LOOK);
   const [name, setName] = useState('');
 
-  if (existing) return <Navigate to="/" replace />;
+  if (existing) return <Navigate to={existing.ageBand === 'child' ? '/' : '/home'} replace />;
 
   const flow: Step[] = ['welcome', 'purpose', 'age', ...(age === 'child' ? (['guardian'] as Step[]) : []), 'level', 'goals', 'style', 'preview', 'character'];
   const idx = flow.indexOf(step);
