@@ -27,6 +27,8 @@ try {
     const screenName = ar ? 'adult-ar' : `adult-${p.purposeIndex}-en`;
     await page.screenshot({ path: `${SHOTS}/experience-${screenName}-mobile.png`, fullPage: true });
     await page.goto(`${BASE}/catalog`);
+    await page.getByRole('heading', { name: ar ? 'دليل محتوى سجى' : 'The SAJA content catalogue' }).waitFor({ timeout: 15_000 });
+    await page.locator('.exph-trust').first().waitFor({ timeout: 15_000 });
     const labels = await page.locator('.exph-trust').count();
     if (labels < 1) throw new Error(`${p.name}: content provenance labels are missing`);
     await context.close();
