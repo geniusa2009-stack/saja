@@ -1,0 +1,30 @@
+name: SAJA Integration QA
+
+on:
+  pull_request:
+    branches:
+      - release/integration
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Typecheck, lint, unit tests and production build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Run full project checks
+        run: npm run check
+      - name: Syntax-check integration browser tests
+        run: |
+          node --check e2e/lib.mjs
+          node --check e2e/experience.mjs
