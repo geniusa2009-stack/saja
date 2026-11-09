@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useI18n } from '@/i18n';
 import { SIDE_STORIES, STORY_KEEPSAKES, STORY_REGIONS, type SideStory } from '@/content/sideStories';
 import { topicForRegion } from '@/content/learningGraph';
@@ -22,12 +22,20 @@ function readLocalProgress(): Set<string> {
 export default function StoriesPage() {
   const { l } = useI18n();
   const { region: regionParam } = useParams<{ region?: string }>();
+  const [params] = useSearchParams();
+  const requestedEpisode = params.get('episode');
   const region = STORY_REGIONS.find((entry) => entry.id === regionParam) ?? null;
   const [completed, setCompleted] = useState<Set<string>>(readLocalProgress);
   const recordLearning = useLearningTrail((s) => s.record);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [chosenId, setChosenId] = useState<string | null>(null);
   const stories = useMemo(() => region ? SIDE_STORIES.filter((entry) => entry.region === region.id) : SIDE_STORIES, [region]);
+  useEffect(() => {
+    if (requestedEpisode && stories.some((story) => story.id === requestedEpisode)) {
+      setSelectedId(requestedEpisode);
+      setChosenId(null);
+    }
+  }, [requestedEpisode, stories]);
   const selected: SideStory | null = stories.find((entry) => entry.id === selectedId) ?? null;
   const selectedChoice = selected?.choices.find((choice) => choice.id === chosenId) ?? null;
   const completedHere = stories.filter((entry) => completed.has(entry.id)).length;

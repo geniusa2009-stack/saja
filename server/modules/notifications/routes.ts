@@ -6,6 +6,8 @@ import { body, Id, L10n } from '../../lib/http.ts';
 import { requireAccess } from '../../auth/middleware.ts';
 import { CATEGORIES, getPrefs, notify } from './service.ts';
 import { track } from '../analytics.ts';
+import { getDevotionalRoutines, saveDevotionalRoutine } from './routines.ts';
+import { getPrayerAlertPrefs, setPrayerAlertPrefs } from './prayerAlerts.ts';
 
 export const notificationRoutes = new Hono<AppEnv>();
 
@@ -38,6 +40,40 @@ notificationRoutes.post('/schedule', async (c) => {
   const id = await notify(s, a.userId, { category: b.category, title: b.title, body: b.body, url: b.url, dedupeKey: b.dedupeKey, scheduledFor: at });
   if (id) await track(s.db, a.userId, 'reminder_scheduled', { category: b.category });
   return c.json({ id, scheduled: !!id, reason: id ? null : 'disabled-or-duplicate' }, id ? 201 : 200);
+});
+
+/** Opt-in recurring morning/evening reminders. User-chosen local time and IANA timezone only. */
+notificationRoutes.get('/routines', async (c) => {
+  const a = requireAccess(c);
+  return c.json({ routines: await getDevotionalRoutines(c.get('services').db, a.userId) });
+});
+
+notificationRoutes.put('/routines/:kind', async (c) => {
+  const a = requireAccess(c);
+  const kind = z.enum(['morning', 'evening']).parse(c.req.param('kind'));
+  const input = await body(c, z.object({
+    enabled: z.boolean(),
+    time: z.string().regex(/^([01][0-9]|2[0-3]):[0-5][0-9]$/),
+    timeZone: z.string().min(2).max(64),
+  }));
+  try { new Intl.DateTimeFormat('en-US', { timeZone: input.timeZone }); }
+  catch { throw new AppError('bad_request', 'Use a valid timezone name.'); }
+  return c.json({ routine: await saveDevotionalRoutine(c.get('services').db, a.userId, kind, input) });
+});
+
+/** Daily prayers are opt-in. Alerts require a saved prayer location on this account. */
+notificationRoutes.get('/prayer-alerts', async (c) => {
+  const a = requireAccess(c);
+  return c.json(await getPrayerAlertPrefs(c.get('services').db, a.userId));
+});
+
+notificationRoutes.put('/prayer-alerts', async (c) => {
+  const a = requireAccess(c);
+  const input = await body(c, z.object({
+    enabled: z.boolean(),
+    prayers: z.array(z.enum(['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'])).max(5),
+  }));
+  return c.json(await setPrayerAlertPrefs(c.get('services').db, a.userId, input));
 });
 
 notificationRoutes.delete('/:id', async (c) => {

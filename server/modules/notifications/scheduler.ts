@@ -1,6 +1,8 @@
 import type { Services } from '../../context.ts';
 import { log } from '../../lib/log.ts';
 import { runDue } from './service.ts';
+import { runDevotionalRoutines } from './routines.ts';
+import { runDailyPrayerAlerts } from './prayerAlerts.ts';
 import { runFileDeletions, runRetention } from '../lifecycle.ts';
 
 /**
@@ -10,6 +12,8 @@ import { runFileDeletions, runRetention } from '../lifecycle.ts';
 export function startScheduler(s: Services, everyMs = 30_000) {
   let lastRetention = 0;
   const id = setInterval(() => {
+    runDevotionalRoutines(s).catch((e) => log.error('scheduler.adhkar_failed', { error: e }));
+    runDailyPrayerAlerts(s).catch((e) => log.error('scheduler.prayer_alerts_failed', { error: e }));
     runDue(s).catch((e) => log.error('scheduler.notifications_failed', { error: e }));
     runFileDeletions(s).catch((e) => log.error('scheduler.file_deletions_failed', { error: e }));
     if (Date.now() - lastRetention > 3_600_000) {

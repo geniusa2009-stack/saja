@@ -29,7 +29,7 @@ export async function check(name, fn) {
   }
 }
 
-export async function onboard(page, { band = /18 or older/i, name = 'Maryam', locale = 'en', purposeIndex = 0 } = {}) {
+export async function onboard(page, { band = /18 or older/i, name = 'Maryam', locale = 'en', purposeIndex = 0, landing = 'world' } = {}) {
   await page.goto(`${BASE}/welcome`);
   await page.getByRole('button', { name: locale === 'ar' ? 'ابدأ' : /begin/i }).click({ timeout: 15000 });
   // The footer holds the single forward action of each step (Continue / I'm the guardian / Enter the world).
@@ -53,5 +53,9 @@ export async function onboard(page, { band = /18 or older/i, name = 'Maryam', lo
   await next();
   await page.getByLabel(locale === 'ar' ? /اسمك/ : /your name/i).fill(name);
   await page.getByRole('button', { name: locale === 'ar' ? /ادخل العالم/ : /enter the world/i }).click();
-  await page.waitForURL(`${BASE}/`);
+  // The personalised adult home is the correct first destination; gameplay suites still start in the world.
+  await page.waitForURL((url) => url.pathname === '/' || url.pathname === '/home', { timeout: 15000 });
+  if (landing === 'world' && new URL(page.url()).pathname === '/home') {
+    await page.goto(`${BASE}/`);
+  }
 }
