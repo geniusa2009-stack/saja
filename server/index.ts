@@ -31,7 +31,7 @@ if (staticDir && existsSync(join(staticDir, 'index.html'))) {
     "style-src 'self' 'unsafe-inline'",
     "font-src 'self'",
     "img-src 'self' data: blob:",
-    "media-src 'self' blob:",
+    "media-src 'self' blob: https://upload.wikimedia.org",
     "connect-src 'self'",
     "worker-src 'self'",
     "frame-ancestors 'none'",

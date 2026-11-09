@@ -17,7 +17,8 @@ import { Icon, type IconName } from '@/brand/Icon';
 import { Star } from '@/brand/SajaMark';
 import { useI18n } from '@/i18n';
 import { Page } from '@/app/Page';
-import { PRAYER_NAMES, formatDuration, useJourney, usePrayerInfo } from '@/app/hooks';
+import { PRAYER_NAMES, formatDuration, useJourney, usePrayerInfo, usePrayerLocation } from '@/app/hooks';
+import { DevotionalCompanion } from './DevotionalCompanion';
 import { useDay, todayKey } from '@/store/day';
 import { useProfile } from '@/store/profile';
 import { useSettings } from '@/store/settings';
@@ -43,6 +44,7 @@ export default function MyDay() {
   const profile = useProfile((s) => s.profile)!;
   const memory = useProfile((s) => s.memory);
   const prayer = usePrayerInfo();
+  const prayerLocation = usePrayerLocation();
   const journey = useJourney();
   const day = useDay();
   const focusMode = useSettings((s) => s.focusMode);
@@ -278,6 +280,8 @@ export default function MyDay() {
             {t('day.missed')}
           </p>
         </section>
+
+        <DevotionalCompanion timeZone={prayerLocation.loc.timeZone} placeLabel={l(prayer.label)} />
 
         {/* ── Daily Deen ───────────────────────────── */}
         <Section title={t('day.deen')} id="deen-h">
