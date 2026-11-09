@@ -493,6 +493,27 @@ function AdaptiveVillageResolution({ coarse }: { coarse: boolean }) {
   return null;
 }
 
+type PerformanceSnapshot = { fps: number; dpr: number; calls: number; triangles: number };
+/** On-device diagnostics, opt-in with ?perf=1. No measurements leave the browser. */
+function VillagePerformanceSampler({ report }: { report: (sample: PerformanceSnapshot) => void }) {
+  const sample = useRef({ elapsed: 0, frames: 0 });
+  useFrame(({ gl }, delta) => {
+    if (document.hidden) { sample.current.elapsed = 0; sample.current.frames = 0; return; }
+    sample.current.elapsed += Math.min(1, delta);
+    sample.current.frames++;
+    if (sample.current.elapsed < 3) return;
+    report({
+      fps: Math.round(sample.current.frames / sample.current.elapsed),
+      dpr: Math.round(gl.getPixelRatio() * 100) / 100,
+      calls: gl.info.render.calls,
+      triangles: gl.info.render.triangles,
+    });
+    sample.current.elapsed = 0;
+    sample.current.frames = 0;
+  });
+  return null;
+}
+
 function readVillageProgress(): DiscoveryId[] {
   if (typeof window === 'undefined') return [];
   try {
@@ -509,6 +530,11 @@ export function Village3D(props: Props) {
   const [openDiscovery, setOpenDiscovery] = useState<DiscoveryId | null>(null);
   const [discovered, setDiscovered] = useState<DiscoveryId[]>(readVillageProgress);
   const closeDiscoveryRef = useRef<HTMLButtonElement>(null);
+  const perfEnabled = useMemo(
+    () => typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('perf') === '1',
+    [],
+  );
+  const [performance, setPerformance] = useState<PerformanceSnapshot | null>(null);
   useEffect(() => {
     try { window.localStorage.setItem('saja:village:discoveries:v2', JSON.stringify(discovered)); }
     catch { /* private browsing / storage disabled: in-session progress still works */ }
@@ -538,6 +564,7 @@ export function Village3D(props: Props) {
       }}
     >
       <AdaptiveVillageResolution coarse={coarse} />
+      {perfEnabled && <VillagePerformanceSampler report={setPerformance} />}
       <Sky sunPosition={[1.4, 2.6, -1.5]} turbidity={7} rayleigh={0.65} />
       <ambientLight intensity={1.15} color="#f5ead3" />
       <hemisphereLight intensity={1.15} color="#d4e2da" groundColor="#80694b" />
@@ -554,6 +581,11 @@ export function Village3D(props: Props) {
         </Suspense>
       </Physics>
     </Canvas>
+    {perfEnabled && <output className="play-world__perf" data-testid="village-performance" aria-label={l({ ar: 'أداء القرية على هذا الجهاز', en: 'Village performance on this device' })}>
+      {performance
+        ? `FPS ≈ ${performance.fps} · DPR ${performance.dpr} · Calls ${performance.calls} · Triangles ${performance.triangles}`
+        : l({ ar: 'جارٍ قياس الأداء على جهازك…', en: 'Measuring this device…' })}
+    </output>}
     <div className="play-world__village-progress" data-testid="village-discovery-progress" aria-live="polite">
       {l({ en: `Places discovered: ${discovered.length} / ${VILLAGE_DISCOVERIES.length}`, ar: `أماكن اكتشفتها: ${discovered.length} / ${VILLAGE_DISCOVERIES.length}` })}
     </div>

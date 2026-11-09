@@ -114,3 +114,7 @@
 @media (prefers-reduced-motion: reduce) {
   .play-world__discover-prompt { transition: none; }
 }
+
+/* Opt-in GPU diagnostics. Not shown unless ?perf=1; never overlays touch controls. */
+.play-world__perf{position:absolute;inset-block-start:150px;inset-inline-start:14px;z-index:8;max-width:min(98%,420px);padding:9px 11px;border-radius:10px;background:rgba(10,22,32,.88);color:#fff0ce;font:600 .75rem/1.5 monospace;pointer-events:none}
+@media(max-width:700px){.play-world__perf{inset-block-start:138px;font-size:.67rem}}
