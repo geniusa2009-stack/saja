@@ -8,6 +8,7 @@
     "dev": "concurrently -k -n web,api -c cyan,magenta \"npm:dev:web\" \"npm:dev:server\"",
     "dev:web": "vite",
     "dev:server": "PORT=8787 tsx watch --env-file-if-exists=.env --tsconfig server/tsconfig.json server/index.ts",
+    "dev:review": "SAJA_DEV_API_PORT=8788 concurrently -k -n web,api -c cyan,magenta \"vite --port 5174 --strictPort\" \"PORT=8788 APP_ORIGIN=http://localhost:5174 tsx watch --env-file-if-exists=.env --tsconfig server/tsconfig.json server/index.ts\"",
     "build": "tsc -b && vite build",
     "start": "SAJA_ENV=production tsx --env-file-if-exists=.env --tsconfig server/tsconfig.json server/index.ts",
     "saja": "tsx --env-file-if-exists=.env --tsconfig server/tsconfig.json server/cli.ts",

@@ -43,6 +43,20 @@ describe('SAJA app', () => {
     expect(await screen.findByText('Welcome to your journey.', {}, { timeout: 4000 })).toBeInTheDocument();
   });
 
+  it('returns an existing adult learner to the personalised home', async () => {
+    traveller();
+    renderAt('/welcome');
+    expect(await screen.findByRole('heading', { name: 'Welcome, Yusuf' })).toBeInTheDocument();
+  });
+
+  it('keeps an existing child learner in the age-appropriate world', async () => {
+    traveller();
+    const existing = useProfile.getState().profile!;
+    useProfile.getState().setProfile({ ...existing, ageBand: 'child', purpose: 'child' });
+    renderAt('/welcome');
+    expect((await screen.findAllByText('The Village')).length).toBeGreaterThan(0);
+  });
+
   it('walks the onboarding into the world', async () => {
     const user = userEvent.setup();
     renderAt('/welcome');

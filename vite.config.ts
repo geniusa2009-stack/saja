@@ -12,7 +12,7 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
     // The API runs as its own process in dev; same-origin via proxy keeps cookies SameSite.
-    proxy: { '/api': { target: 'http://localhost:8787', changeOrigin: false } },
+    proxy: { '/api': { target: `http://localhost:${process.env.SAJA_DEV_API_PORT ?? '8787'}`, changeOrigin: false } },
   },
   build: {
     target: 'es2022',

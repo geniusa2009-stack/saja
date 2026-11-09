@@ -9,7 +9,7 @@ try {
   watch(adult, errors);
 
   await onboard(adult, { name: 'Integration reviewer', purposeIndex: 2, landing: 'native' });
-  if (new URL(adult.url()).pathname !== '/home') throw new Error('Adult onboarding did not reach the personalised home');
+  await adult.waitForURL((url) => url.pathname === '/home', { timeout: 15_000 });
   await adult.getByRole('heading', { name: 'Welcome, Integration reviewer' }).waitFor();
 
   await adult.getByRole('link', { name: 'Browse all content' }).click();
@@ -30,7 +30,7 @@ try {
   const child = await childContext.newPage();
   watch(child, errors);
   await onboard(child, { locale: 'ar', band: 'أقل من ١٣', name: 'سارة', landing: 'native' });
-  if (new URL(child.url()).pathname !== '/') throw new Error('Child onboarding should start in the age-appropriate world');
+  await child.waitForURL((url) => url.pathname === '/', { timeout: 15_000 });
   await child.goto(`${BASE}/catalog`);
   await child.locator('.expc-count').waitFor();
   if (await child.locator('a.exph-card[href="/scholar"]').count()) throw new Error('Adult-only scholar link appeared in child catalogue');
