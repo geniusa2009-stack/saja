@@ -54,10 +54,12 @@ describe('SAJA app', () => {
     const existing = useProfile.getState().profile!;
     useProfile.getState().setProfile({ ...existing, ageBand: 'child', purpose: 'child' });
     renderAt('/welcome');
-    expect((await screen.findAllByText('The Village')).length).toBeGreaterThan(0);
-  });
+    // WorldHome is a lazy-loaded route with a large 3D feature bundle.
+    expect(await screen.findByText('The Village', {}, { timeout: 10000 })).toBeInTheDocument();
+    expect(useProfile.getState().profile?.ageBand).toBe('child');
+  }, 15000);
 
-  it('walks the onboarding into the world', async () => {
+  it('walks adult onboarding into the personalised home', async () => {
     const user = userEvent.setup();
     renderAt('/welcome');
     await user.click(await screen.findByRole('button', { name: /begin/i }, { timeout: 4000 }));
@@ -76,7 +78,7 @@ describe('SAJA app', () => {
     await user.click(screen.getByRole('button', { name: /continue/i }));
     await user.type(await screen.findByLabelText(/your name/i), 'Maryam');
     await user.click(screen.getByRole('button', { name: /enter the world/i }));
-    expect(await screen.findByText('Maryam', {}, { timeout: 4000 })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Welcome, Maryam' }, { timeout: 8000 })).toBeInTheDocument();
     expect(useProfile.getState().profile?.name).toBe('Maryam');
   }, 15000);
 
