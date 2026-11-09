@@ -48,12 +48,15 @@ jobs:
           CHROME_PATH="$(node --input-type=module -e "import { chromium } from 'playwright-core'; process.stdout.write(chromium.executablePath())")"
           export CHROME_PATH
           npm run e2e:audiences
+          npm run e2e:day-companion
       - name: Upload bilingual UI screenshots for visual review
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: saja-audience-ui
-          path: e2e/screenshots/experience-*.png
+          path: |
+            e2e/screenshots/experience-*.png
+            e2e/screenshots/day-*.png
           if-no-files-found: ignore
           retention-days: 7
 
