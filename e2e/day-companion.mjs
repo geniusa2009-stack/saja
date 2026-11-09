@@ -20,6 +20,9 @@ try {
     await page.getByRole('button', { name: ar ? 'تم اليوم ✓' : 'Done today ✓' }).first().waitFor();
     await page.reload();
     await page.getByRole('button', { name: ar ? 'تم اليوم ✓' : 'Done today ✓' }).first().waitFor();
+    await page.getByRole('heading', { name: ar ? 'تنبيهات الصلوات الخمس' : 'Daily prayer-time reminders' }).waitFor();
+    const enablePrayer = page.getByRole('button', { name: ar ? 'تفعيل تنبيهات الصلاة' : 'Enable prayer alerts' });
+    if (await enablePrayer.isEnabled()) throw new Error('Prayer reminders should need online sign-in and location confirmation');
     await page.locator('select#adhan-voice').selectOption('beautiful');
     const source = await page.locator('.adhan-preview audio').getAttribute('src');
     if (!source?.startsWith('https://upload.wikimedia.org/')) throw new Error('Licensed audio selection not persisted into player');
