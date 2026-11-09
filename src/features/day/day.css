@@ -276,3 +276,13 @@
 .day-remembrance a:focus-visible,.day-save-button:focus-visible{outline:3px solid var(--gold-300);outline-offset:3px}
 .day-remembrance .day-remembrance__panel button{min-height:44px}
 @media(max-width:600px){.day-remembrance{padding:18px}.day-remembrance__panel,.day-remembrance__push,.day-remembrance__guidance{padding:14px}}
+
+.day-prayer-alerts{display:grid;gap:13px;border:1px solid var(--hairline-strong);border-radius:18px;padding:18px;min-width:0}
+.day-prayer-alerts h3{font-size:1.15rem;margin:0}
+.day-prayer-alerts p{margin:0;line-height:1.8}
+.day-prayer-alerts__choices{border:0;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:10px}
+.day-prayer-alerts__choices legend{font-weight:700;margin-bottom:9px}
+.day-prayer-alerts__choices label{display:inline-flex;align-items:center;gap:9px;min-height:44px;border-radius:12px;padding:9px 13px;border:1px solid var(--hairline-strong);cursor:pointer}
+.day-prayer-alerts__choices input,.day-prayer-alerts__confirm input{width:19px;height:19px;accent-color:var(--gold-300)}
+.day-prayer-alerts__confirm{display:flex;gap:10px;align-items:center;min-height:46px;line-height:1.7}
+@media(max-width:600px){.day-prayer-alerts{padding:14px}}

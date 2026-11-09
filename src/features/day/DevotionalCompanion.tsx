@@ -7,6 +7,7 @@ import { useDay, todayKey } from '@/store/day';
 import { api } from '@/api/client';
 import { enablePush, pushState, type PushState } from '@/api/push';
 import { AdhanPlayer } from './AdhanPlayer';
+import { DailyPrayerAlerts } from './DailyPrayerAlerts';
 
 type Kind = 'morning' | 'evening';
 type Routine = { kind: Kind; enabled: boolean; time: string; timeZone: string };
@@ -163,6 +164,7 @@ export function DevotionalCompanion({ timeZone, placeLabel }: { timeZone: string
       <p className="t-small muted">{l({ ar: 'محتوى إرشادي قيد المراجعة المتخصصة قبل النشر العام.', en: 'Editorial guidance awaiting specialist review before public release.' })}</p>
       <Link to="/mushaf/2">{l({ ar: 'افتح سورة البقرة في المصحف', en: 'Open Surah Al-Baqarah' })}</Link>
     </div>
+    <DailyPrayerAlerts placeLabel={placeLabel} />
     <AdhanPlayer />
   </section>;
 }
