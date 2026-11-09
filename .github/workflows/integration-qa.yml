@@ -116,3 +116,28 @@ jobs:
           path: asset-audit/
           if-no-files-found: ignore
           retention-days: 7
+
+  religious-content-inventory:
+    name: Religious content provenance inventory (not scholarly approval)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Generate human-review inventory
+        run: |
+          mkdir -p content-review
+          npx tsx scripts/content-review-queue.ts > content-review/inventory.json
+          node -e "const r=require('./content-review/inventory.json'); console.log(JSON.stringify(r.summary,null,2))"
+      - name: Attach for specialist editorial review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: saja-religious-content-inventory
+          path: content-review/inventory.json
+          if-no-files-found: ignore
+          retention-days: 7
