@@ -55,7 +55,7 @@ describe('SAJA app', () => {
     useProfile.getState().setProfile({ ...existing, ageBand: 'child', purpose: 'child' });
     renderAt('/welcome');
     // WorldHome is a lazy-loaded route with a large 3D feature bundle.
-    expect(await screen.findByText('The Village', {}, { timeout: 10000 })).toBeInTheDocument();
+    expect((await screen.findAllByText('The Village', {}, { timeout: 10000 })).length).toBeGreaterThan(0);
     expect(useProfile.getState().profile?.ageBand).toBe('child');
   }, 15000);
 
