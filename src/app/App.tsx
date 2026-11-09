@@ -26,6 +26,8 @@ import { Nav } from './Nav';
 
 // Route-level code splitting: the world, missions and each area load on demand.
 const WorldHome = lazyWithPreload(() => import('@/features/world/WorldHome'));
+const ExperienceHome = lazy(() => import('@/features/experience/ExperienceHome'));
+const ExperienceCatalog = lazy(() => import('@/features/experience/ExperienceCatalog'));
 const Onboarding = lazy(() => import('@/features/onboarding/Onboarding'));
 const MissionRunner = lazyWithPreload(() => import('@/features/missions/MissionRunner'));
 const StoriesPage = lazy(() => import('@/features/stories/StoriesPage'));
@@ -177,6 +179,8 @@ export function App() {
               <Route path="/mission/:id" element={<MissionRunner />} />
               <Route element={<Shell />}>
                 <Route index element={<WorldHome />} />
+                <Route path="home" element={<ExperienceHome />} />
+                <Route path="catalog" element={<ExperienceCatalog />} />
                 <Route path="stories" element={<StoriesPage />} />
                 <Route path="stories/:region" element={<StoriesPage />} />
                 <Route path="journey" element={<Journey />} />

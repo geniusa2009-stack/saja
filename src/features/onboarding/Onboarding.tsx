@@ -92,7 +92,7 @@ export default function Onboarding() {
       createdAt: Date.now(),
     });
     resetLearner(style ?? 'hands-on');
-    navigate('/', { replace: true, state: { arrival: true } });
+    navigate(age === 'child' ? '/' : '/home', { replace: true, state: { arrival: true } });
   };
 
   // The preview uses the same recommendation algorithm over the initially open places.

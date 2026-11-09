@@ -3,7 +3,7 @@
  * answer, evidence, context, where scholars differ, and when to ask a scholar.
  */
 import { useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'motion/react';
 import type { TopicId } from '@/domain/types';
 import { KNOWLEDGE } from '@/content/knowledge';
@@ -25,7 +25,8 @@ import './learn.css';
 export default function Learn() {
   const { t, l } = useI18n();
   const navigate = useNavigate();
-  const [q, setQ] = useState('');
+  const [params] = useSearchParams();
+  const [q, setQ] = useState(() => params.get('q') ?? '');
   const [topic, setTopic] = useState<TopicId | 'all'>('all');
   const showEvidence = useTutor((s) => s.showEvidence);
   const saved = useProgress((s) => s.saved);
