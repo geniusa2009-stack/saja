@@ -9,6 +9,7 @@ import { HAIR_COLORS, HIJAB_COLORS, OUTFIT_COLORS, SKIN_TONES } from '@/features
 import type { GameScene } from './game/types';
 import { useI18n } from '@/i18n';
 import { VILLAGE_ASSET_URL } from './villageAssets';
+import { nextVillageDpr } from './game/renderQuality';
 import { VillageDistricts } from './VillageDistricts';
 import { VILLAGE_3D_BOUNDS, VILLAGE_DISCOVERIES, nearbyVillageDiscovery, type DiscoveryId } from './game/villageDistricts';
 import './village-districts.css';
@@ -469,6 +470,29 @@ function Player(props: Props) {
   </>;
 }
 
+/** Adapt canvas resolution without touching physics, meshes or HUD text. */
+function AdaptiveVillageResolution({ coarse }: { coarse: boolean }) {
+  const stats = useRef({ seconds: 0, frames: 0 });
+  const deviceCap = useMemo(() => Math.min(window.devicePixelRatio || 1, coarse ? 1 : 1.5), [coarse]);
+  useFrame(({ gl }, delta) => {
+    if (document.hidden) {
+      stats.current.seconds = 0;
+      stats.current.frames = 0;
+      return;
+    }
+    stats.current.seconds += Math.min(1, delta);
+    stats.current.frames++;
+    if (stats.current.seconds < 6) return;
+    const fps = stats.current.frames / stats.current.seconds;
+    stats.current.seconds = 0;
+    stats.current.frames = 0;
+    const current = gl.getPixelRatio();
+    const adjusted = nextVillageDpr(current, fps, deviceCap);
+    if (Math.abs(adjusted - current) > 0.01) gl.setPixelRatio(adjusted);
+  });
+  return null;
+}
+
 function readVillageProgress(): DiscoveryId[] {
   if (typeof window === 'undefined') return [];
   try {
@@ -503,16 +527,17 @@ export function Village3D(props: Props) {
   return <div className="play-world__three">
     <Canvas
       shadows={!coarse}
-      dpr={coarse ? 1 : [1, 1.5]}
+      dpr={coarse ? 1 : [0.75, 1.5]}
       camera={{ position: [-6, 2.8, -3.5], fov: 48, near: 0.1, far: 140 }}
       fallback={<div role="status">{l({ en: '3D graphics are unavailable on this device. Use 2D mode.', ar: 'الرسوم ثلاثية الأبعاد غير متاحة على هذا الجهاز. استخدم الوضع ثنائي الأبعاد.' })}</div>}
       gl={{ antialias: !coarse, alpha: false, powerPreference: 'high-performance' }}
       onCreated={({ gl, scene }) => {
-        gl.setPixelRatio(coarse ? 1 : Math.min(window.devicePixelRatio || 1, 1.5));
+        gl.setPixelRatio(Math.min(window.devicePixelRatio || 1, coarse ? 1 : 1.5));
         gl.shadowMap.enabled = !coarse;
         scene.background = new THREE.Color('#8caeaf');
       }}
     >
+      <AdaptiveVillageResolution coarse={coarse} />
       <Sky sunPosition={[1.4, 2.6, -1.5]} turbidity={7} rayleigh={0.65} />
       <ambientLight intensity={1.15} color="#f5ead3" />
       <hemisphereLight intensity={1.15} color="#d4e2da" groundColor="#80694b" />

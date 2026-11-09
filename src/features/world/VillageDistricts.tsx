@@ -148,21 +148,50 @@ function Gate({ x }: { x: number }) {
   </group>;
 }
 
-function Lantern({ x, z }: { x: number; z: number }) {
-  return <group position={[x, 0, z]}>
-    <mesh position={[0, 1.13, 0]}>
+const LANTERN_POSITIONS = Array.from({ length: 16 }, (_, index): [number, number] => [
+  20 + (index % 8) * 4.6,
+  index < 8 ? -3.9 : 3.9,
+]);
+
+/** Three instanced draw calls replace 48 individual lantern meshes. */
+function Lanterns() {
+  const poles = useRef<THREE.InstancedMesh>(null);
+  const lights = useRef<THREE.InstancedMesh>(null);
+  const roofs = useRef<THREE.InstancedMesh>(null);
+  useEffect(() => {
+    const stamp = new THREE.Object3D();
+    const layers = [
+      { mesh: poles.current, height: 1.13 },
+      { mesh: lights.current, height: 2.36 },
+      { mesh: roofs.current, height: 2.72 },
+    ];
+    for (const { mesh, height } of layers) {
+      if (!mesh) continue;
+      LANTERN_POSITIONS.forEach(([x, z], index) => {
+        stamp.position.set(x, height, z);
+        stamp.rotation.set(0, 0, 0);
+        stamp.scale.set(1, 1, 1);
+        stamp.updateMatrix();
+        mesh.setMatrixAt(index, stamp.matrix);
+      });
+      mesh.instanceMatrix.needsUpdate = true;
+      mesh.computeBoundingSphere();
+    }
+  }, []);
+  return <>
+    <instancedMesh ref={poles} args={[undefined, undefined, LANTERN_POSITIONS.length]}>
       <cylinderGeometry args={[0.09, 0.13, 2.26, 7]} />
       <meshStandardMaterial color="#604c39" metalness={0.15} roughness={0.7} />
-    </mesh>
-    <mesh position={[0, 2.36, 0]}>
+    </instancedMesh>
+    <instancedMesh ref={lights} args={[undefined, undefined, LANTERN_POSITIONS.length]}>
       <cylinderGeometry args={[0.36, 0.28, 0.55, 6]} />
       <meshStandardMaterial color="#f6c97c" emissive="#efad55" emissiveIntensity={0.9} roughness={0.3} />
-    </mesh>
-    <mesh position={[0, 2.72, 0]}>
+    </instancedMesh>
+    <instancedMesh ref={roofs} args={[undefined, undefined, LANTERN_POSITIONS.length]}>
       <coneGeometry args={[0.43, 0.32, 6]} />
       <meshStandardMaterial color="#5b4941" metalness={0.18} roughness={0.7} />
-    </mesh>
-  </group>;
+    </instancedMesh>
+  </>;
 }
 
 function DiscoveryBeacon({ x, z }: { x: number; z: number }) {
@@ -199,11 +228,7 @@ export function VillageDistricts() {
     <Orchard />
     {VILLAGE_BUILDINGS.map((building) => <House key={building.id} building={building} />)}
     {VILLAGE_GATE_X.map((x) => <Gate key={x} x={x} />)}
-    {Array.from({ length: 16 }, (_, index) => {
-      const x = 20 + (index % 8) * 4.6;
-      const z = index < 8 ? -3.9 : 3.9;
-      return <Lantern key={index} x={x} z={z} />;
-    })}
+    <Lanterns />
     {VILLAGE_DISCOVERIES.map((discovery) => <DiscoveryBeacon key={discovery.id} x={discovery.x} z={discovery.z} />)}
     <RigidBody type="fixed" colliders={false} userData={{ kind: 'village-extension' }}>
       {VILLAGE_BUILDINGS.map((building) => <CuboidCollider
