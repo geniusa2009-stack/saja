@@ -5,6 +5,7 @@ import { useI18n } from '@/i18n';
 import { useProfile } from '@/store/profile';
 import { EXPERIENCE_CATALOG, CATALOG_COUNTS } from './catalog';
 import { CATEGORIES, catalogSearch, type ContentCategory, type ContentFormat } from './experienceModel';
+import { ContentTrustMark } from './ContentTrustMark';
 import './experience.css';
 
 const FORMATS: readonly ContentFormat[] = ['study', 'hadith', 'mission', 'activity', 'story', 'world', 'tool'];
@@ -19,7 +20,7 @@ export default function ExperienceCatalog() {
   const profile = useProfile((s) => s.profile)!;
   const { l } = useI18n();
   const [params, setParams] = useSearchParams();
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(() => params.get('q') ?? '');
   const [limit, setLimit] = useState(24);
   const rawCategory = params.get('category');
   const rawFormat = params.get('format');
@@ -41,12 +42,12 @@ export default function ExperienceCatalog() {
         <div className="exps-field"><label htmlFor="expc-format">{l({ ar: 'نوع المحتوى', en: 'Format' })}</label><select id="expc-format" value={format} onChange={(e: ChangeEvent<HTMLSelectElement>) => update('format', e.target.value)}><option value="all">{l({ ar: 'كل الأنواع', en: 'All formats' })}</option>{FORMATS.map((f) => <option value={f} key={f}>{l(formatLabel[f])}</option>)}</select></div>
       </div>
       <div className="expc-count" aria-live="polite">{l({ ar: `${results.length} عنصر متاح`, en: `${results.length} available items` })}</div>
+      <p className="expc-trust-note">{l({ ar: 'مهم: الفهرس ينظم الوصول للمحتوى فقط. حالة التوثيق والمراجعة موضحة على كل بطاقة، والمصدر المنشور هو المرجع النهائي.', en: 'Important: this index organises access, not religious approval. Every card shows its content status; the published source remains authoritative.' })}</p>
       <div className="exph-grid">
         {results.slice(0, limit).map((item) => <Link key={item.id} to={item.href} className="exph-card">
           <small>{l(CATEGORIES.find((c) => c.id === item.category)!.label)} · {l(formatLabel[item.format])}</small>
           <strong>{l(item.title)}</strong><span>{l(item.summary)}</span>
-          {item.status === 'fiction' && <em>{l({ ar: 'تجربة خيالية · ليست نصًا دينيًا', en: 'Fictional learning · not a religious text' })}</em>}
-          {item.status === 'demo' && <em>{l({ ar: 'محتوى تجريبي · حالة المراجعة تظهر في صفحته', en: 'Demo material · review status on the destination page' })}</em>}
+          <ContentTrustMark status={item.status} />
         </Link>)}
       </div>
       {results.length === 0 && <p className="expc-empty">{l({ ar: 'مفيش نتائج مطابقة. جرّب كلمة أو قسم تاني.', en: 'No matches. Try another query or filter.' })}</p>}

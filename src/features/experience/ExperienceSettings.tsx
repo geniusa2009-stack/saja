@@ -44,6 +44,6 @@ export function ExperienceSettings() {
         ['showAdvanced', { ar: 'المحتوى المتقدم', en: 'Advanced study' }],
       ] as const).map(([key, label]) => <label key={key} className="exps-switch"><input type="checkbox" checked={display[key]} onChange={(e: ChangeEvent<HTMLInputElement>) => change(key === 'showStories' ? { showStories: e.target.checked } : key === 'showWorld' ? { showWorld: e.target.checked } : { showAdvanced: e.target.checked })}/>{l(label)}</label>)}
     </fieldset>
-    <p className="exps-note">{l({ ar: 'إعدادات عرض المحتوى محفوظة على هذا الجهاز فقط. كل الأقسام المناسبة لعمرك متاحة من فهرس المحتوى، حتى لو أخفيتها من الرئيسية.', en: 'Display preferences are saved on this device. Age-appropriate sections stay available in the full catalogue even when hidden from home.' })}</p>
+    <p className="exps-note">{l({ ar: 'إعدادات عرض المحتوى محفوظة على هذا الجهاز فقط. كل الأقسام المناسبة لعمرك متاحة من فهرس المحتوى، حتى لو أخفيتها من الرئيسية. تغيير المسار لا يغيّر العمر أو إذن ولي الأمر.', en: 'Display preferences are saved on this device. Age-appropriate sections stay available in the catalogue. Changing your path does not change age or guardian consent.' })}</p>
   </section>;
 }

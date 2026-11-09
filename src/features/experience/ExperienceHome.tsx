@@ -4,6 +4,7 @@ import { useI18n } from '@/i18n';
 import { useProfile } from '@/store/profile';
 import { HOME_CATALOG } from './catalogCore';
 import { CATEGORIES, recommendations, effectivePurpose } from './experienceModel';
+import { ContentTrustMark } from './ContentTrustMark';
 import { displayFor, useExperience } from './experienceStore';
 import './experience.css';
 
@@ -14,6 +15,29 @@ const TITLES = {
   'learn-more': { ar: 'معرفة أعمق، على اختيارك', en: 'Deeper knowledge, your choice' },
 } as const;
 
+const PATH_GUIDANCE = {
+  child: {
+    title: { ar: 'ابدأ بالمغامرة المناسبة ليك', en: 'Start with your own adventure' },
+    note: { ar: 'ألعاب وحكايات وأنشطة قصيرة، مع استمرار ضوابط العمر وولي الأمر.', en: 'Short adventures and activities, with age and guardian protections kept in place.' },
+    link: '/catalog?category=world',
+  },
+  exploring: {
+    title: { ar: 'اكتشف بهدوء ومن غير افتراضات', en: 'Explore at your own pace' },
+    note: { ar: 'ابدأ بالأسئلة والتاريخ والمفاهيم، واختار مستوى الشرح بنفسك.', en: 'Start with questions and foundations, and choose the depth you prefer.' },
+    link: '/catalog?category=faith',
+  },
+  'new-muslim': {
+    title: { ar: 'خطوات واضحة من الأساسيات', en: 'A gentle path through the foundations' },
+    note: { ar: 'تعلّم العبادات والمعاني خطوة بخطوة، من غير اختبار أو ضغط.', en: 'Build understanding one step at a time, without tests or pressure.' },
+    link: '/catalog?category=worship',
+  },
+  'learn-more': {
+    title: { ar: 'تعمّق في المصادر والمعاني', en: 'Go deeper into sources and meaning' },
+    note: { ar: 'القرآن والحديث ومسارات البحث، مع إظهار حالة مراجعة كل مادة.', en: 'Qur’an, hadith and deeper study, with visible review information.' },
+    link: '/catalog?category=quran',
+  },
+} as const;
+
 export default function ExperienceHome() {
   const profile = useProfile((s) => s.profile)!;
   const stored = useExperience((s) => s.byTraveller);
@@ -21,6 +45,7 @@ export default function ExperienceHome() {
   const { l, locale } = useI18n();
   const track = effectivePurpose(profile);
   const picks = recommendations(HOME_CATALOG, profile, display, 6);
+  const guide = PATH_GUIDANCE[track];
   const welcome = locale === 'ar' ? `أهلًا، ${profile.name}` : `Welcome, ${profile.name}`;
   return <Page wide eyebrow="SAJA · YOUR JOURNEY" title={welcome} sub={l({ ar: 'الصفحة دي مبنية على اختياراتك، مش على افتراضات عن معتقدك أو مستواك.', en: 'Built from your choices, not assumptions about your beliefs or knowledge.' })}>
     <div className="exph">
@@ -31,12 +56,20 @@ export default function ExperienceHome() {
           <p>{l({ ar: 'تابع موضوعًا يهمك، أو افتح المكتبة الكاملة. القصص والمغامرات اختيارية دائمًا.', en: 'Continue with something that interests you, or browse the full library. Stories and adventures are always optional.' })}</p>
           <div className="exph-actions">
             <Link to="/catalog" className="exph-primary">{l({ ar: 'تصفح كل المحتوى', en: 'Browse all content' })}</Link>
-            <Link to="/profile" className="exph-secondary">{l({ ar: 'تخصيص تجربتي', en: 'Personalise my experience' })}</Link>
+            <Link to="/profile#experience" className="exph-secondary">{l({ ar: 'تخصيص تجربتي', en: 'Personalise my experience' })}</Link>
           </div>
         </div>
         <span className="exph-orbit" aria-hidden="true">✦</span>
       </section>
 
+      <section className="exph-guidance" aria-labelledby="exph-guide-heading">
+        <div>
+          <span className="exph-eyebrow">{l({ ar: 'المسار اللي اخترته', en: 'YOUR CHOSEN PATH' })}</span>
+          <h2 id="exph-guide-heading">{l(guide.title)}</h2>
+          <p>{l(guide.note)}</p>
+        </div>
+        <Link to={guide.link} className="exph-guide-link">{l({ ar: 'ابدأ من هنا', en: 'Start here' })}</Link>
+      </section>
       <section aria-labelledby="exph-picks-heading">
         <div className="exph-heading"><h2 id="exph-picks-heading">{l({ ar: 'مقترح ليك', en: 'Chosen for your interests' })}</h2><span>{l({ ar: 'ابدأ من أي مكان', en: 'Start anywhere' })}</span></div>
         <div className="exph-grid">
@@ -44,7 +77,7 @@ export default function ExperienceHome() {
             <small>{l(CATEGORIES.find((cat) => cat.id === item.category)!.label)} · {item.format === 'story' ? l({ ar: 'قصة خيالية', en: 'Fictional story' }) : item.format === 'mission' ? l({ ar: 'تجربة', en: 'Activity' }) : l({ ar: 'قراءة ومعرفة', en: 'Study & learning' })}</small>
             <strong>{l(item.title)}</strong>
             <span>{l(item.summary)}</span>
-            {item.status === 'demo' && <em>{l({ ar: 'محتوى تجريبي · راجع حالة التوثيق عند الفتح', en: 'Demo content · check review status on opening' })}</em>}
+            <ContentTrustMark status={item.status} />
           </Link>)}
         </div>
       </section>

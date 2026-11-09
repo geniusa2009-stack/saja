@@ -38,6 +38,13 @@ describe('SAJA experience safety and discovery rules', () => {
     expect(displayFor(profile, saved).showStories).toBe(true);
     expect(displayFor({ ...profile, createdAt: 18 }, saved).showStories).toBe(false);
   });
+  it('keeps adult-only tools away from children regardless of self-selected level', () => {
+    const child = { ...profile, ageBand: 'child' as const, level: 'confident' as const };
+    const secret = item('scholar', { ageBands: ['adult', 'teen'], category: 'tools' });
+    const safe = item('quran', { ageBands: ['child', 'teen', 'adult'] });
+    expect(catalogSearch([secret, safe], child, '', 'all', 'all')).toEqual([safe]);
+    expect(recommendations([secret, safe], child, { showStories: true, showWorld: true, showAdvanced: true })).toEqual([safe]);
+  });
   it('supports bilingual search and topic filtering', () => {
     const source = [item('entry', { title: { ar: 'القرآن', en: 'Quran' } }), item('different', { category: 'worship' })];
     expect(catalogSearch(source, profile, 'القرآن', 'quran', 'study').map((r) => r.id)).toEqual(['entry']);
