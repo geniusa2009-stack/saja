@@ -26,7 +26,7 @@ interface Item {
 // Qur'an Odyssey and the Hadith library are study paths inside Learn (linked from its top),
 // which keeps the rail to seven destinations.
 const PRIMARY: Item[] = [
-  { to: '/', icon: 'home', label: 'nav.home' },
+  { to: '/home', icon: 'home', label: 'nav.home' },
   { to: '/journey', icon: 'journey', label: 'nav.journey' },
   { to: '/learn', icon: 'learn', label: 'nav.learn', also: ['/quran', '/hadith'] },
   { to: '/day', icon: 'day', label: 'nav.day' },
@@ -77,7 +77,7 @@ function Rail() {
   const adultAccount = useConnection((s) => s.status === 'online' && !!s.me && !s.me.user.isGuest && s.me.user.ageBand === 'adult');
   return (
     <nav className="rail" aria-label={t('nav.primary')}>
-      <NavLink to="/" className="rail__brand" aria-label="SAJA">
+      <NavLink to="/home" className="rail__brand" aria-label="SAJA">
         <SajaMark size={40} variant="color" />
       </NavLink>
       <ul className="rail__list">

@@ -68,6 +68,8 @@ describe('SAJA app', () => {
 
   const ROUTES: [string, RegExp][] = [
     ['/', /The Village/],
+    ['/home', /Welcome,/],
+    ['/catalog', /The SAJA content catalogue/],
     ['/journey', /Your path so far/],
     ['/learn', /Knowledge with its sources/],
     ['/hadith', /Words that stayed/],

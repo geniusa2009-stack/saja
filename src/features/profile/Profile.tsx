@@ -35,6 +35,7 @@ import { ChildGuardianPanel, GuardianPanel } from './GuardianServer';
 import { ModeBadge } from '@/features/account/ConnectionStatus';
 import { useConnection } from '@/store/connection';
 import { signOut } from '@/api/sync';
+import { ExperienceSettings } from '@/features/experience/ExperienceSettings';
 import './profile.css';
 
 export default function Profile() {
@@ -93,6 +94,7 @@ export default function Profile() {
         </aside>
 
         <div className="prof-main">
+          <ExperienceSettings />
           <Section title={t('prof.knowledge')} id="knowledge">
             <div className="card know-grid">
               {TOPICS.map((tp) => {
