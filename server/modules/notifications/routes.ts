@@ -7,6 +7,7 @@ import { requireAccess } from '../../auth/middleware.ts';
 import { CATEGORIES, getPrefs, notify } from './service.ts';
 import { track } from '../analytics.ts';
 import { getDevotionalRoutines, saveDevotionalRoutine } from './routines.ts';
+import { getPrayerAlertPrefs, setPrayerAlertPrefs } from './prayerAlerts.ts';
 
 export const notificationRoutes = new Hono<AppEnv>();
 
@@ -58,6 +59,21 @@ notificationRoutes.put('/routines/:kind', async (c) => {
   try { new Intl.DateTimeFormat('en-US', { timeZone: input.timeZone }); }
   catch { throw new AppError('bad_request', 'Use a valid timezone name.'); }
   return c.json({ routine: await saveDevotionalRoutine(c.get('services').db, a.userId, kind, input) });
+});
+
+/** Daily prayers are opt-in. Alerts require a saved prayer location on this account. */
+notificationRoutes.get('/prayer-alerts', async (c) => {
+  const a = requireAccess(c);
+  return c.json(await getPrayerAlertPrefs(c.get('services').db, a.userId));
+});
+
+notificationRoutes.put('/prayer-alerts', async (c) => {
+  const a = requireAccess(c);
+  const input = await body(c, z.object({
+    enabled: z.boolean(),
+    prayers: z.array(z.enum(['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'])).max(5),
+  }));
+  return c.json(await setPrayerAlertPrefs(c.get('services').db, a.userId, input));
 });
 
 notificationRoutes.delete('/:id', async (c) => {
