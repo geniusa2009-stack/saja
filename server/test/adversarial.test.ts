@@ -179,6 +179,37 @@ describe('sessions and CSRF', () => {
 });
 
 describe('forged guardians', () => {
+  it('an expired guardian code grants neither consent nor access', async () => {
+    const kid = await traveller(t.client(), 'child', 'Expired code test');
+    const kidId = (await kid.get('/auth/me')).data.user.id;
+    const { code } = (await kid.post('/guardian/link-code')).data;
+    await t.services.db.query("update guardian_links set code_expires_at = now() - interval '1 second' where child_user_id = $1", [kidId]);
+    const parent = await account(t.client(), 'adult', 'expired-code-parent@example.com');
+    expect((await parent.post('/guardian/accept', { code, consent: true })).status).toBe(400);
+    expect((await parent.get('/guardian/children')).data.children).toHaveLength(0);
+    expect((await kid.get('/auth/me')).data.user.age.consent).toBe('pending');
+    expect((await kid.post('/circles/garden/join')).status).toBe(403);
+  });
+
+  it('child restrictions and consent survive sign-out, sign-in and repeated direct requests', async () => {
+    const kid = await account(t.client(), 'child', 'returning-child@example.com');
+    const kidId = (await kid.get('/auth/me')).data.user.id;
+    const { code } = (await kid.post('/guardian/link-code')).data;
+    const parent = await account(t.client(), 'adult', 'returning-parent@example.com');
+    expect((await parent.post('/guardian/accept', { code, consent: true })).status).toBe(200);
+    expect((await parent.post(`/guardian/children/${kidId}/circles/garden`)).status).toBe(200);
+    await kid.post('/auth/signout');
+    expect((await kid.post('/auth/signin', { email: 'returning-child@example.com', password: 'correct horse battery' })).status).toBe(200);
+    expect((await kid.get('/auth/me')).data.user.age.consent).toBe('granted');
+    expect((await kid.post('/circles/garden/join')).status).toBe(200);
+    for (let i = 0; i < 2; i++) {
+      expect((await kid.post('/dm/request', { userId: (await parent.get('/auth/me')).data.user.id })).status).toBe(403);
+      expect((await kid.post('/profile/age', { band: 'adult' })).status).toBe(403);
+      expect((await kid.post('/circles/garden/messages', { body: 'call me 0551234567' })).status).toBe(422);
+    }
+    expect((await kid.get('/circles/garden/messages')).data.messages.some((m: { body: string }) => m.body.includes('0551234567'))).toBe(false);
+  });
+
   it('a guessed, reused or self-issued code never makes someone a guardian', async () => {
     const kid = await traveller(t.client(), 'child', 'Huda');
     const kidId = (await kid.get('/auth/me')).data.user.id;

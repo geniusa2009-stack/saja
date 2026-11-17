@@ -28,7 +28,7 @@ await check('an Arabic child onboards on a phone; the app is right-to-left', asy
     await kid.waitForTimeout(250); // the guest session is created just after onboarding
     me = await api(kid, '/auth/me');
   }
-  if (me.user.ageBand !== 'child' || me.user.communityAllowed) throw new Error(JSON.stringify(me.user));
+  if (me.user.ageBand !== 'child' || me.user.communityAllowed) throw new Error('Server did not persist the child age or consent restrictions');
 });
 
 await check('circles explain that a guardian must consent — no join button', async () => {
@@ -46,7 +46,7 @@ await check('the child gets a one-time guardian code, and sees time measured by 
   await kid.goto(`${BASE}/profile`);
   await kid.getByRole('button', { name: 'احصل على رمز لوليّ أمري' }).click();
   code = (await kid.locator('.code-box').innerText()).trim();
-  if (!/^[A-Z0-9]{8}$/.test(code)) throw new Error(`code: ${code}`);
+  if (!/^[A-Z0-9]{8}$/.test(code)) throw new Error('Guardian code has an unexpected format');
   await kid.getByText(/وقت اليوم: .* من ٤٥ دقيقة/).waitFor({ timeout: 70000 });
 });
 
@@ -60,9 +60,11 @@ await check('a guardian signs up, links with the code and gives consent', async 
   await parent.getByRole('button', { name: 'Save my journey' }).click();
   await parent.waitForURL(/\/profile/);
   await parent.getByLabel('Code from the child’s device').fill(code);
-  await parent.getByRole('checkbox').check();
+  await parent.getByRole('checkbox', { name: 'I am this child’s parent or legal guardian and I consent to them using SAJA’s moderated learning circles.', exact: true }).check();
   await parent.getByRole('button', { name: 'Link and give consent' }).click();
-  await parent.getByText('سارة').first().waitFor();
+  await parent.getByText('سارة', { exact: true }).waitFor();
+  const me = await api(kid, '/auth/me');
+  if (me.user.age.consent !== 'granted' || !me.user.communityAllowed) throw new Error('Guardian consent was not persisted');
 });
 
 await check('the guardian approves a circle, sees today’s usage and adds 15 minutes', async () => {
@@ -77,8 +79,13 @@ await check('now the child can join the approved circle and send an encouraging 
   await kid.goto(`${BASE}/circles`);
   await kid.getByRole('button', { name: 'انضم إلى الحلقة' }).click();
   await kid.waitForURL(/\/circles\/garden/);
-  await kid.getByRole('button', { name: 'أحسنت!' }).first().click();
-  await kid.getByText('أحسنت!').nth(1).waitFor();
+  await Promise.all([
+    kid.waitForResponse((r) => r.url().endsWith('/api/circles/garden/messages') && r.request().method() === 'POST' && r.ok()),
+    kid.getByRole('button', { name: 'أحسنت!', exact: true }).click(),
+  ]);
+  await kid.getByRole('log').locator('article[data-mine]').getByText('أحسنت!', { exact: true }).waitFor();
+  const msgs = await api(kid, '/circles/garden/messages');
+  if (!msgs.messages.some((m) => m.author.isYou && m.body === 'أحسنت!' && m.status === 'visible')) throw new Error('Child reply was not persisted');
 });
 
 await check('a child’s message with a phone number is refused before it is stored', async () => {

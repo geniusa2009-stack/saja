@@ -88,12 +88,20 @@ await check('evidence opens with sources and honest provenance (demo, server ver
 });
 
 await check('My Day: prayer times, a plan saved on the server, and a real "Remind me later"', async () => {
+  // Fix Date only, not animation/timer execution. Tomorrow's midday keeps the
+  // real server reminder in the future even when CI runs after today's Isha.
+  const midday = new Date();
+  midday.setUTCDate(midday.getUTCDate() + 1);
+  midday.setUTCHours(9, 0, 0, 0);
+  await page.clock.setFixedTime(midday);
   await page.goto(`${BASE}/day`);
-  await page.getByText('Prayer times').waitFor();
+  await page.getByRole('heading', { name: 'Prayer times', exact: true }).waitFor();
   await page.getByText(/Saved to your journey/).waitFor({ timeout: 10000 });
   await page.getByPlaceholder(/tell me|e\.g\./i).fill('I have an exam tomorrow and only 20 minutes');
-  await page.keyboard.press('Enter');
-  await page.waitForTimeout(1000);
+  await Promise.all([
+    page.waitForResponse((r) => r.url().endsWith('/api/day/constraints') && r.request().method() === 'PUT' && r.ok()),
+    page.keyboard.press('Enter'),
+  ]);
   const day = await api('/day');
   if (!day.plan.constraints.some((c) => c.kind === 'exam')) throw new Error('constraints not saved');
   if (day.plan.note !== null) throw new Error('raw note was stored');
@@ -102,6 +110,7 @@ await check('My Day: prayer times, a plan saved on the server, and a real "Remin
   await page.getByText(/I’ll remind you at/).waitFor({ timeout: 8000 });
   const n = await api('/notifications');
   if (!n.items.some((i) => i.status === 'scheduled' && i.category === 'prayer')) throw new Error('no scheduled reminder');
+  await page.clock.setFixedTime(new Date());
 });
 
 await check('circles ask a guest for an account; sign-up keeps the journey', async () => {
