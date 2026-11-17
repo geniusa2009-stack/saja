@@ -67,7 +67,7 @@ export default function Onboarding() {
   const [look, setLook] = useState<CharacterLook>(DEFAULT_LOOK);
   const [name, setName] = useState('');
 
-  if (existing) return <Navigate to="/" replace />;
+  if (existing) return <Navigate to={existing.ageBand === 'child' ? '/' : '/home'} replace />;
 
   const flow: Step[] = ['welcome', 'purpose', 'age', ...(age === 'child' ? (['guardian'] as Step[]) : []), 'level', 'goals', 'style', 'preview', 'character'];
   const idx = flow.indexOf(step);
@@ -92,7 +92,7 @@ export default function Onboarding() {
       createdAt: Date.now(),
     });
     resetLearner(style ?? 'hands-on');
-    navigate('/', { replace: true, state: { arrival: true } });
+    navigate(age === 'child' ? '/' : '/home', { replace: true, state: { arrival: true } });
   };
 
   // The preview uses the same recommendation algorithm over the initially open places.

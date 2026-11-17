@@ -17,7 +17,8 @@ import { Icon, type IconName } from '@/brand/Icon';
 import { Star } from '@/brand/SajaMark';
 import { useI18n } from '@/i18n';
 import { Page } from '@/app/Page';
-import { PRAYER_NAMES, formatDuration, useJourney, usePrayerInfo } from '@/app/hooks';
+import { PRAYER_NAMES, formatDuration, useJourney, usePrayerInfo, usePrayerLocation } from '@/app/hooks';
+import { DevotionalCompanion } from './DevotionalCompanion';
 import { useDay, todayKey } from '@/store/day';
 import { useProfile } from '@/store/profile';
 import { useSettings } from '@/store/settings';
@@ -43,6 +44,7 @@ export default function MyDay() {
   const profile = useProfile((s) => s.profile)!;
   const memory = useProfile((s) => s.memory);
   const prayer = usePrayerInfo();
+  const prayerLocation = usePrayerLocation();
   const journey = useJourney();
   const day = useDay();
   const focusMode = useSettings((s) => s.focusMode);
@@ -279,6 +281,8 @@ export default function MyDay() {
           </p>
         </section>
 
+        <DevotionalCompanion timeZone={prayerLocation.loc.timeZone} placeLabel={l(prayer.label)} />
+
         {/* ── Daily Deen ───────────────────────────── */}
         <Section title={t('day.deen')} id="deen-h">
           <div className="deen-grid">
@@ -415,6 +419,18 @@ function PlaceSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   const asr = useSettings((s) => s.asr);
   const setAsr = useSettings((s) => s.setAsr);
   const [locating, setLocating] = useState(false);
+  const changePlace = (newPlace: typeof place) => {
+    setPlace(newPlace);
+    daySync.prayerPlace(newPlace, method, asr);
+  };
+  const changeMethod = (nextMethod: typeof method) => {
+    setMethod(nextMethod);
+    daySync.prayerPlace(place, nextMethod, asr);
+  };
+  const changeAsr = (nextAsr: typeof asr) => {
+    setAsr(nextAsr);
+    daySync.prayerPlace(place, method, nextAsr);
+  };
 
   const useMine = () => {
     if (!navigator.geolocation) return toast(t('state.error'), { tone: 'error' });
@@ -422,7 +438,7 @@ function PlaceSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const c = coarsen(pos.coords.latitude, pos.coords.longitude);
-        setPlace({ custom: { ...c, timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone, label: t('day.useMyLocation') } });
+        changePlace({ custom: { ...c, timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone, label: t('day.useMyLocation') } });
         setLocating(false);
         onClose();
       },
@@ -443,13 +459,13 @@ function PlaceSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
         <p className="t-small muted">{t('day.locationPrivacy')}</p>
         <div className="city-grid">
           {CITIES.map((c) => (
-            <button key={c.id} type="button" className="chip" aria-pressed={place.cityId === c.id && !place.custom} onClick={() => setPlace({ cityId: c.id })}>
+            <button key={c.id} type="button" className="chip" aria-pressed={place.cityId === c.id && !place.custom} onClick={() => changePlace({ cityId: c.id })}>
               {l(c.name)}
             </button>
           ))}
         </div>
         <Field label={t('day.method')} htmlFor="method">
-          <select id="method" className="select" value={method} onChange={(e) => setMethod(e.target.value as typeof method)}>
+          <select id="method" className="select" value={method} onChange={(e) => changeMethod(e.target.value as typeof method)}>
             <option value="auto">{t('day.method.auto')}</option>
             <option value="MWL">Muslim World League</option>
             <option value="ISNA">ISNA (North America)</option>
@@ -459,7 +475,7 @@ function PlaceSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
           </select>
         </Field>
         <Field label={t('day.asr')}>
-          <Segmented label={t('day.asr')} value={asr} onChange={setAsr} options={[{ value: 'standard', label: t('day.asr.standard') }, { value: 'hanafi', label: t('day.asr.hanafi') }]} />
+          <Segmented label={t('day.asr')} value={asr} onChange={changeAsr} options={[{ value: 'standard', label: t('day.asr.standard') }, { value: 'hanafi', label: t('day.asr.hanafi') }]} />
         </Field>
       </div>
     </Sheet>

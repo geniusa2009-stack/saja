@@ -1,0 +1,143 @@
+name: SAJA Integration QA
+
+on:
+  pull_request:
+    branches:
+      - release/integration
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Typecheck, lint, unit tests and production build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Run full project checks
+        run: npm run check
+      - name: Syntax-check integration browser tests
+        run: |
+          node --check e2e/lib.mjs
+          node --check e2e/experience.mjs
+
+  audience-browser:
+    name: Audience journeys / RTL / mobile / screenshots
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Install Chromium and system requirements
+        run: npx playwright-core install --with-deps chromium
+      - name: Run mobile audience journeys
+        run: |
+          CHROME_PATH="$(node --input-type=module -e "import { chromium } from 'playwright-core'; process.stdout.write(chromium.executablePath())")"
+          export CHROME_PATH
+          npm run e2e:audiences
+          npm run e2e:day-companion
+      - name: Upload bilingual UI screenshots for visual review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: saja-audience-ui
+          path: |
+            e2e/screenshots/experience-*.png
+            e2e/screenshots/day-*.png
+          if-no-files-found: ignore
+          retention-days: 7
+
+  dependency-audit:
+    name: Dependency security report (non-mutating)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Collect npm advisory report
+        run: |
+          npm audit --json > security-audit.json || true
+          node scripts/security-audit-summary.mjs security-audit.json > security-summary.txt
+          cat security-summary.txt
+      - name: Attach complete audit information for review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: saja-dependency-audit
+          path: |
+            security-audit.json
+            security-summary.txt
+          if-no-files-found: ignore
+          retention-days: 7
+
+  glb-audit:
+    name: Village asset report and lossless candidate (review only)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Inspect current scene
+        run: |
+          mkdir -p asset-audit
+          npx --yes @gltf-transform/cli@4.5.1 inspect public/assets/game/saja-village.glb --format md > asset-audit/original.md
+      - name: Produce candidate without geometry/texture lossy compression
+        run: |
+          npx --yes @gltf-transform/cli@4.5.1 dedup public/assets/game/saja-village.glb asset-audit/dedup.glb
+          npx --yes @gltf-transform/cli@4.5.1 prune asset-audit/dedup.glb asset-audit/candidate.glb
+          npx --yes @gltf-transform/cli@4.5.1 inspect asset-audit/candidate.glb --format md > asset-audit/candidate.md
+          node scripts/verify-village-glb.mjs public/assets/game/saja-village.glb asset-audit/candidate.glb > asset-audit/compare.txt
+          cat asset-audit/compare.txt
+      - name: Attach isolated candidate and inspection report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: saja-village-glb-audit
+          path: asset-audit/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  religious-content-inventory:
+    name: Religious content provenance inventory (not scholarly approval)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Generate human-review inventory
+        run: |
+          mkdir -p content-review
+          npx tsx scripts/content-review-queue.ts > content-review/inventory.json
+          node -e "const r=require('./content-review/inventory.json'); console.log(JSON.stringify(r.summary,null,2))"
+      - name: Attach for specialist editorial review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: saja-religious-content-inventory
+          path: content-review/inventory.json
+          if-no-files-found: ignore
+          retention-days: 7

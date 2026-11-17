@@ -253,3 +253,36 @@
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
+
+/* Daily companion — readable RTL and optional, private worship tracking. */
+.day-remembrance{display:grid;gap:20px;min-width:0;scroll-margin-top:30px}
+.day-remembrance__intro,.day-remembrance__row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.day-remembrance__intro h2{margin:.4rem 0}
+.day-remembrance__grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:14px}
+.day-remembrance__panel,.day-remembrance__push,.day-remembrance__guidance{min-width:0;border:1px solid var(--hairline-strong);border-radius:18px;padding:18px;display:grid;gap:12px}
+.day-remembrance__panel h3,.day-remembrance__guidance h3,.adhan-settings h3{font-size:1.15rem;margin:0;line-height:1.6}
+.day-remembrance__panel label{font-size:.9rem}
+.day-remembrance__panel input[type=time]{max-width:140px;min-width:115px}
+.day-remembrance__panel p{margin:0;line-height:1.8}
+.day-remembrance__intro p,.day-remembrance__guidance p{line-height:1.9}
+.day-save-button,.day-source-link{font:inherit;min-height:48px;display:inline-flex;align-items:center;justify-content:center;padding:9px 15px;border-radius:12px;border:1px solid var(--hairline-strong);color:var(--gold-100);background:rgba(225,190,116,.06);text-decoration:none;cursor:pointer}
+.day-save-button:disabled{opacity:.55;cursor:not-allowed}
+.day-remembrance__message{color:var(--gold-100);line-height:1.7}
+.adhan-settings{display:grid;gap:12px;min-width:0}
+.adhan-settings select{max-width:100%;min-height:48px}
+.adhan-preview{min-width:0}
+.adhan-preview audio{display:block;width:100%;max-width:600px}
+.adhan-preview p{overflow-wrap:anywhere}
+.day-remembrance a:focus-visible,.day-save-button:focus-visible{outline:3px solid var(--gold-300);outline-offset:3px}
+.day-remembrance .day-remembrance__panel button{min-height:44px}
+@media(max-width:600px){.day-remembrance{padding:18px}.day-remembrance__panel,.day-remembrance__push,.day-remembrance__guidance{padding:14px}}
+
+.day-prayer-alerts{display:grid;gap:13px;border:1px solid var(--hairline-strong);border-radius:18px;padding:18px;min-width:0}
+.day-prayer-alerts h3{font-size:1.15rem;margin:0}
+.day-prayer-alerts p{margin:0;line-height:1.8}
+.day-prayer-alerts__choices{border:0;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:10px}
+.day-prayer-alerts__choices legend{font-weight:700;margin-bottom:9px}
+.day-prayer-alerts__choices label{display:inline-flex;align-items:center;gap:9px;min-height:44px;border-radius:12px;padding:9px 13px;border:1px solid var(--hairline-strong);cursor:pointer}
+.day-prayer-alerts__choices input,.day-prayer-alerts__confirm input{width:19px;height:19px;accent-color:var(--gold-300)}
+.day-prayer-alerts__confirm{display:flex;gap:10px;align-items:center;min-height:46px;line-height:1.7}
+@media(max-width:600px){.day-prayer-alerts{padding:14px}}

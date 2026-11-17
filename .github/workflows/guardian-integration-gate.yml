@@ -1,0 +1,70 @@
+name: SAJA Guardian & Integration Gate
+
+on:
+  pull_request:
+    branches:
+      - integration/experience-hub-v1-living-village-v2
+      - fix/e2e-guardian-safe-integration
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: saja-guardian-gate-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Typecheck / Lint / Unit / Build / Security / E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    env:
+      CI: 'true'
+      E2E_PORT: '8899'
+    steps:
+      - name: Check out pull request code
+        uses: actions/checkout@v4
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Verify types and lint
+        run: |
+          npm run typecheck
+          npm run lint
+
+      - name: Run unit and safety regression tests with bounded workers
+        run: npx vitest run --maxWorkers=2
+
+      - name: Build production bundle
+        run: npm run build
+
+      - name: Audit production dependencies (read only)
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Install Playwright Chromium and system libraries
+        run: npx playwright-core install --with-deps chromium
+
+      - name: Run full Adult, Child and Staff E2E journeys
+        shell: bash
+        run: |
+          set -euo pipefail
+          CHROME_PATH="$(node --input-type=module -e "import { chromium } from 'playwright-core'; process.stdout.write(chromium.executablePath())")"
+          export CHROME_PATH
+          npm run e2e
+
+      - name: Check working tree and scripts
+        run: |
+          node --check e2e/lib.mjs
+          node --check e2e/journey.mjs
+          node --check e2e/child.mjs
+          node --check e2e/staff.mjs
+          sh -n e2e/staff.sh
+          git diff --check

@@ -9,6 +9,10 @@ import { HAIR_COLORS, HIJAB_COLORS, OUTFIT_COLORS, SKIN_TONES } from '@/features
 import type { GameScene } from './game/types';
 import { useI18n } from '@/i18n';
 import { VILLAGE_ASSET_URL } from './villageAssets';
+import { nextVillageDpr } from './game/renderQuality';
+import { VillageDistricts } from './VillageDistricts';
+import { VILLAGE_3D_BOUNDS, VILLAGE_DISCOVERIES, nearbyVillageDiscovery, type DiscoveryId } from './game/villageDistricts';
+import './village-districts.css';
 
 interface Props {
   scene: GameScene;
@@ -22,6 +26,7 @@ interface Props {
   stageRef: RefObject<HTMLDivElement | null>;
   onNearby: (nearby: boolean) => void;
   onMoving: (moving: boolean) => void;
+  onDiscoveryNearby?: (id: DiscoveryId | null) => void;
 }
 
 const WORLD_SCALE = 50;
@@ -54,6 +59,11 @@ function VillageAsset() {
 }
 
 function VillagePhysics({ scene }: { scene: GameScene }) {
+  const isExtended = scene.id === 'village';
+  const width = isExtended ? VILLAGE_3D_BOUNDS.right - VILLAGE_3D_BOUNDS.left : 36;
+  const halfWidth = width / 2;
+  const centerX = isExtended ? (VILLAGE_3D_BOUNDS.right + VILLAGE_3D_BOUNDS.left) / 2 : 0;
+  const rightWall = isExtended ? VILLAGE_3D_BOUNDS.right + 0.15 : 18.15;
   return <group>
     {scene.obstacles.map((rect, index) => {
       const [x, , z] = worldPoint(rect.x + rect.width / 2, rect.y + rect.height / 2);
@@ -61,10 +71,10 @@ function VillagePhysics({ scene }: { scene: GameScene }) {
         <CuboidCollider args={[rect.width / WORLD_SCALE / 2 + 0.18, 1.8, rect.height / WORLD_SCALE / 2 + 0.18]} position={[0, 1.8, 0]} />
       </RigidBody>;
     })}
-    <RigidBody type="fixed" colliders={false} position={[0, -0.18, 0]} userData={{ kind: 'ground' }}><CuboidCollider args={[18, 0.18, 11]} /></RigidBody>
+    <RigidBody type="fixed" colliders={false} position={[centerX, -0.18, 0]} userData={{ kind: 'ground' }}><CuboidCollider args={[halfWidth, 0.18, 11]} /></RigidBody>
     <RigidBody type="fixed" colliders={false}>
-      <CuboidCollider args={[0.25, 2.5, 11]} position={[-18.15, 2.5, 0]} /><CuboidCollider args={[0.25, 2.5, 11]} position={[18.15, 2.5, 0]} />
-      <CuboidCollider args={[18, 2.5, 0.25]} position={[0, 2.5, -11.15]} /><CuboidCollider args={[18, 2.5, 0.25]} position={[0, 2.5, 11.15]} />
+      <CuboidCollider args={[0.25, 2.5, 11]} position={[-18.15, 2.5, 0]} /><CuboidCollider args={[0.25, 2.5, 11]} position={[rightWall, 2.5, 0]} />
+      <CuboidCollider args={[halfWidth, 2.5, 0.25]} position={[centerX, 2.5, -11.15]} /><CuboidCollider args={[halfWidth, 2.5, 0.25]} position={[centerX, 2.5, 11.15]} />
     </RigidBody>
     <RigidBody type="fixed" colliders={false} position={[1.1, 0.42, 1.1]} userData={{ kind: 'well' }}><CuboidCollider args={[0.78, 0.42, 0.78]} /></RigidBody>
   </group>;
@@ -229,7 +239,7 @@ function RiggedTraveller({ look, animation, reducedMotion }: { look: CharacterLo
   return <group position={[0, -0.78, 0]} userData={{ source: 'Blender SAJA rig', animationClips: availableClips }}><primitive object={rig} dispose={null} /></group>;
 }
 function Player(props: Props) {
-  const { scene, look, playerName, keys, joystick, talking, reducedMotion, sprint, stageRef, onNearby, onMoving } = props;
+  const { scene, look, playerName, keys, joystick, talking, reducedMotion, sprint, stageRef, onNearby, onMoving, onDiscoveryNearby } = props;
   const gltf = useGLTF(VILLAGE_ASSET_URL);
   const availableClips = gltf.animations.map((clip) => clip.name).join('|');
   const playerAnimation = useRef<TravellerAnimationState>({ moving: false, running: false, speed: 0, turnRequest: 0, turnDirection: 1, interaction: 0, activeClip: 'Idle' });
@@ -254,6 +264,7 @@ function Player(props: Props) {
   const pitch = useRef(0.24);
   const cameraDistance = useRef(6.6);
   const nearby = useRef(false);
+  const nearbyDiscovery = useRef<DiscoveryId | null>(null);
   const nearbyGrace = useRef(0);
   const npcDistance = useRef(Number.POSITIVE_INFINITY);
   const moving = useRef(false);
@@ -408,6 +419,11 @@ function Player(props: Props) {
       nearby.current = isNear;
       onNearby(isNear);
     }
+    const landmark = scene.id === 'village' ? nearbyVillageDiscovery(next.x, next.z)?.id ?? null : null;
+    if (landmark !== nearbyDiscovery.current) {
+      nearbyDiscovery.current = landmark;
+      onDiscoveryNearby?.(landmark);
+    }
 
     target.set(next.x, next.y + 1.05, next.z);
     const horizontalDistance = cameraDistance.current * Math.cos(pitch.current);
@@ -454,22 +470,101 @@ function Player(props: Props) {
   </>;
 }
 
+/** Adapt canvas resolution without touching physics, meshes or HUD text. */
+function AdaptiveVillageResolution({ coarse }: { coarse: boolean }) {
+  const stats = useRef({ seconds: 0, frames: 0 });
+  const deviceCap = useMemo(() => Math.min(window.devicePixelRatio || 1, coarse ? 1 : 1.5), [coarse]);
+  useFrame(({ gl }, delta) => {
+    if (document.hidden) {
+      stats.current.seconds = 0;
+      stats.current.frames = 0;
+      return;
+    }
+    stats.current.seconds += Math.min(1, delta);
+    stats.current.frames++;
+    if (stats.current.seconds < 6) return;
+    const fps = stats.current.frames / stats.current.seconds;
+    stats.current.seconds = 0;
+    stats.current.frames = 0;
+    const current = gl.getPixelRatio();
+    const adjusted = nextVillageDpr(current, fps, deviceCap);
+    if (Math.abs(adjusted - current) > 0.01) gl.setPixelRatio(adjusted);
+  });
+  return null;
+}
+
+type PerformanceSnapshot = { fps: number; dpr: number; calls: number; triangles: number };
+/** On-device diagnostics, opt-in with ?perf=1. No measurements leave the browser. */
+function VillagePerformanceSampler({ report }: { report: (sample: PerformanceSnapshot) => void }) {
+  const sample = useRef({ elapsed: 0, frames: 0 });
+  useFrame(({ gl }, delta) => {
+    if (document.hidden) { sample.current.elapsed = 0; sample.current.frames = 0; return; }
+    sample.current.elapsed += Math.min(1, delta);
+    sample.current.frames++;
+    if (sample.current.elapsed < 3) return;
+    report({
+      fps: Math.round(sample.current.frames / sample.current.elapsed),
+      dpr: Math.round(gl.getPixelRatio() * 100) / 100,
+      calls: gl.info.render.calls,
+      triangles: gl.info.render.triangles,
+    });
+    sample.current.elapsed = 0;
+    sample.current.frames = 0;
+  });
+  return null;
+}
+
+function readVillageProgress(): DiscoveryId[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const saved: unknown = JSON.parse(window.localStorage.getItem('saja:village:discoveries:v2') ?? '[]');
+    if (!Array.isArray(saved)) return [];
+    return Array.from(new Set(saved.filter((id: unknown): id is DiscoveryId =>
+      typeof id === 'string' && VILLAGE_DISCOVERIES.some((point) => point.id === id))));
+  } catch { return []; }
+}
+
 export function Village3D(props: Props) {
   const { l } = useI18n();
+  const [nearbyDiscovery, setNearbyDiscovery] = useState<DiscoveryId | null>(null);
+  const [openDiscovery, setOpenDiscovery] = useState<DiscoveryId | null>(null);
+  const [discovered, setDiscovered] = useState<DiscoveryId[]>(readVillageProgress);
+  const closeDiscoveryRef = useRef<HTMLButtonElement>(null);
+  const perfEnabled = useMemo(
+    () => typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('perf') === '1',
+    [],
+  );
+  const [performance, setPerformance] = useState<PerformanceSnapshot | null>(null);
+  useEffect(() => {
+    try { window.localStorage.setItem('saja:village:discoveries:v2', JSON.stringify(discovered)); }
+    catch { /* private browsing / storage disabled: in-session progress still works */ }
+  }, [discovered]);
+  useEffect(() => { if (openDiscovery) closeDiscoveryRef.current?.focus({ preventScroll: true }); }, [openDiscovery]);
+  const selected = VILLAGE_DISCOVERIES.find((point) => point.id === openDiscovery);
+  const nearbyPoint = VILLAGE_DISCOVERIES.find((point) => point.id === nearbyDiscovery);
+  const inspect = () => {
+    if (!nearbyDiscovery) return;
+    setDiscovered((previous) => previous.includes(nearbyDiscovery) ? previous : [...previous, nearbyDiscovery]);
+    setOpenDiscovery(nearbyDiscovery);
+  };
+  const close = () => { setOpenDiscovery(null); props.stageRef.current?.focus({ preventScroll: true }); };
+
   const coarse = useMemo(() => typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches, []);
   return <div className="play-world__three">
     <Canvas
       shadows={!coarse}
-      dpr={coarse ? 1 : [1, 1.5]}
+      dpr={coarse ? 1 : [0.75, 1.5]}
       camera={{ position: [-6, 2.8, -3.5], fov: 48, near: 0.1, far: 140 }}
       fallback={<div role="status">{l({ en: '3D graphics are unavailable on this device. Use 2D mode.', ar: 'الرسوم ثلاثية الأبعاد غير متاحة على هذا الجهاز. استخدم الوضع ثنائي الأبعاد.' })}</div>}
       gl={{ antialias: !coarse, alpha: false, powerPreference: 'high-performance' }}
       onCreated={({ gl, scene }) => {
-        gl.setPixelRatio(coarse ? 1 : Math.min(window.devicePixelRatio || 1, 1.5));
+        gl.setPixelRatio(Math.min(window.devicePixelRatio || 1, coarse ? 1 : 1.5));
         gl.shadowMap.enabled = !coarse;
         scene.background = new THREE.Color('#8caeaf');
       }}
     >
+      <AdaptiveVillageResolution coarse={coarse} />
+      {perfEnabled && <VillagePerformanceSampler report={setPerformance} />}
       <Sky sunPosition={[1.4, 2.6, -1.5]} turbidity={7} rayleigh={0.65} />
       <ambientLight intensity={1.15} color="#f5ead3" />
       <hemisphereLight intensity={1.15} color="#d4e2da" groundColor="#80694b" />
@@ -481,10 +576,28 @@ export function Village3D(props: Props) {
         <VillagePhysics scene={props.scene} />
         <Suspense fallback={<LoadingVillage />}>
           <VillageAsset />
-          <Player {...props} />
+          {props.scene.id === 'village' && <VillageDistricts />}
+          <Player {...props} talking={props.talking || openDiscovery !== null} onDiscoveryNearby={setNearbyDiscovery} />
         </Suspense>
       </Physics>
     </Canvas>
+    {perfEnabled && <output className="play-world__perf" data-testid="village-performance" aria-label={l({ ar: 'أداء القرية على هذا الجهاز', en: 'Village performance on this device' })}>
+      {performance
+        ? `FPS ≈ ${performance.fps} · DPR ${performance.dpr} · Calls ${performance.calls} · Triangles ${performance.triangles}`
+        : l({ ar: 'جارٍ قياس الأداء على جهازك…', en: 'Measuring this device…' })}
+    </output>}
+    <div className="play-world__village-progress" data-testid="village-discovery-progress" aria-live="polite">
+      {l({ en: `Places discovered: ${discovered.length} / ${VILLAGE_DISCOVERIES.length}`, ar: `أماكن اكتشفتها: ${discovered.length} / ${VILLAGE_DISCOVERIES.length}` })}
+    </div>
+    {nearbyPoint && !props.talking && !selected && <button className="play-world__discover-prompt" type="button" onClick={inspect}>
+      {l({ en: `Discover · ${nearbyPoint.title.en}`, ar: `اكتشف · ${nearbyPoint.title.ar}` })}
+    </button>}
+    {selected && !props.talking && <section className="play-world__discovery-card" role="dialog" aria-modal="false" aria-label={l(selected.title)}>
+      <button ref={closeDiscoveryRef} className="play-world__discovery-close" type="button" aria-label={l({ en: 'Close discovery', ar: 'إغلاق الاكتشاف' })} onClick={close}>×</button>
+      <p className="play-world__discovery-eyebrow">{l({ en: 'SAJA · WORLD DISCOVERY', ar: 'سَجَى · اكتشاف العالم' })}</p>
+      <h2>{l(selected.title)}</h2>
+      <p>{l(selected.description)}</p>
+    </section>}
   </div>;
 }
 

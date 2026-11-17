@@ -19,6 +19,7 @@ interface SettingsState {
   method: MethodId | 'auto';
   asr: AsrSchool;
   prayerReminders: boolean;
+  adhanVoice: 'silent' | 'beautiful' | 'short' | 'classic';
   focusMode: boolean;
   setLocale: (l: Locale) => void;
   setMotion: (m: MotionPref) => void;
@@ -27,6 +28,7 @@ interface SettingsState {
   setMethod: (m: MethodId | 'auto') => void;
   setAsr: (a: AsrSchool) => void;
   setPrayerReminders: (b: boolean) => void;
+  setAdhanVoice: (v: SettingsState['adhanVoice']) => void;
   setFocusMode: (b: boolean) => void;
 }
 
@@ -48,6 +50,7 @@ export const useSettings = create<SettingsState>()(
       method: 'auto',
       asr: 'standard',
       prayerReminders: true,
+      adhanVoice: 'silent',
       focusMode: false,
       setLocale: (locale) => set({ locale }),
       setMotion: (motion) => set({ motion }),
@@ -56,6 +59,7 @@ export const useSettings = create<SettingsState>()(
       setMethod: (method) => set({ method }),
       setAsr: (asr) => set({ asr }),
       setPrayerReminders: (prayerReminders) => set({ prayerReminders }),
+      setAdhanVoice: (adhanVoice) => set({ adhanVoice }),
       setFocusMode: (focusMode) => set({ focusMode }),
     }),
     { name: KEY('settings'), storage },

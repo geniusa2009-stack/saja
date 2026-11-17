@@ -8,6 +8,7 @@
     "dev": "concurrently -k -n web,api -c cyan,magenta \"npm:dev:web\" \"npm:dev:server\"",
     "dev:web": "vite",
     "dev:server": "PORT=8787 tsx watch --env-file-if-exists=.env --tsconfig server/tsconfig.json server/index.ts",
+    "dev:review": "SAJA_DEV_API_PORT=8788 concurrently -k -n web,api -c cyan,magenta \"vite --port 5174 --strictPort\" \"PORT=8788 APP_ORIGIN=http://localhost:5174 tsx watch --env-file-if-exists=.env --tsconfig server/tsconfig.json server/index.ts\"",
     "build": "tsc -b && vite build",
     "start": "SAJA_ENV=production tsx --env-file-if-exists=.env --tsconfig server/tsconfig.json server/index.ts",
     "saja": "tsx --env-file-if-exists=.env --tsconfig server/tsconfig.json server/cli.ts",
@@ -21,7 +22,10 @@
     "e2e": "sh e2e/serve.sh && node e2e/journey.mjs && sh e2e/serve.sh && node e2e/child.mjs && sh e2e/staff.sh",
     "e2e:visual": "sh e2e/serve.sh && node e2e/visual.mjs setup && node e2e/visual.mjs shots",
     "e2e:a11y": "sh e2e/serve.sh && node e2e/visual.mjs setup && node e2e/a11y.mjs",
-    "e2e:game": "npm run build && sh e2e/serve.sh && node e2e/game.mjs"
+    "e2e:game": "npm run build && sh e2e/serve.sh && node e2e/game.mjs",
+    "e2e:experience": "npm run build && sh e2e/serve.sh && node e2e/experience.mjs",
+    "e2e:audiences": "npm run build && sh e2e/serve.sh && node e2e/audiences.mjs",
+    "e2e:day-companion": "npm run build && sh e2e/serve.sh && node e2e/day-companion.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.129.0",

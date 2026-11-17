@@ -26,23 +26,25 @@ export async function check(name, fn) {
   } catch (e) {
     console.log(`✗ ${String(step).padStart(2)} ${name}\n     ${e.message.split('\n').slice(0, process.env.E2E_VERBOSE ? 6 : 1).join('\n     ')}`);
     process.exitCode = 1;
+    throw new Error(`E2E prerequisite failed at step ${step}: ${name}`, { cause: e });
   }
 }
 
-export async function onboard(page, { band = /18 or older/i, name = 'Maryam', locale = 'en', purposeIndex = 0 } = {}) {
+export async function onboard(page, { band = /18 or older/i, name = 'Maryam', locale = 'en', purposeIndex = 0, landing = 'world' } = {}) {
   await page.goto(`${BASE}/welcome`);
   await page.getByRole('button', { name: locale === 'ar' ? 'ابدأ' : /begin/i }).click({ timeout: 15000 });
   // The footer holds the single forward action of each step (Continue / I'm the guardian / Enter the world).
   const next = async () => {
+    const previous = await page.locator('.ob-card').elementHandle();
     await page.locator('.ob-foot button').last().click();
-    await page.waitForTimeout(800); // let the step transition finish before touching the next step
+    await previous.waitForElementState('hidden');
+    await page.locator('.ob-card').waitFor({ state: 'visible' });
   };
   await page.getByRole('radio').nth(purposeIndex).click();
   await next();
   await page.getByRole('radio', { name: band }).click();
   await next();
-  await page.waitForTimeout(400);
-  if (!(await page.getByRole('radio').first().isVisible().catch(() => false))) await next(); // the guardian step for children
+  if (await page.getByRole('heading', { name: locale === 'ar' ? 'مرحبًا أيها الكبير!' : 'Hello, grown-up!', exact: true }).count()) await next();
   await page.getByRole('radio').first().click();
   await next();
   await page.getByRole('checkbox').first().click();
@@ -53,5 +55,17 @@ export async function onboard(page, { band = /18 or older/i, name = 'Maryam', lo
   await next();
   await page.getByLabel(locale === 'ar' ? /اسمك/ : /your name/i).fill(name);
   await page.getByRole('button', { name: locale === 'ar' ? /ادخل العالم/ : /enter the world/i }).click();
-  await page.waitForURL(`${BASE}/`);
+  // The personalised adult home is the correct first destination; gameplay suites still start in the world.
+  await page.waitForURL((url) => url.pathname === '/' || url.pathname === '/home', { timeout: 15000 });
+  // Navigation can precede the debounced guest/profile write. Do not unload
+  // the app until the real server has confirmed this traveller.
+  await page.waitForFunction(async (name) => {
+    const response = await fetch('/api/auth/me');
+    if (!response.ok) return false;
+    const me = await response.json();
+    return !!me.user && me.profile?.display_name === name;
+  }, name, { timeout: 15000 });
+  if (landing === 'world' && new URL(page.url()).pathname === '/home') {
+    await page.goto(`${BASE}/`);
+  }
 }

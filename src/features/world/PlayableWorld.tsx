@@ -60,6 +60,16 @@ export function PlayableWorld({ sceneId, look, playerName, rtl, reducedMotion, o
   const can3D = sceneId === 'village' && webglAvailable();
   const [use3D, setUse3D] = useState(can3D);
   const sprintRef = useRef(false);
+  // Start the GLB request alongside the lazy Village3D bundle instead of
+  // waiting for React to mount the canvas first. No preload outside the 3D scene.
+  useEffect(() => {
+    if (!use3D) return;
+    let active = true;
+    void import('./villageAssets').then(({ preloadVillageAssets }) => {
+      if (active) preloadVillageAssets();
+    }).catch(() => { /* useGLTF retains the fallback/retry path on scene mount */ });
+    return () => { active = false; };
+  }, [use3D]);
   const [facing, setFacing] = useState<'left' | 'right'>(rtl ? 'left' : 'right');
   const npc = NPCS.find((entry) => entry.id === scene.npc.id)!;
   const name = l(npc.name);

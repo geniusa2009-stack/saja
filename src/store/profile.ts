@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import type { Profile } from '@/domain/types';
 import { DEFAULT_PARENTAL, getSafetyPolicy, type ParentalSettings, type SafetyPolicy } from '@/domain/safety';
 import { KEY, storage } from './storage';
+import { useExperience } from '@/features/experience/experienceStore';
 
 export type MemoryCategory = 'style' | 'topics' | 'schedule' | 'conversations';
 
@@ -46,7 +47,7 @@ export const useProfile = create<ProfileState>()(
         if (on && profile && !getSafetyPolicy(profile.ageBand).memoryAllowed.includes(c)) return;
         set({ memory: { ...get().memory, [c]: on } });
       },
-      reset: () => set({ profile: null, parental: DEFAULT_PARENTAL }),
+      reset: () => { useExperience.getState().reset(); set({ profile: null, parental: DEFAULT_PARENTAL }); },
     }),
     { name: KEY('profile'), storage },
   ),
