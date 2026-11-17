@@ -20,12 +20,18 @@ const errors = [];
 async function signUp(name) {
   const ctx = await browser.newContext({ locale: 'en-GB', viewport: { width: 1280, height: 900 } });
   const page = await ctx.newPage();
+  watch(page, errors);
   await page.goto(BASE);
   await page.waitForURL(/welcome/, { timeout: 20000 });
   await onboard(page, { name });
   const email = `${name.toLowerCase()}-${Date.now()}@example.test`;
   await page.goto(`${BASE}/account`);
-  await page.getByLabel('Email').fill(email);
+  try {
+    await page.getByLabel('Email').fill(email);
+  } catch {
+    const state = await page.evaluate(() => ({ path: location.pathname, heading: document.querySelector('h1')?.textContent }));
+    throw new Error(`Staff account form unavailable: ${JSON.stringify(state)}`);
+  }
   await page.getByLabel('Password').fill(randomBytes(12).toString('base64url'));
   await page.getByRole('button', { name: 'Save my journey' }).click();
   await page.waitForURL(/\/profile/);
@@ -59,20 +65,26 @@ const learner = await learnerCtx.newPage();
 watch(learner, errors);
 const api = (page, path) => page.evaluate(async (p) => (await fetch(`/api${p}`)).json(), path);
 
+async function mutate(page, path, action) {
+  const [response] = await Promise.all([
+    page.waitForResponse((r) => r.request().method() === 'POST' && path.test(new URL(r.url()).pathname)),
+    action(),
+  ]);
+  return response;
+}
+
 async function openStaff(page, tab) {
   await page.goto(`${BASE}/staff`);
   await page.getByRole('button', { name: tab, exact: true }).click();
-  await page.waitForTimeout(500);
+  await page.getByRole('button', { name: tab, exact: true, pressed: true }).waitFor();
 }
 async function step(page, to, scope = 'Full text and sources, both languages') {
   await page.getByRole('textbox', { name: /Scope of your review/ }).fill(scope);
-  await page.getByRole('button', { name: `→ ${to}` }).click();
-  await page.waitForTimeout(700);
+  await mutate(page, /\/review$/, () => page.getByRole('button', { name: `→ ${to}` }).click());
 }
 async function openItem(page, tab, id) {
   await openStaff(page, tab);
   await page.locator('li', { hasText: id }).first().getByRole('button', { name: 'Open' }).click();
-  await page.waitForTimeout(900);
 }
 
 await check('before: everything is demo — 0 published, 0 verified scholars', async () => {
@@ -97,13 +109,11 @@ await check('the admin adds two scholar profiles (pending) and verifies them wit
     await admin.locator('#as-ct').fill('Ijazah (test record)');
     await admin.locator('#as-ci').fill('Example Institute (test)');
     await admin.locator('#as-cy').fill('2015');
-    await admin.getByRole('button', { name: 'Create pending profile' }).click();
-    await admin.waitForTimeout(800);
+    await mutate(admin, /\/api\/admin\/scholars$/, () => admin.getByRole('button', { name: 'Create pending profile' }).click());
     await openStaff(admin, 'Scholar verification');
     const card = admin.locator('li', { hasText: name });
     await card.getByRole('textbox').fill('Fiqh of worship (test)');
-    await card.getByRole('button', { name: 'Verify' }).click();
-    await admin.waitForTimeout(700);
+    await mutate(admin, /\/verification$/, () => card.getByRole('button', { name: 'Verify' }).click());
   }
   const list = (await api(admin, '/admin/scholars')).scholars;
   const verified = list.filter((s) => s.profile.verification === 'verified').map((s) => s.profile.name);
@@ -164,8 +174,7 @@ await check('a mission text goes through the same steps; the learner plays the p
   await author.getByRole('button', { name: 'Texts', exact: true }).click();
   await author.locator('[id="mt-title-en"]').fill('The Water Path (reviewed)');
   await author.locator('[id="mt-note-m-water-path"]').fill('Title wording');
-  await author.getByRole('button', { name: /Save 1 changes as draft/ }).click();
-  await author.waitForTimeout(800);
+  await mutate(author, /\/draft$/, () => author.getByRole('button', { name: /Save 1 changes as draft/ }).click());
   await openItem(admin, 'Missions', 'm-water-path');
   await step(admin, 'Internal review');
   await step(admin, 'Scholar review');
